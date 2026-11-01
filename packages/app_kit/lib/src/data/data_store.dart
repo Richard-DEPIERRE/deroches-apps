@@ -52,6 +52,7 @@ class DataStore {
   final List<Migration> migrations;
   final DateTime Function() _now;
   bool _opened = false;
+  Future<void> _saving = Future.value();
 
   int get schema => migrations.length + 1;
   File get file => File('${directory.path}/$name.json');
@@ -59,22 +60,32 @@ class DataStore {
   /// Reads the document, upgrading and saving it first if it is older.
   /// Throws a [DataException]; never returns an empty state for a file that
   /// exists.
+  /// Saving is allowed only once [open] has succeeded.
   Future<Map<String, Object?>> open() async {
+    _opened = false;
     if (!file.existsSync()) {
       _opened = true;
       return initial();
     }
-    final (from, data) = _decode(await file.readAsString());
+    final (from, data) = _decode(await file.readAsBytes());
     final upgraded = upgrade(data, from: from, migrations: migrations);
+    if (from < schema) await _enqueue(upgraded);
     _opened = true;
-    if (from < schema) await save(upgraded);
     return upgraded;
   }
 
   /// Writes [data] atomically: a temporary file, flushed, then renamed over
-  /// the document; the previous document is kept as `.bak`.
+  /// the document; the previous document is kept as `.bak`. Saves run one
+  /// after the other, in the order they were called.
   Future<void> save(Map<String, Object?> data) async {
     if (!_opened) throw StateError('open "$name" before saving it');
+    return _enqueue(data);
+  }
+
+  Future<void> _enqueue(Map<String, Object?> data) =>
+      _saving = _saving.catchError((Object _) {}).then((_) => _write(data));
+
+  Future<void> _write(Map<String, Object?> data) async {
     final envelope = {
       'format': format,
       'schema': schema,
@@ -89,16 +100,16 @@ class DataStore {
     await temp.rename(file.path);
   }
 
-  (int, Map<String, Object?>) _decode(String text) {
+  (int, Map<String, Object?>) _decode(List<int> bytes) {
     try {
-      final json = jsonDecode(text);
+      final json = jsonDecode(utf8.decode(bytes));
       if (json case {
         'format': format,
-        'schema': final int schema,
+        'schema': final int version,
         'app_id': final String id,
         'data': final Map<String, Object?> data,
-      } when id == appId && schema >= 1) {
-        return (schema, data);
+      } when id == appId && version >= 1) {
+        return (version, data);
       }
     } on FormatException catch (e) {
       throw DataException(DataProblem.unreadable, '$name: ${e.message}');
