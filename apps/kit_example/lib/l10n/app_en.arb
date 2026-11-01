@@ -1,7 +1,0 @@
-{
-  "@@locale": "en",
-  "exampleHomeBody": "This is the kit's sample app. Its screens never ship.",
-  "@exampleHomeBody": {
-    "description": "Placeholder home screen of the kit's sample app."
-  }
-}
