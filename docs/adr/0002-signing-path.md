@@ -63,8 +63,8 @@ plugin runs outside the sandbox.
   A leaked copy alone can't publish: an upload also needs the Play service account.
 
 ### iOS
-- **The archive is built in the sandbox**, once the apps build roles may write to the two temporary folders Xcode
-  needs (below). The kit's release script runs `xcodebuild archive` with ad-hoc signing
+- **The archive is built in the sandbox**, once the apps build roles may write to the temporary folders Xcode
+  needs for its atomic saves (below, item 4). The kit's release script runs `xcodebuild archive` with ad-hoc signing
   (`CODE_SIGN_IDENTITY=-`, `CODE_SIGN_STYLE=Manual`, `AD_HOC_CODE_SIGNING_ALLOWED=YES`, an explicit
   `-derivedDataPath` under the checkout), which needs no keychain identity and keeps the app's entitlements (iCloud
   backup, in-app purchase) in the archive for the export to carry over.
@@ -87,9 +87,14 @@ plugin runs outside the sandbox.
 3. `ops/apps_allow.py` and `studio.json`: the Apple team ID, once, in the `apps` section (an export needs it and the
    keys don't carry it).
 4. `claude-home/roles/apps_tech_lead.json`, `apps_flutter_engineer_1.json`, `apps_flutter_engineer_2.json`:
-   `sandbox.filesystem.allowWrite` gains `/Volumes/Hermes/.TemporaryItems` and the user's `/var/folders/…/T` and
-   `/var/folders/…/C`, so `xcodebuild archive` runs sandboxed. Reads stay as they are: no keychain, no store-keys
-   folder.
+   `sandbox.filesystem.allowWrite` gains only the two atomic-save subfolders,
+   `/Volumes/Hermes/.TemporaryItems/folders.501/TemporaryItems` and the user's `/var/folders/…/T/TemporaryItems`,
+   so `xcodebuild archive` runs sandboxed. The shared-file PR tries these first and widens to the whole
+   `.TemporaryItems` or `T` folder only if `xcodebuild archive` still fails, quoting the exact error in the PR.
+   The user cache folder (`/var/folders/…/C`) is **not** opened: it holds `clang/ModuleCache`,
+   `com.apple.dt.xcodebuild` and `com.apple.DeveloperTools`, which builds outside the sandbox read (the agency's
+   builds, and the wrapper's own export), and the archive keeps its module cache in its own `-derivedDataPath`.
+   Reads stay as they are: no keychain, no store-keys folder.
 5. Richard's one-time steps: the upload key, the Admin signing key, the team ID, and enabling iCloud (with the
    app's container) and In-App Purchase on each app's bundle ID in his per-app checklist, so the exported profile
    carries the entitlements.
@@ -122,9 +127,19 @@ The proposal, its pull request and these steps are on the `needs-richard` child 
   and an Admin key can also manage users and certificates on his account. This ADR recommends he settles that
   decision (another macOS user for the wrapper and keys, or the agency's builds sandboxed) before he saves the Admin
   key.
-- The sandbox change lets the apps build roles write to two of the user's temporary folders that other programs also
-  use. It grants no read of anything new. If Xcode still fails sandboxed after it, the Mobile Tech Lead raises it
-  with the exact error (`apps-release`, section 2), and building outside the sandbox stays rejected.
+- **What the sandbox change risks, for Richard to weigh before he merges item 4.** It grants no read of anything
+  new, but the risk is the write. The two temporary folders are shared with programs that run outside the sandbox
+  as Richard: Xcode, the agency's builds, and the wrapper itself while it exports. A sandboxed build, or a script or
+  dependency an agent adds to it, could write or replace files there that one of those programs then opens, and so
+  tamper with its output, including the app the wrapper's export signs. What narrows it, without closing it: macOS
+  makes each atomic save under a fresh, unpredictable folder name, so a file has to be swapped while the save is
+  under way, not planted ahead; opening only the `TemporaryItems` subfolders (item 4) keeps the rest of `T` closed;
+  and the cache folder `C`, which builds load code from, stays closed. The wrapper's bundle ID and entitlements
+  check would not catch a swapped binary. If that exposure is too much, the alternative is the one already open in
+  "Decisions for Richard": another macOS user for the wrapper and the keys, so nothing it runs shares these folders
+  with the agents.
+- If Xcode still fails sandboxed after item 4, the Mobile Tech Lead raises it with the exact error (`apps-release`,
+  section 2), and building outside the sandbox stays rejected.
 - The first export is the test of the whole iOS path: the ad-hoc archive, cloud signing with the Admin key, and the
   entitlements check. The first upload goes to Richard's internal TestFlight group, so a failure reaches no user.
   If the ad-hoc archive doesn't keep the entitlements through the export, the fallback is manual signing (above).
