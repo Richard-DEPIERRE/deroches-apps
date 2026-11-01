@@ -11,7 +11,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-dev_dependencies:
+  # For lib/testing.dart only (the data-upgrade test helper); apps import it
+  # from their tests, so it never reaches a release build.
   flutter_test:
     sdk: flutter
