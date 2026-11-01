@@ -3,3 +3,4 @@ library;
 
 export 'src/config/app_config.dart';
 export 'src/data/data_store.dart';
+export 'src/data/kit_state.dart';
