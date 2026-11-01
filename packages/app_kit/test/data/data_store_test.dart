@@ -166,4 +166,28 @@ void main() {
     expect(await store(migrations: [counted]).open(), first);
     expect(renameText(first), first, reason: 'the migration is idempotent');
   });
+
+  test('two saves without an await keep the document readable', () async {
+    final s = await opened();
+    final big = {'notes': List<Object?>.filled(2000, 'a long note')};
+    final small = {'notes': <Object?>['last']};
+
+    await Future.wait([s.save(big), s.save(small)]);
+    expect(await store().open(), small);
+  });
+
+  test('a failed reopen forbids saving over a newer document', () async {
+    final s = await opened();
+    writeEnvelope(9, {'notes': <Object?>[]});
+    final before = file().readAsBytesSync();
+
+    await expectLater(s.open(), throwsProblem(DataProblem.newerSchema));
+    await expectLater(s.save({'notes': <Object?>[]}), throwsStateError);
+    expect(file().readAsBytesSync(), before);
+  });
+
+  test('a file that is not UTF-8 is unreadable', () async {
+    file().writeAsBytesSync([0xff, 0xfe, 0x00, 0xc3]);
+    await expectLater(store().open(), throwsProblem(DataProblem.unreadable));
+  });
 }
