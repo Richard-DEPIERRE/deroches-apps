@@ -33,3 +33,6 @@ coverage/
 *service-account*.json
 
 .DS_Store
+
+# Python bytecode from tool/ tests
+__pycache__/

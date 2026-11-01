@@ -17,3 +17,6 @@ for member in $members; do
     (cd "$member" && flutter test)
   fi
 done
+
+echo "== python tests in tool/"
+python3 -m unittest discover -s tool/release_watch -p '*_test.py'
