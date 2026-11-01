@@ -6,6 +6,7 @@ which one it replaces, and the old one's status becomes "replaced by NNNN".
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-monorepo-and-app-kit.md) | One monorepo, and the app kit every studio app is built on | accepted |
+| [0005](0005-crash-reporting-and-the-rollout-watcher.md) | Crash reporting with Sentry (EU), and what the Release watch reads | proposed |
 
 ## Template
 
