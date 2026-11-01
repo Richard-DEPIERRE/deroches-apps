@@ -1,0 +1,12 @@
+name: deroches_apps_workspace
+description: The DeRoches Apps monorepo (ADR 0001). Not a package; the root of the Dart pub workspace.
+publish_to: none
+
+environment:
+  sdk: ^3.12.0
+
+workspace:
+  - packages/app_kit
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
