@@ -71,22 +71,32 @@ const CSS = `:root{color-scheme:light dark;--bg:#f9f9f7;--surface:#fcfcfb;--ink:
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
 main{max-width:760px;margin:0 auto;padding:16px}
 section,article{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:16px 0}
+section.bare{background:none;border:0;padding:0}ul,ol{padding-left:20px}
+@media (max-width:480px){main,section,article{padding:12px}}
 h1{font-size:1.5rem;line-height:1.25;margin:0 0 4px}h2{font-size:1.15rem;margin:0 0 8px}h3{font-size:1rem;margin:16px 0 4px}
 article h3{margin-top:0}.meta,.hint{color:var(--ink2);font-size:.875rem}a{color:inherit}code{font-size:.875em}
 .button{display:inline-block;margin:12px 0 0;background:#256abf;color:#fff;font-weight:600;padding:12px 20px;\
 border-radius:8px;text-decoration:none}
-.scroll{overflow-x:auto;margin:8px 0}table{border-collapse:collapse;font-size:.875rem;font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto;margin:8px 0;background:linear-gradient(to right,var(--surface) 30%,transparent) left/32px 100%,\
+linear-gradient(to left,var(--surface) 30%,transparent) right/32px 100%,radial-gradient(farthest-side at 0 50%,\
+rgba(0,0,0,.18),transparent) left/10px 100%,radial-gradient(farthest-side at 100% 50%,rgba(0,0,0,.18),transparent)\
+right/10px 100%;background-repeat:no-repeat;background-attachment:local,local,scroll,scroll}
+.scroll th{min-width:7rem}.heat th{min-width:5rem}.heat th[scope=row],.heat thead th:first-child{position:sticky;\
+left:0;z-index:1;background:var(--surface)}table{border-collapse:collapse;font-size:.875rem;font-variant-numeric:tabular-nums}
 th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--grid);vertical-align:top}
-.heat td{text-align:center;white-space:nowrap}.h1,.h2{background:#86b6ef;color:#0b0b0b}.h2{background:#5598e7}
-.h3,.h4,.h5{background:#2a78d6;color:#fff}.h4{background:#1c5cab}.h5{background:#104281}
+.heat td{text-align:center;white-space:nowrap}.h1{background:#86b6ef}.h2{background:#5598e7}.h3{background:#2a78d6}
+.h4{background:#1c5cab}.h5{background:#104281}.heat .h1,.heat .h2{color:#0b0b0b}.heat .h3,.heat .h4,.heat .h5{color:#fff}
 .na{background:repeating-linear-gradient(45deg,var(--na) 0 3px,transparent 3px 7px);color:var(--ink2);font-style:italic}
 .v::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#0ca30c}
 .v-concerns::before{background:#fab219}.v-fail::before{background:#d03b3b}
-svg{display:block;width:100%;max-width:480px;height:auto}svg text{fill:var(--ink2);font-size:13px}
-svg .label{fill:var(--ink);font-size:14px}.grid{stroke:var(--grid)}.axis{stroke:var(--axis)}
+svg{display:block;width:100%;max-width:400px;height:auto}svg text{fill:var(--ink2);font-size:13px}
+svg .label{fill:var(--ink);font-size:14px}.grid{stroke:var(--grid)}.axis,.leader{stroke:var(--axis)}
 .mark{fill:var(--series);fill-opacity:.85;stroke:var(--surface);stroke-width:2}.hollow{fill:none;stroke:var(--series)}
 .off{margin:8px 0;padding:8px 12px;border-left:3px solid var(--axis)}.off ul{margin:4px 0;padding-left:20px}
-ul.reports{list-style:none;padding:0}ul.reports li{margin:12px 0}`;
+ul.reports{list-style:none;padding:0}ul.reports li{margin:12px 0}details{margin:16px 0}summary{font-weight:600}
+/* Dark: the ramp flips, so a higher score is still the stronger colour against the dark surface. */
+@media (prefers-color-scheme:dark){.h1{background:#184f95}.h2{background:#256abf}.h3{background:#3987e5}.h4{background:#6da7ec}.h5{background:#9ec5f4}\
+.heat .h1,.heat .h2{color:#fff}.heat .h3,.heat .h4,.heat .h5{color:#0b0b0b}}`;
 
 const CSP = `default-src 'none'; style-src 'sha256-${createHash('sha256').update(CSS).digest('base64')}'; base-uri 'none'; form-action 'none'`;
 

@@ -46,6 +46,7 @@ export function parseResearchReport(md) {
     })),
     scores: scores(section(parts, 3, 'Scores side by side').body),
     cards: cards(section(parts, 4, 'One card per idea').body),
+    methods: parts[5]?.body ?? '',
   };
 }
 
@@ -83,9 +84,12 @@ export function parseEpicsReport(md) {
       newScreen: row[at.screen],
       price: flag(row[at.price]),
       dataChange: flag(row[at.data]),
+      dataChangeText: row[at.data],
     })),
     cards: cards(section(parts, 3, 'One card per epic').body),
     price: { body: price.body, table: table(price.body), none: /none this week/i.test(price.body) },
+    lastWeek: parts[5]?.body ?? '',
+    methods: parts[7]?.body ?? '',
   };
 }
 

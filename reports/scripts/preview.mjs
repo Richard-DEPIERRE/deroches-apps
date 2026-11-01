@@ -8,12 +8,20 @@ const out = new URL('../dist/', import.meta.url);
 const paperclipUrl = 'http://127.0.0.1:3100';
 const research = parseResearchReport(await read('research-report.md'));
 const epics = parseEpicsReport(await read('epics-report.md'));
+// Eight ideas, ties in beatability and long French names: labels must not clip or overlap.
+const long = parseResearchReport(await read('research-report-long.md'));
 const pages = [
   [
     'research.html',
     research,
     renderResearchPage,
     { approvalId: 'example-research', takenAt: '2026-11-01T09:00Z' },
+  ],
+  [
+    'research-long.html',
+    long,
+    renderResearchPage,
+    { approvalId: 'example-long', takenAt: '2026-12-01T09:00Z' },
   ],
   ['epics.html', epics, renderEpicsPage, { approvalId: 'example-epics', takenAt: '2026-11-02T07:30Z' }],
 ];

@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { describe, test } from 'node:test';
 import { blocks, inline } from '../lib/html.mjs';
-import { renderEpicsPage, renderIndex, renderResearchPage, ticks } from '../lib/render.mjs';
+import { cell } from '../lib/markdown.mjs';
+import { labelWidth, renderEpicsPage, renderIndex, renderResearchPage, ticks } from '../lib/render.mjs';
 import { parseEpicsReport, parseResearchReport } from '../lib/reports.mjs';
 
 const fixture = (name) => readFile(new URL(`./fixture/${name}`, import.meta.url), 'utf8');
@@ -53,7 +54,93 @@ describe('research page', () => {
   });
 });
 
+describe('research charts with real-world names', () => {
+  const labels = (html) =>
+    [
+      ...html.matchAll(/<text class="label" x="([\d.]+)" y="([\d.]+)" text-anchor="(\w+)">([^<]*)<\/text>/g),
+    ].map(([, x, y, anchor, text]) => {
+      const w = labelWidth(text.replace(/&#39;/g, "'"));
+      return {
+        text,
+        y: Number(y),
+        x0: anchor === 'start' ? Number(x) : Number(x) - w,
+        x1: anchor === 'start' ? Number(x) + w : Number(x),
+      };
+    });
+
+  test('labels are cut, stay inside the chart and never overlap, even with ties in beatability', async () => {
+    const html = renderResearchPage(parseResearchReport(await fixture('research-report-long.md')), opts);
+    const placed = labels(html);
+    assert.equal(placed.length, 8);
+    assert.ok(placed.some((l) => l.text === 'Calculateur indem…'));
+    for (const [i, a] of placed.entries()) {
+      assert.ok(a.x0 >= 0 && a.x1 <= 320, `${a.text} inside the chart`);
+      for (const b of placed.slice(i + 1))
+        assert.ok(!(a.x0 < b.x1 && b.x0 < a.x1 && Math.abs(a.y - b.y) < 16), `${a.text} / ${b.text} overlap`);
+    }
+    assert.match(html, /<line class="leader"/);
+    assert.match(html, /<title>Calculateur indemnités kilométriques: /);
+  });
+
+  test('the heat strip shows Score and Recommended first, and marks a yes', async () => {
+    const heat = between(await research(), 'class="heat"', '</thead>');
+    assert.match(
+      heat,
+      /Idea<\/th><th scope="col">Score<\/th><th scope="col">Recommended<\/th><th scope="col">Demand/,
+    );
+    assert.match(await research(), /<td><strong class="v">yes<\/strong><\/td>/);
+  });
+
+  test('methods and sources are kept, folded', async () => {
+    assert.match(await research(), /<details><summary>Methods and sources<\/summary>/);
+  });
+});
+
 describe('epics page', () => {
+  const epic = (name, effect, size) => ({
+    epic: name,
+    app: 'app',
+    why: 'why',
+    newScreen: 'no',
+    price: false,
+    dataChange: false,
+    dataChangeText: 'no',
+    effect: cell(effect),
+    size: cell(size),
+  });
+  const report = (epics) => ({
+    title: 'Epics report — x',
+    recommendation: '',
+    epics,
+    cards: [],
+    price: { none: true, body: '' },
+  });
+
+  test('effects in different units get one row per epic and no shared effect scale', async () => {
+    const html = await epics();
+    const app = between(html, 'frais-reels</h3>', '</svg>');
+    assert.doesNotMatch(app, /Expected effect/);
+    assert.match(app, />PDF export · \+3 pts trial→paid</);
+    assert.match(app, />Yearly plan at €19\.99 · \+12% revenue per…</);
+  });
+
+  test('effects in one unit share a scale named with the unit, and each label carries its figure', () => {
+    const html = renderEpicsPage(
+      report([epic('Export', '+3 pts', '2'), epic('Widget', '+1 point (read 2026-12)', '1')]),
+      opts,
+    );
+    assert.match(html, />Expected effect \(pts\)</);
+    assert.match(html, />Export · \+3 pts</);
+    assert.match(html, />Widget · \+1 point</);
+  });
+
+  test('the epics table shows the evidence and the data change with its detail', async () => {
+    const html = await epics();
+    assert.match(html, /<th scope="row">PDF export<\/th><td>14 reviews ask for it<\/td>/);
+    assert.match(html, /<td><span class="v v-concerns">yes: notification time<\/span><\/td>/);
+    assert.match(html, /<details><summary>Last week<\/summary>/);
+  });
+
   test('an epic with no effect is listed beside its app chart, not plotted', async () => {
     const html = await epics();
     assert.doesNotMatch(html, /<title>Reminders/);
@@ -67,7 +154,7 @@ describe('epics page', () => {
   test('the price block stands apart from the epics, after them', async () => {
     const html = await epics();
     const price = between(html, 'Price changes and price tests', '</section>');
-    assert.match(price, /€24\.99.*€19\.99/s);
+    assert.match(price, /<li><strong>frais-reels · yearly · both stores<\/strong>: €24\.99 → €19\.99<\/li>/);
     assert.ok(html.indexOf('Price changes') > html.indexOf("This week's epics"));
     assert.ok(html.indexOf('Price changes') < html.indexOf('One card per epic'));
   });
