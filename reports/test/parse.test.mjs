@@ -37,6 +37,22 @@ describe('cells', () => {
     assert.equal(cell('12 100 (Keyword Planner, 2026-10-28)').value, 12100);
   });
 
+  test('a grouped number followed by a comma or a full stop keeps its groups', () => {
+    assert.equal(cell('12 100, Keyword Planner 2026-10-28').value, 12100);
+    assert.equal(cell('6 600.').value, 6600);
+    assert.equal(cell('1,300, Keyword Planner').value, 1300);
+    assert.deepEqual(numbers('12 100, 6 600. 4,2'), [12100, 6600, 4.2]);
+    assert.equal(cell('€300–€1 500, estimate', likely).value, 900);
+    assert.equal(cell('likely €1 200, estimate', likely).value, 1200);
+  });
+
+  test('a date outside brackets is not read as a number', () => {
+    assert.equal(cell('read 2026-10-28: 12 100').value, 12100);
+    assert.equal(cell('12 100 (FR), read 2026-10').value, 12100);
+    assert.equal(cell('€300–€1 500, read 2026-10-28', likely).value, 900);
+    assert.equal(cell('€1500-€2000', likely).value, 1750);
+  });
+
   test('the likely revenue: named, the middle of three, the middle of a range', () => {
     assert.equal(cell('€300–€1 500 (likely €700), estimate', likely).value, 700);
     assert.equal(cell('€200 / €450 / €900', likely).value, 450);

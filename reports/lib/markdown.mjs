@@ -118,9 +118,11 @@ export function cards(body) {
 // of a word, so "300-900" is a range, not a negative number.
 const SEP = '[ \\u00a0\\u202f,]';
 const NUMBER = new RegExp(
-  `(?:(?<!\\w)([+\\-\\u2212]))?(\\d{1,3}(?:${SEP}\\d{3})+(?![\\d.,])|\\d+(?:[.,]\\d+)?)\\s*([kKmM](?![a-zA-Z]))?`,
+  `(?:(?<!\\w)([+\\-\\u2212]))?(\\d{1,3}(?:${SEP}\\d{3})+(?!\\d|[.,]\\d)|\\d+(?:[.,]\\d+)?)\\s*([kKmM](?![a-zA-Z]))?`,
   'g',
 );
+// A date read ("2026-10-28", "2026-10") is the source's, never the cell's value.
+const DATE = /\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])(?:-\d{2})?\b/g;
 const GROUPED = new RegExp(`^\\d{1,3}(?:${SEP}\\d{3})+$`);
 
 function toNumber([, sign, digits, suffix]) {
@@ -129,20 +131,24 @@ function toNumber([, sign, digits, suffix]) {
   return sign ? (sign === '+' ? value : -value) : value;
 }
 
-/** Every number in a cell, in order: `12 100`, `12,100`, `1,5`, `12k`, `+2`, `−3` (dates are not skipped). */
+/**
+ * Every number in a text, in order: `12 100`, `12,100`, `1,5`, `12k`, `+2`, `−3`. A grouped number may be followed
+ * by a comma or a full stop (`12 100, source`). Dates are not skipped here; `cell` drops them.
+ */
 export function numbers(text) {
   return [...text.matchAll(NUMBER)].map(toNumber);
 }
 
 /**
- * A table cell: its text, whether it is `NOT ASSESSED`, and the number it carries. A `NOT ASSESSED` cell, or one
- * with no number, has `value: null`: a gap in the data is missing data, never zero (handbook section 3).
+ * A table cell: its text, whether it is `NOT ASSESSED`, and the number it carries. Text in brackets and dates are
+ * dropped first. A `NOT ASSESSED` cell, or one with no number, has `value: null`: a gap in the data is missing
+ * data, never zero (handbook section 3).
  * `pick` chooses among the cell's numbers (default: the first).
  */
 export function cell(text, pick = (values) => values[0]) {
   const raw = text.trim();
   if (/NOT ASSESSED/i.test(raw)) return { text: raw, notAssessed: true, value: null };
-  const value = pick(numbers(raw.replace(/\([^)]*\)/g, ' ')), raw);
+  const value = pick(numbers(raw.replace(/\([^)]*\)/g, ' ').replace(DATE, ' ')), raw);
   return { text: raw, notAssessed: false, value: Number.isFinite(value) ? value : null };
 }
 
