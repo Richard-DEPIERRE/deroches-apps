@@ -9,9 +9,12 @@
   "scripts": {
     "test": "node --test 'test/*.test.mjs'",
     "lint": "biome check .",
-    "preview": "node scripts/preview.mjs"
+    "preview": "node scripts/preview.mjs",
+    "build": "node build.mjs",
+    "deploy": "node build.mjs --from-main && wrangler deploy"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.6.4"
+    "@biomejs/biome": "2.6.4",
+    "wrangler": "4.156.0"
   }
 }

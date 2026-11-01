@@ -98,7 +98,7 @@ ul.reports{list-style:none;padding:0}ul.reports li{margin:12px 0}details{margin:
 @media (prefers-color-scheme:dark){.h1{background:#184f95}.h2{background:#256abf}.h3{background:#3987e5}.h4{background:#6da7ec}.h5{background:#9ec5f4}\
 .heat .h1,.heat .h2{color:#fff}.heat .h3,.heat .h4,.heat .h5{color:#0b0b0b}}`;
 
-const CSP = `default-src 'none'; style-src 'sha256-${createHash('sha256').update(CSS).digest('base64')}'; base-uri 'none'; form-action 'none'`;
+export const CSP = `default-src 'none'; style-src 'sha256-${createHash('sha256').update(CSS).digest('base64')}'; base-uri 'none'; form-action 'none'`;
 
 /** A whole page: noindex, a CSP that allows nothing but its own style block, no script and no outside request. */
 export const page = (title, body) => `<!doctype html>
