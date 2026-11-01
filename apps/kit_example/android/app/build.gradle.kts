@@ -27,9 +27,9 @@ android {
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // No signing config: the release .aab comes out unsigned and the store wrapper signs it
+            // with the studio's upload key (ADR 0002). It also refuses a bundle that is already signed.
+            signingConfig = null
         }
     }
 }
