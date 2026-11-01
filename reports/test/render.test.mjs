@@ -3,7 +3,14 @@ import { readFile } from 'node:fs/promises';
 import { describe, test } from 'node:test';
 import { blocks, inline } from '../lib/html.mjs';
 import { cell } from '../lib/markdown.mjs';
-import { labelWidth, renderEpicsPage, renderIndex, renderResearchPage, ticks } from '../lib/render.mjs';
+import {
+  effectOf,
+  labelWidth,
+  renderEpicsPage,
+  renderIndex,
+  renderResearchPage,
+  ticks,
+} from '../lib/render.mjs';
 import { parseEpicsReport, parseResearchReport } from '../lib/reports.mjs';
 
 const fixture = (name) => readFile(new URL(`./fixture/${name}`, import.meta.url), 'utf8');
@@ -91,8 +98,10 @@ describe('research charts with real-world names', () => {
     assert.match(await research(), /<td><strong class="v">yes<\/strong><\/td>/);
   });
 
-  test('methods and sources are kept, folded', async () => {
-    assert.match(await research(), /<details><summary>Methods and sources<\/summary>/);
+  test('methods and sources, and the ideas not picked before, are kept, folded', async () => {
+    const html = await research();
+    assert.match(html, /<details><summary>Methods and sources<\/summary>/);
+    assert.match(html, /<details><summary>Not picked before<\/summary>\n<p>None\.<\/p>/);
   });
 });
 
@@ -132,6 +141,43 @@ describe('epics page', () => {
     assert.match(html, />Expected effect \(pts\)</);
     assert.match(html, />Export · \+3 pts</);
     assert.match(html, />Widget · \+1 point</);
+  });
+
+  test('epics held back for a missing input are shown open after the epics, not folded', async () => {
+    const html = await epics();
+    const held = between(html, '<h2>Held back: not assessed this week</h2>', '</section>');
+    assert.match(
+      held,
+      /<strong>Home-screen widget<\/strong> \(carnet-plantes\): held back, MISSING the day-30/,
+    );
+    assert.doesNotMatch(html, /<summary>Held back/);
+    assert.ok(html.indexOf('Held back') > html.indexOf("This week's epics"));
+    assert.ok(html.indexOf('Held back') < html.indexOf('Price changes'));
+  });
+
+  test('an effect written as a range keeps its unit, and is said to be plotted at its first figure', () => {
+    assert.deepEqual(effectOf('+3–5 pts'), {
+      clean: '+3–5 pts',
+      figure: '+3–5 pts',
+      unit: 'pts',
+      range: true,
+    });
+    assert.deepEqual(effectOf('+2 to 4 pts (read 2026-11)'), {
+      clean: '+2 to 4 pts',
+      figure: '+2 to 4 pts',
+      unit: 'pts',
+      range: true,
+    });
+    assert.equal(effectOf('€200 MRR').figure, '€200 MRR');
+    const html = renderEpicsPage(
+      report([epic('Export', '+3–5 pts', '2'), epic('Widget', '+2 to 4 pts', '1')]),
+      opts,
+    );
+    assert.match(html, />Expected effect \(pts\)</);
+    assert.match(html, />Export · \+3–5 pts</);
+    assert.match(html, />Widget · \+2 to 4 pts</);
+    assert.match(html, /A range is plotted at its first figure/);
+    assert.match(html, /<circle class="mark" cx="[\d.]+" cy="[\d.]+" r="5"><title>Export: 2 days/);
   });
 
   test('the epics table shows the evidence and the data change with its detail', async () => {

@@ -106,15 +106,29 @@ function strip({ points, name, xLabel }) {
   return `<svg viewBox="0 0 ${W} ${h}" role="img" aria-label="${esc(name)}">${[...rows, ...axis].join('\n')}</svg>`;
 }
 
-/** An expected effect without its source: its figure with the unit ("+3 pts"), and the unit alone ("pts", "%"). */
+const FIGURE = String.raw`[+\-\u2212]?\d(?:[\d\s.,]*\d)?`;
+// A figure, or a range of two ("+3–5", "+2 to 4", "3 à 5"), with an optional leading currency, then its unit.
+const EFFECT = new RegExp(
+  String.raw`(?:[€$£]\s?)?${FIGURE}(\s*(?:[–—\-]|to|à)\s*(?:[€$£]\s?)?${FIGURE})?\s*(%|[^\s\d()]+)?`,
+);
+
+/**
+ * An expected effect without its source: its figure with the unit ("+3 pts", "+3–5 pts"), the unit alone ("pts",
+ * "%"), and whether it is a range (plotted at its first figure, `cell`'s default).
+ */
 export function effectOf(text) {
   const clean = text
     .replace(/\([^)]*\)/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
-  const match = /[+\-\u2212]?\d(?:[\d\s.,]*\d)?\s*(%|[^\s\d()]+)?/.exec(clean);
-  const unit = (match?.[1] ?? '').toLowerCase();
-  return { clean, figure: (match?.[0] ?? clean).trim(), unit: /^(pts?|points?)$/.test(unit) ? 'pts' : unit };
+  const match = EFFECT.exec(clean);
+  const unit = (match?.[2] ?? '').toLowerCase();
+  return {
+    clean,
+    figure: (match?.[0] ?? clean).trim(),
+    unit: /^(pts?|points?)$/.test(unit) ? 'pts' : unit,
+    range: Boolean(match?.[1]),
+  };
 }
 
 const plain = (text) =>
@@ -284,6 +298,7 @@ ${chart}${offChart(off)}${offChart(rings, 'Drawn as an empty ring (no revenue es
       ),
       section('One card per idea', cardsHtml(report.cards), 'bare'),
       folded('Methods and sources', report.methods),
+      folded('Not picked before', report.notPicked),
     ].join('\n'),
   );
 }
@@ -312,10 +327,16 @@ function appChart(app, epics) {
   const off = epics
     .filter((e) => !placed.includes(e))
     .map((e) => [e.epic, missing({ 'expected effect': e.effect, size: e.size })]);
-  return `<h3>${esc(app)}</h3>${chart}${offChart(off)}`;
+  const ranges = placed.some((e) => effectOf(e.effect.text).range)
+    ? '<p class="hint">A range is plotted at its first figure: +3–5 pts sits at +3.</p>'
+    : '';
+  return `<h3>${esc(app)}</h3>${chart}${ranges}${offChart(off)}`;
 }
 
-/** The epics report: recommendation, size against effect per app, the price block apart, one card per epic. */
+/**
+ * The epics report: recommendation, size against effect per app, the epics held back (open), the price block apart,
+ * one card per epic.
+ */
 export function renderEpicsPage(report, opts) {
   const apps = [...new Set(report.epics.map((e) => e.app))];
   const rows = report.epics.map((e) => [
@@ -370,6 +391,9 @@ export function renderEpicsPage(report, opts) {
           )
           .join('\n')}${epicTable}`,
       ),
+      report.notAssessed?.trim()
+        ? section('Held back: not assessed this week', blocks(report.notAssessed))
+        : '',
       section('Price changes and price tests (PRICE)', price),
       section('One card per epic', cardsHtml(report.cards), 'bare'),
       folded('Last week', report.lastWeek),
