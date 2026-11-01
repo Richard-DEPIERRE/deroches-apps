@@ -1,6 +1,6 @@
 # ADR 0005: Crash reporting with Sentry (EU), and what the Release watch reads
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-11-01
 - Deciders: Mobile Tech Lead (review: Flutter Engineer 1, then Richard)
 - Issue: DAPP-12 (the kit module is DAPP-33)
@@ -81,15 +81,16 @@ Diagnostics**: collected, not shared (Sentry is our processor), encrypted in tra
 /usr/bin/python3 /Volumes/Hermes/Studio/repos/deroches-apps/tool/release_watch/crash_free.py --app <slug>
 ```
 
-- It asks Sentry's sessions API for the app's project over the last 24 hours, grouped by release, and prints one JSON
-  line per release: `release`, `users`, `sessions`, `crash_free_users`, `crashed_users`, and the window. With
-  `--issues <release>` it lists that release's issues seen in the last 24 hours (title, users hit, first seen), for
-  the rules that apply below the minimum sample (a crash on launch, one crash hitting three users, a crash in the
-  purchase, restore or data-upgrade flow).
+- It asks Sentry's sessions API for the app's project, environment `production`, over the last 24 hours, grouped by
+  release, and prints one JSON line per release: `release`, `users`, `sessions`, `crash_free_users`, `crashed_users`,
+  and the window. `crash_free_users` is a percentage cut to two decimals, never rounded up, so a rate just below the
+  threshold (98.9966%) never prints as the threshold (99.0). With `--issues <release>` it lists that release's issues
+  seen in the last 24 hours (title, users hit, first seen), for the rules that apply below the minimum sample (a crash
+  on launch, one crash hitting three users, a crash in the purchase, restore or data-upgrade flow).
 - It reports observations only (handbook section 3); the Mobile Tech Lead applies the threshold in `apps-release`
   and pauses. It writes nothing and never calls the store wrapper.
-- Exit 0 with data; exit 1 when Sentry can't be read (no token, network, API error), with the reason, so a missing
-  number is `MISSING`, never a zero and never a green.
+- Exit 0 with data; exit 1 when Sentry can't be read (no token, no settings file, network, API error), with the
+  reason, so a missing number is `MISSING`, never a zero and never a green.
 - Its settings (API host and organization slug, not secret) live in `tool/release_watch/sentry.json`. The token comes
   from `SENTRY_AUTH_TOKEN`: a Sentry user auth token with the read scopes `org:read`, `project:read` and
   `event:read` only, added by Richard to the Mobile Tech Lead's secrets in `apps/agents.json` (rules section 1).

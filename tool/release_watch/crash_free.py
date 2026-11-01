@@ -12,6 +12,7 @@ pause are the `apps-release` skill's. Exit 0 with data, 1 when Sentry can't be r
 """
 
 import argparse
+import decimal
 import json
 import os
 import re
@@ -21,6 +22,7 @@ import urllib.parse
 import urllib.request
 
 WINDOW = "24h"
+ENVIRONMENT = "production"
 SETTINGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sentry.json")
 SLUG = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
@@ -30,8 +32,13 @@ class Missing(Exception):
 
 
 def load_settings(path=SETTINGS):
-    with open(path, encoding="utf-8") as f:
-        settings = json.load(f)
+    try:
+        with open(path, encoding="utf-8") as f:
+            settings = json.load(f)
+    except (OSError, ValueError) as e:
+        raise Missing(f"{path} could not be read ({type(e).__name__})") from None
+    if not isinstance(settings, dict):
+        raise Missing(f"{path} must hold a JSON object")
     api, org = settings.get("api", ""), settings.get("organization", "")
     if not api.startswith("https://") or not SLUG.match(org):
         raise Missing(f"{path}: 'api' must be an https URL and 'organization' a Sentry org slug")
@@ -49,11 +56,22 @@ def get_json(url, token, opener=urllib.request.urlopen):
         raise Missing(f"Sentry could not be read ({type(e).__name__})") from None
 
 
+def percent_floor(rate):
+    """A 0..1 rate as a percentage cut (never rounded up) to 2 decimals.
+
+    Rounding up could hide a breach: 1 - 3/299 is 98.9966%, which round() shows as 99.0. Going through the
+    rate's shortest repr keeps an exact rate exact (0.985 stays 98.5, not 98.49).
+    """
+    value = decimal.Decimal(repr(rate)) * 100
+    return float(value.quantize(decimal.Decimal("0.01"), rounding=decimal.ROUND_FLOOR))
+
+
 def releases(api, org, app, token, opener=urllib.request.urlopen):
     """One dict per release of `app` seen in the window, most users first."""
     query = urllib.parse.urlencode(
         [
             ("project", app),
+            ("environment", ENVIRONMENT),
             ("field", "count_unique(user)"),
             ("field", "crash_free_rate(user)"),
             ("field", "sum(session)"),
@@ -78,7 +96,7 @@ def releases(api, org, app, token, opener=urllib.request.urlopen):
                 "users": users,
                 "sessions": totals.get("sum(session)") or 0,
                 # None (no sessions) stays None: a gap is missing data, not 100%.
-                "crash_free_users": None if rate is None else round(rate * 100, 2),
+                "crash_free_users": None if rate is None else percent_floor(rate),
                 "crashed_users": None if rate is None else round(users * (1 - rate)),
             }
         )
@@ -90,6 +108,7 @@ def issues(api, org, app, release, token, opener=urllib.request.urlopen):
     query = urllib.parse.urlencode(
         [
             ("project", app),
+            ("environment", ENVIRONMENT),
             ("query", f'release:"{release}"'),
             ("statsPeriod", WINDOW),
             ("sort", "user"),

@@ -72,12 +72,30 @@ class CrashFreeTest(unittest.TestCase):
         self.assertEqual(params["project"], ["notes"])
         self.assertEqual(params["statsPeriod"], ["24h"])
         self.assertEqual(params["groupBy"], ["release"])
+        self.assertEqual(params["environment"], ["production"])
         self.assertIn("crash_free_rate(user)", params["field"])
 
     def test_a_release_without_sessions_is_missing_not_crash_free(self):
         _, rows, _ = self.run_main(["--app", "notes"], FakeSentry(SESSIONS))
         self.assertIsNone(rows[1]["crash_free_users"])
         self.assertIsNone(rows[1]["crashed_users"])
+
+    def test_a_rate_just_below_the_threshold_is_never_rounded_up_to_it(self):
+        # 299 users, 3 crashed: 98.9966% crash-free, below 99.0. round() would print 99.0 and hide the breach.
+        body = {"groups": [{"by": {"release": "notes@1.2.0+14"},
+                            "totals": {"count_unique(user)": 299, "crash_free_rate(user)": 1 - 3 / 299,
+                                       "sum(session)": 900}}]}
+        _, rows, _ = self.run_main(["--app", "notes"], FakeSentry(body))
+        self.assertLess(rows[0]["crash_free_users"], 99.0)
+        self.assertEqual(rows[0]["crash_free_users"], 98.99)
+        self.assertEqual(rows[0]["crashed_users"], 3)
+
+    def test_percentages_are_cut_not_rounded_and_exact_rates_stay_exact(self):
+        self.assertEqual(crash_free.percent_floor(0.985), 98.5)
+        self.assertEqual(crash_free.percent_floor(0.99), 99.0)
+        self.assertEqual(crash_free.percent_floor(1.0), 100.0)
+        self.assertEqual(crash_free.percent_floor(0.989999), 98.99)
+        self.assertEqual(crash_free.percent_floor(0.0), 0.0)
 
     def test_lists_a_releases_issues(self):
         sentry = FakeSentry([{"title": "StateError: bad", "culprit": "main.dart", "userCount": 3, "count": "7",
@@ -88,6 +106,7 @@ class CrashFreeTest(unittest.TestCase):
         self.assertTrue(rows[0]["unhandled"])
         self.assertIn("/organizations/studio/issues/?", sentry.requests[0].full_url)
         self.assertEqual(sentry.params()["query"], ['release:"notes@1.2.0+14"'])
+        self.assertEqual(sentry.params()["environment"], ["production"])
 
     def test_no_token_is_missing_and_sends_nothing(self):
         sentry = FakeSentry(SESSIONS)
@@ -106,6 +125,14 @@ class CrashFreeTest(unittest.TestCase):
         code, _, err = self.run_main(["--app", "notes"], FakeSentry(error=urllib.error.URLError("down")))
         self.assertEqual(code, 1)
         self.assertIn("MISSING: Sentry could not be read", err)
+
+    def test_a_missing_settings_file_is_missing_not_a_traceback(self):
+        os.remove(self.settings)
+        sentry = FakeSentry(SESSIONS)
+        code, rows, err = self.run_main(["--app", "notes"], sentry)
+        self.assertEqual((code, rows, sentry.requests), (1, [], []))
+        self.assertIn("MISSING:", err)
+        self.assertIn("could not be read (FileNotFoundError)", err)
 
     def test_refuses_a_slug_that_could_change_the_query(self):
         with self.assertRaises(SystemExit) as raised:
