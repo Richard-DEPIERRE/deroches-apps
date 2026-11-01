@@ -1,0 +1,11 @@
+// The `deroches-reports` Worker (ADR 0004). No `assets`: Static Assets would not pass `ctx.access` to the Worker,
+// and the fail-closed check depends on it. The pages are bundled from `generated/pages.mjs` (`npm run deploy`).
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "deroches-reports",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-23",
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false
+}
