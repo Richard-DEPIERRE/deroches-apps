@@ -63,6 +63,7 @@ class DataStore {
   /// Saving is allowed only once [open] has succeeded.
   Future<Map<String, Object?>> open() async {
     _opened = false;
+    await _saving.catchError((Object _) {}); // read what earlier saves wrote
     if (!file.existsSync()) {
       _opened = true;
       return initial();

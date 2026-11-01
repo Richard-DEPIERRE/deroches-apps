@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -174,6 +175,14 @@ void main() {
 
     await Future.wait([s.save(big), s.save(small)]);
     expect(await store().open(), small);
+  });
+
+  test('a reopen waits for saves still in the queue', () async {
+    final s = await opened();
+    final latest = {'notes': <Object?>['saved without an await']};
+
+    unawaited(s.save(latest));
+    expect(await s.open(), latest);
   });
 
   test('a failed reopen forbids saving over a newer document', () async {
