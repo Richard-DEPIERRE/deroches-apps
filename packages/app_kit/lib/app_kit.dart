@@ -9,4 +9,5 @@ export 'src/config/app_config.dart';
 export 'src/crash/crash_reporter.dart';
 export 'src/crash/sentry_crash_reporter.dart' hide configureSentry;
 export 'src/data/data_store.dart';
+export 'src/data/kit_state.dart';
 export 'src/l10n/language.dart';
