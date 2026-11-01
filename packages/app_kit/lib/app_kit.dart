@@ -7,4 +7,5 @@ export 'src/app/kit_error_view.dart';
 export 'src/app/kit_scope.dart';
 export 'src/config/app_config.dart';
 export 'src/crash/crash_reporter.dart';
+export 'src/crash/sentry_crash_reporter.dart' hide configureSentry;
 export 'src/l10n/language.dart';

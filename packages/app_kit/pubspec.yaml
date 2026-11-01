@@ -17,6 +17,8 @@ dependencies:
   # For lib/testing.dart, the fakes and helpers app tests import.
   flutter_test:
     sdk: flutter
+  sentry_flutter: ^10.2.0
+  package_info_plus: ^10.2.2
 
 flutter:
   generate: true

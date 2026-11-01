@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app_kit.dart';
 
@@ -23,6 +24,24 @@ class FakeCrashReporter implements CrashReporter {
 
   @override
   void addBreadcrumb(String message) => breadcrumbs.add(message);
+}
+
+/// Keeps what Sentry would send, instead of sending it.
+class FakeSentryTransport implements Transport {
+  final envelopes = <SentryEnvelope>[];
+
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async {
+    envelopes.add(envelope);
+    return SentryId.newId();
+  }
+
+  /// The events sent, as the JSON Sentry would receive.
+  Future<List<Map<String, dynamic>>> events() async => [
+    for (final envelope in envelopes)
+      for (final item in envelope.items)
+        if (item.header.type == 'event') jsonDecode(utf8.decode(await item.dataFactory())) as Map<String, dynamic>,
+  ];
 }
 
 /// Every message of the [templatePath] ARB file that is missing or empty in [translationPath].
