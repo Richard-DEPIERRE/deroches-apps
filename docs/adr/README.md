@@ -7,6 +7,7 @@ which one it replaces, and the old one's status becomes "replaced by NNNN".
 |---|---|---|
 | [0001](0001-monorepo-and-app-kit.md) | One monorepo, and the app kit every studio app is built on | accepted |
 | [0002](0002-signing-path.md) | Agents build unsigned in the sandbox; only the store wrapper signs | accepted |
+| [0004](0004-private-report-page.md) | Richard's private report page: snapshot at publish, pages bundled in a Worker, Access in front | proposed |
 
 ## Template
 
