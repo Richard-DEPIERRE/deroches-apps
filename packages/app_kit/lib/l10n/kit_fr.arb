@@ -1,0 +1,5 @@
+{
+  "@@locale": "fr",
+  "kitErrorTitle": "Un problème est survenu",
+  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Merci de redémarrer l’application. Si le problème revient, écrivez-nous depuis les réglages."
+}

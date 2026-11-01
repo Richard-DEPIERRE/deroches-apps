@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "kitErrorTitle": "Something went wrong",
+  "@kitErrorTitle": {
+    "description": "Title of the screen shown in place of a part of the app that failed to draw (release builds only)."
+  },
+  "kitErrorBody": "This part of the app could not be shown. Please restart the app. If it happens again, write to us from the settings.",
+  "@kitErrorBody": {
+    "description": "Body of the error screen: what happened and what the user can do."
+  }
+}
