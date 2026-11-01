@@ -1,0 +1,34 @@
+import 'package:app_kit/app_kit.dart';
+import 'package:app_kit/testing.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  testWidgets('full size: an icon, the title and the body', (tester) async {
+    await pumpOnSmallPhone(tester, const Locale('en'), const KitErrorView());
+
+    expect(find.byIcon(Icons.error_outline), findsOneWidget);
+    expect(find.text('Something went wrong'), findsOneWidget);
+    expect(find.textContaining('Close the app and open it again.'), findsOneWidget);
+  });
+
+  testWidgets('in a list row: one line, icon and title, no overflow', (tester) async {
+    await pumpOnSmallPhone(
+      tester,
+      const Locale('fr'),
+      ListView(children: const [SizedBox(height: 56, child: KitErrorView())]),
+    );
+
+    expect(find.byIcon(Icons.error_outline), findsOneWidget);
+    expect(find.text('Un problème est survenu'), findsOneWidget);
+    expect(find.textContaining('Fermez'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('shows the English strings when the kit\'s localizations are missing', (tester) async {
+    await tester.pumpWidget(const Directionality(textDirection: TextDirection.ltr, child: KitErrorView()));
+
+    expect(find.text('Something went wrong'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+}
