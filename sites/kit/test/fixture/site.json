@@ -1,0 +1,8 @@
+{
+  "slug": "exemple",
+  "domain": "exemple.test",
+  "status": "coming-soon",
+  "name": { "fr": "Exemple", "en": "Example" },
+  "themeColor": "#0b57d0",
+  "stores": { "ios": null, "android": null }
+}
