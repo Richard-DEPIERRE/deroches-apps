@@ -19,14 +19,18 @@ final exampleConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-Widget buildApp() => KitApp(
+Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter()}) => KitApp(
   config: exampleConfig,
+  crashReporter: crashReporter,
   seedColor: Colors.indigo,
   localizationsDelegates: const [ExampleLocalizations.delegate],
   home: (_) => const PlaceholderHome(),
 );
 
-void main() => runApp(buildApp());
+Future<void> main() async {
+  // Sends nothing here: the sample app has no Sentry DSN, and debug builds never send.
+  runApp(buildApp(crashReporter: await startCrashReporting(exampleConfig)));
+}
 
 /// Shows the wiring works: the app's name from its config, its own strings.
 class PlaceholderHome extends StatelessWidget {

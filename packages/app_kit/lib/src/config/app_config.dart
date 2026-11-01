@@ -31,6 +31,7 @@ class AppConfig {
     required this.legal,
     required this.plans,
     this.entitlementId = 'pro',
+    this.sentryDsn,
   });
 
   /// The store wrapper's slug: lowercase letters, digits and hyphens.
@@ -51,6 +52,9 @@ class AppConfig {
   /// The RevenueCat entitlement the plans unlock.
   final String entitlementId;
 
+  /// The app's Sentry DSN, a public client key (ADR 0005); `null` sends no crash reports.
+  final String? sentryDsn;
+
   static final _slug = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[a-z]{2,}$');
 
@@ -60,6 +64,7 @@ class AppConfig {
     if (!_email.hasMatch(supportEmail)) 'support email "$supportEmail" is not an address',
     if (plans.isEmpty) 'no plan to sell',
     if (entitlementId.isEmpty) 'no entitlement id',
+    if (sentryDsn != null && Uri.tryParse(sentryDsn!)?.scheme != 'https') 'Sentry DSN "$sentryDsn" is not an https URL',
     for (final lang in kitLanguages) ...[
       if ((names[lang] ?? '').trim().isEmpty) 'no app name in "$lang"',
       if (legal[lang] == null)
