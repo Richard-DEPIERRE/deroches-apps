@@ -9,14 +9,18 @@ Read ADR 0001 before your first change.
 - `apps/<slug>/`: one Flutter app per studio app (`<slug>` is the store wrapper's slug).
 - `sites/`: the site kit and the sites (their own conventions, from the site kit's ADR).
 - `docs/adr/`: one file per decision, numbered; add one for any library, vendor or kit choice.
-- `tool/`: `check.sh`, then the screenshot and release-build scripts.
+- `tool/`: `check.sh` (Flutter) and `check-sites.sh` (site kit), then the screenshot and release-build scripts.
+- `.github/workflows/ci.yml`: CI on the studio's self-hosted Mac runner (label `deroches-apps`); it runs the same two
+  scripts.
 
 ## Before review
 - Flutter version: `.fvmrc` (3.44.9). Put that SDK's `bin` first on `PATH`.
-- Run `tool/check.sh` (pub get, `flutter analyze` on the workspace, `flutter test` in every member).
+- Run `tool/check.sh` (pub get, `flutter analyze` on the workspace, `flutter test` in every member); for site code,
+  `tool/check-sites.sh` (npm ci, Biome, tests, then build the test site and every site).
 - Inside the agent sandbox: set `HOME` to a folder under `$TMPDIR` (Dart's telemetry can't write `~/.dart-tool` and
   the analysis server dies), and use the shared `PUB_CACHE` at `/Volumes/Hermes/Studio/cache/pub-cache`; if pub can't
-  reach pub.dev (a TLS error), `flutter pub get --offline` resolves from that cache.
+  reach pub.dev (a TLS error), `flutter pub get --offline` resolves from that cache. If `flutter analyze` hangs with no
+  output, its analytics call is stuck: run `flutter --suppress-analytics analyze --no-pub` (and `test --no-pub`).
 - A change to what an app saves ships with its migration and its data-upgrade test in the same PR (ADR 0001,
   section 8).
 - Every user-visible string in French and English, through the localization files.
