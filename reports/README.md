@@ -11,7 +11,14 @@ Not an app site: never link to it from one, and keep it `noindex`.
 - `lib/markdown.mjs`: the small slice of Markdown the templates use (sections, tables, cards, cells).
 - `lib/reports.mjs`: `parseResearchReport`, `parseEpicsReport`, `parseReport`. Each reads the template's
   sections into the data the pages draw. A `NOT ASSESSED` cell has `notAssessed: true` and `value: null`, never `0`.
-- `test/`: the parser's tests, with fixtures shaped like the templates. One test reads the templates from the
+- `lib/html.mjs`: escaping, the Markdown the cards use (bold, code, links, lists, nested tables), the page shell
+  (`noindex`, a CSP that allows only the page's own style block, no script).
+- `lib/render.mjs`: `renderResearchPage`, `renderEpicsPage`, `renderIndex`. Charts are inline SVG drawn at build
+  time, coloured from the `dataviz` reference palette. A value that is not assessed or not a number is listed
+  beside its chart, never drawn at zero. Each report page takes `{ paperclipUrl, approvalId, approvalStatus,
+  takenAt }`; its one button links to `<paperclipUrl>/DAPP/approvals/<approvalId>`.
+- `scripts/preview.mjs` (`npm run preview`): renders the test fixtures to `dist/` to look at the pages.
+- `test/`: the parser's and the pages' tests, with fixtures shaped like the templates. One test reads the templates from the
   Studio clone (`STUDIO_CLONE`, default `/Volumes/Hermes/Studio/repos/deroches-studio`) to catch drift.
 
 ## Checks
@@ -21,4 +28,4 @@ npm run lint
 npm test
 ```
 
-The pages, the Worker and the publish step come in the next PRs under DAPP-16.
+The Worker, the Access check and the publish step come in the next PR under DAPP-16.
