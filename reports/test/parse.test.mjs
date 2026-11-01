@@ -170,6 +170,11 @@ describe('epics report', async () => {
     );
   });
 
+  test('sections 6 and 7: the epics held back, and methods', () => {
+    assert.match(report.notAssessed, /^- \*\*Home-screen widget\*\* \(carnet-plantes\): held back, MISSING/);
+    assert.equal(report.methods, 'PostHog trends, read 2026-11-01.');
+  });
+
   test('sections 3 and 4: cards, and prices apart', () => {
     assert.equal(report.cards.length, 2);
     assert.equal(report.cards[1].description, 'carnet-plantes');

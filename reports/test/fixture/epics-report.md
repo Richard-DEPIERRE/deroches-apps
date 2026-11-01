@@ -28,5 +28,11 @@ Fix the export first: it is the top complaint and blocks yearly renewals.
 ## 5. Last week
 Nothing validated last week.
 
+## 6. Not assessed this week
+- **Home-screen widget** (carnet-plantes): held back, MISSING the day-30 retention read (PostHog export not run).
+
+## 7. Methods and sources
+PostHog trends, read 2026-11-01.
+
 ## 8. How to validate
 Richard validates in the approval.

@@ -46,6 +46,8 @@ export function parseResearchReport(md) {
     })),
     scores: scores(section(parts, 3, 'Scores side by side').body),
     cards: cards(section(parts, 4, 'One card per idea').body),
+    methods: parts[5]?.body ?? '',
+    notPicked: parts[6]?.body ?? '',
   };
 }
 
@@ -54,7 +56,7 @@ const flag = (text) => !/^(|no|non|none|-|—|–|n\/a|unchanged)$/i.test(text.r
 
 /**
  * `templates/epics-report.md`: section 1 (recommendation), 2 (size in days against expected effect, per app),
- * 3 (one card per epic) and 4 (price changes and tests, shown apart).
+ * 3 (one card per epic), 4 (price changes and tests, shown apart) and 6 (epics held back, not assessed).
  */
 export function parseEpicsReport(md) {
   const parts = sections(md);
@@ -83,9 +85,14 @@ export function parseEpicsReport(md) {
       newScreen: row[at.screen],
       price: flag(row[at.price]),
       dataChange: flag(row[at.data]),
+      dataChangeText: row[at.data],
     })),
     cards: cards(section(parts, 3, 'One card per epic').body),
     price: { body: price.body, table: table(price.body), none: /none this week/i.test(price.body) },
+    lastWeek: parts[5]?.body ?? '',
+    // Epics held back for a MISSING input: shown open on the page, a gap is shown as a gap (handbook section 3).
+    notAssessed: parts[6]?.body ?? '',
+    methods: parts[7]?.body ?? '',
   };
 }
 
