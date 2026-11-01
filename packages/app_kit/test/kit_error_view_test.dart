@@ -26,6 +26,22 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('in a horizontal list card: one line, no layout error', (tester) async {
+    await pumpOnSmallPhone(
+      tester,
+      const Locale('en'),
+      Scaffold(
+        body: SizedBox(
+          height: 120,
+          child: ListView(scrollDirection: Axis.horizontal, children: const [KitErrorView()]),
+        ),
+      ),
+    );
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('Something went wrong'), findsOneWidget);
+  });
+
   testWidgets('shows the English strings when the kit\'s localizations are missing', (tester) async {
     await tester.pumpWidget(const Directionality(textDirection: TextDirection.ltr, child: KitErrorView()));
 

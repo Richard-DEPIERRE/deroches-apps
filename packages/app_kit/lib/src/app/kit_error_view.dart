@@ -20,7 +20,9 @@ class KitErrorView extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, box) {
           if (box.maxHeight < 240 || box.maxWidth < 280) {
-            return Padding(
+            return Container(
+              // A finite width in a horizontal list, where `Flexible` can't size itself.
+              width: box.hasBoundedWidth ? null : 280,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
