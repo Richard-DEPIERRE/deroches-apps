@@ -6,6 +6,7 @@ which one it replaces, and the old one's status becomes "replaced by NNNN".
 | ADR | Decision | Status |
 |---|---|---|
 | [0001](0001-monorepo-and-app-kit.md) | One monorepo, and the app kit every studio app is built on | accepted |
+| [0002](0002-signing-path.md) | Agents build unsigned in the sandbox; only the store wrapper signs | accepted |
 
 ## Template
 
