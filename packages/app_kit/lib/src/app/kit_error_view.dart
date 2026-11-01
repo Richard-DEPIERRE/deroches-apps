@@ -21,7 +21,7 @@ class KitErrorView extends StatelessWidget {
         builder: (context, box) {
           if (box.maxHeight < 240 || box.maxWidth < 280) {
             return Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(Icons.error_outline, size: 20, color: muted),

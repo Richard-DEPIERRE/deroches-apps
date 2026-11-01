@@ -19,6 +19,19 @@ void main() {
     expect(arbProblems('lib/l10n/kit_en.arb', 'lib/l10n/kit_fr.arb'), isEmpty);
   });
 
+  test('kit strings use curly apostrophes, and French compounds don\'t break at the hyphen', () {
+    Iterable<String> messages(String path) => (jsonDecode(File(path).readAsStringSync()) as Map<String, dynamic>)
+        .entries
+        .where((e) => !e.key.startsWith('@'))
+        .map((e) => e.value as String);
+    for (final m in [...messages('lib/l10n/kit_en.arb'), ...messages('lib/l10n/kit_fr.arb')]) {
+      expect(m, isNot(contains("'")), reason: 'use ’ (U+2019)');
+    }
+    for (final m in messages('lib/l10n/kit_fr.arb')) {
+      expect(m, isNot(matches(RegExp(r'\w-\w'))), reason: 'use a non-breaking hyphen (U+2011) in « rouvrez‑la »');
+    }
+  });
+
   test('arbProblems names missing and empty messages', () {
     final dir = Directory.systemTemp.createTempSync('arb');
     addTearDown(() => dir.deleteSync(recursive: true));

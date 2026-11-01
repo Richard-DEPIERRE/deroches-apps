@@ -22,6 +22,7 @@ void main() {
     expect(find.byIcon(Icons.error_outline), findsOneWidget);
     expect(find.text('Un problème est survenu'), findsOneWidget);
     expect(find.textContaining('Fermez'), findsNothing);
+    expect(tester.getTopLeft(find.byIcon(Icons.error_outline)).dx, 16, reason: 'lined up with M3 list rows');
     expect(tester.takeException(), isNull);
   });
 

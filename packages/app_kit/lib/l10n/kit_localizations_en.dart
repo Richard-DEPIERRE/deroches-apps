@@ -13,5 +13,5 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get kitErrorBody =>
-      'This part of the app couldn\'t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.';
+      'This part of the app couldn’t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.';
 }
