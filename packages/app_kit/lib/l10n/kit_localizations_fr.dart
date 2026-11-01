@@ -13,5 +13,5 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get kitErrorBody =>
-      'Cette partie de l’application n’a pas pu s’afficher. Merci de redémarrer l’application. Si le problème revient, écrivez-nous depuis les réglages.';
+      'Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.';
 }

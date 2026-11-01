@@ -8,6 +8,7 @@ Read ADR 0001 before your first change.
 - `packages/app_kit/`: the app kit. A change to a kit module is its own issue.
 - `apps/<slug>/`: one Flutter app per studio app (`<slug>` is the store wrapper's slug).
 - `sites/`: the site kit and the sites (their own conventions, from the site kit's ADR).
+- `reports/`: Richard's private report page (ADR 0004); not an app site, never linked from one.
 - `docs/adr/`: one file per decision, numbered; add one for any library, vendor or kit choice.
 - `tool/`: `check.sh`, then the screenshot and release-build scripts.
 
