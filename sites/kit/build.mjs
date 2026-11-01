@@ -2,7 +2,7 @@
 // Builds one app's site: node kit/build.mjs <site dir> [out dir]   (out dir defaults to <site dir>/dist)
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGS, loadSite } from './lib/config.mjs';
 import { loadPages } from './lib/content.mjs';
@@ -10,6 +10,29 @@ import { notFoundPage, renderPage } from './lib/render.mjs';
 import { headers, robots, sitemap } from './lib/seo.mjs';
 
 const KIT = dirname(fileURLToPath(import.meta.url));
+const SITES = dirname(KIT);
+
+/** True when `child` is `parent` or inside it. */
+function within(parent, child) {
+  const rel = relative(parent, child);
+  return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel));
+}
+
+/**
+ * The build empties its out dir first, so the out dir must hold nothing else of ours: it is `<site>/dist`, or a folder
+ * that is neither inside nor around the site or `sites/` (the kit, Richard's legal file and every other site).
+ */
+function checkOutDir(siteDir, outDir) {
+  if (outDir === join(siteDir, 'dist')) return;
+  for (const dir of [siteDir, SITES]) {
+    if (within(outDir, dir) || within(dir, outDir)) {
+      throw new Error(
+        `Refusing to build into ${outDir}: emptying it would delete the site or the kit. ` +
+          'Use <site dir>/dist or a folder outside sites/.',
+      );
+    }
+  }
+}
 
 async function emit(outDir, path, content) {
   const file = join(outDir, path);
@@ -19,6 +42,9 @@ async function emit(outDir, path, content) {
 
 /** Builds the site in `siteDir` into `outDir` and returns what it wrote. */
 export async function build(siteDir, outDir = join(siteDir, 'dist')) {
+  siteDir = resolve(siteDir);
+  outDir = resolve(outDir);
+  checkOutDir(siteDir, outDir);
   const site = await loadSite(siteDir);
   const pages = await loadPages(siteDir, site);
   await rm(outDir, { recursive: true, force: true });

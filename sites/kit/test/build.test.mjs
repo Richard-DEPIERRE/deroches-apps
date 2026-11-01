@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { access, cp, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { build } from '../build.mjs';
 
 const FIXTURE = fileURLToPath(new URL('./fixture', import.meta.url));
+const SITES = fileURLToPath(new URL('../..', import.meta.url));
 const tmp = await mkdtemp(join(tmpdir(), 'site-kit-'));
 after(() => rm(tmp, { recursive: true, force: true }));
 
@@ -156,6 +157,23 @@ describe('the build refuses', () => {
       await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, status: 'live' }));
     });
     await assert.rejects(build(dir, join(dir, 'dist')), /a live site needs at least one store URL/);
+  });
+
+  test('an out dir that would delete the site, another site or the kit', async () => {
+    const dir = await variant('out-dir', async () => {});
+    for (const outDir of [
+      dir,
+      dirname(dir),
+      join(dir, 'content'),
+      SITES,
+      join(SITES, 'kit'),
+      join(SITES, 'legal'),
+    ]) {
+      await assert.rejects(build(dir, outDir), /Refusing to build into/, outDir);
+    }
+    await access(join(dir, 'site.json'));
+    await access(join(dir, 'content/fr/index.md'));
+    await access(join(SITES, 'kit/build.mjs'));
   });
 });
 
