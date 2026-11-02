@@ -1,0 +1,20 @@
+{
+  "name": "deroches-reports",
+  "private": true,
+  "type": "module",
+  "description": "Richard's private, read-only report page: the research and Monday epics reports as charts (ADR 0004).",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test 'test/*.test.mjs'",
+    "lint": "biome check .",
+    "preview": "node scripts/preview.mjs",
+    "build": "node build.mjs",
+    "deploy": "node build.mjs --from-main && wrangler deploy"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "wrangler": "4.156.0"
+  }
+}

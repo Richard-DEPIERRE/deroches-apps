@@ -13,12 +13,14 @@ AppConfig _config({
   String supportEmail = 'support@example.fr',
   Map<String, LegalLinks>? legal,
   Set<Plan> plans = const {Plan.yearly, Plan.lifetime},
+  String? sentryDsn,
 }) => AppConfig(
   slug: slug,
   names: names,
   supportEmail: supportEmail,
   legal: legal ?? {'fr': _links('fr'), 'en': _links('en')},
   plans: plans,
+  sentryDsn: sentryDsn,
 );
 
 void main() {
@@ -62,5 +64,11 @@ void main() {
     final config = _config(plans: const {}, supportEmail: 'support');
     expect(config.problems, hasLength(2));
     expect(config.check, throwsStateError);
+  });
+
+  test('a crash-reporting DSN, when given, is an https URL', () {
+    expect(_config(sentryDsn: 'https://public@o0.ingest.de.sentry.io/0').problems, isEmpty);
+    expect(_config(sentryDsn: 'http://public@o0.ingest.de.sentry.io/0').problems, [contains('DSN')]);
+    expect(_config(sentryDsn: '').problems, [contains('DSN')]);
   });
 }
