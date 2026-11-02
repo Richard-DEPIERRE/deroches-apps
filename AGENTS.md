@@ -8,6 +8,7 @@ Read ADR 0001 before your first change.
 - `packages/app_kit/`: the app kit. A change to a kit module is its own issue.
 - `apps/<slug>/`: one Flutter app per studio app (`<slug>` is the store wrapper's slug).
 - `sites/`: the site kit and the sites (their own conventions, from the site kit's ADR).
+- `reports/`: Richard's private report page (ADR 0004); not an app site, never linked from one.
 - `docs/adr/`: one file per decision, numbered; add one for any library, vendor or kit choice.
 - `tool/`: `check.sh`, then the screenshot and release-build scripts.
 
@@ -16,7 +17,7 @@ Read ADR 0001 before your first change.
 - Run `tool/check.sh` (pub get, `flutter analyze` on the workspace, `flutter test` in every member).
 - Inside the agent sandbox: set `HOME` to a folder under `$TMPDIR` (Dart's telemetry can't write `~/.dart-tool` and
   the analysis server dies), and use the shared `PUB_CACHE` at `/Volumes/Hermes/Studio/cache/pub-cache`; if pub can't
-  reach pub.dev (a TLS error), `flutter pub get --offline` resolves from that cache.
+  reach pub.dev (a TLS error), `flutter pub get --offline` resolves from that cache (`PUB_OFFLINE=1 tool/check.sh` does the same).
 - A change to what an app saves ships with its migration and its data-upgrade test in the same PR (ADR 0001,
   section 8).
 - Every user-visible string in French and English, through the localization files.
