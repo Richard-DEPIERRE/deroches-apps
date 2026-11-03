@@ -18,6 +18,10 @@ const locales = [Locale('fr', 'FR'), Locale('en', 'US')];
 const devices = [ScreenshotDevice.iPhone, ScreenshotDevice.androidPhone];
 const shots = ['01_onboarding', '02_paywall', '03_settings'];
 
+/// The sample app's own store-caption look; each app sets its brand colour and heading font.
+const captionBand = Color(0xFF1B1B1F);
+const captionStyle = TextStyle(fontFamily: 'Roboto', fontSize: 34, height: 1.2, fontWeight: FontWeight.w700);
+
 void main() {
   late KitStateController kitState;
 
@@ -55,7 +59,7 @@ void main() {
             locale: locale,
             name: name,
             brightness: brightness,
-            caption: light ? caption : null,
+            caption: light ? StoreCaption(caption, background: captionBand, style: captionStyle) : null,
             dir: light ? 'store' : 'build/screenshots-dark',
           );
         }

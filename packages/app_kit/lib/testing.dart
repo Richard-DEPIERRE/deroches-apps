@@ -287,17 +287,26 @@ void dataUpgradeTests<T>({
 ///   24-bit PNG with no alpha, 320 to 3840 px, the long side at most twice the short one; 9:16 at
 ///   1080 × 1920 or more for the large-format promotions.
 class ScreenshotDevice {
-  const ScreenshotDevice._(this.platform, this.size, this.pixelRatio);
+  const ScreenshotDevice._(this.platform, this.size, this.pixelRatio, this.padding);
 
   /// iPhone 17 Pro Max: 440 × 956 points at 3×, 1320 × 2868 pixels.
-  static const iPhone = ScreenshotDevice._(TargetPlatform.iOS, Size(440, 956), 3);
+  static const iPhone = ScreenshotDevice._(TargetPlatform.iOS, Size(440, 956), 3, EdgeInsets.only(top: 62, bottom: 34));
 
   /// A 9:16 Play phone: 432 × 768 points at 2.5×, 1080 × 1920 pixels.
-  static const androidPhone = ScreenshotDevice._(TargetPlatform.android, Size(432, 768), 2.5);
+  static const androidPhone = ScreenshotDevice._(
+    TargetPlatform.android,
+    Size(432, 768),
+    2.5,
+    EdgeInsets.only(top: 24, bottom: 24),
+  );
 
   final TargetPlatform platform;
   final Size size;
   final double pixelRatio;
+
+  /// The phone's safe area (Dynamic Island and home indicator; status and
+  /// navigation bars), left empty: no status bar is drawn.
+  final EdgeInsets padding;
 
   /// Where the store wrapper's `listing --metadata <dir>` takes this device's shots in [locale] (fastlane
   /// deliver's and supply's layouts): `ios/screenshots/fr-FR`, `android/fr-FR/images/phoneScreenshots`.
@@ -306,15 +315,30 @@ class ScreenshotDevice {
       : 'android/${locale.toLanguageTag()}/images/phoneScreenshots';
 }
 
+/// A store image's caption: [text] from the app's ARB, on the app's own
+/// [background] colour, in the app's own heading [style] (family, weight,
+/// size, height), so no two apps share a store look. Without a colour in
+/// [style], the text is white or black, whichever contrasts more.
+class StoreCaption {
+  const StoreCaption(this.text, {required this.background, required this.style});
+
+  final String text;
+  final Color background;
+  final TextStyle style;
+}
+
 /// Renders [app] (a whole app, such as the app's `KitApp`) on [device], with
 /// the phone set to [locale] (with its country, as the stores name it:
-/// `fr-FR`) and [brightness], with the app's bundled fonts, Roboto and the
-/// Material icons loaded; then writes it as a store PNG (RGB, no alpha) to
-/// `<dir>/<device.folder(locale)>/<name>.png`. Feed it made-up data only.
+/// `fr-FR`) and [brightness], its safe area, and the app's bundled fonts,
+/// Roboto and the Material icons loaded; then writes it as a store PNG (RGB,
+/// no alpha) to `<dir>/<device.folder(locale)>/<name>.png`. Feed it made-up
+/// data only.
 ///
-/// With [caption] (a string from the app's ARB), the screen is drawn smaller,
-/// under the caption, on [captionBackground]: the store image. Tag the test
-/// `screenshots`; `tool/screenshots.sh <app-dir>` runs them.
+/// With [caption], the store image: the caption in a band of fixed height (two
+/// lines, balanced), and the screen below it, smaller, at the same place in
+/// every shot. The test fails when a caption needs more than two lines or has
+/// less than 4.5:1 contrast. Tag the test `screenshots`;
+/// `tool/screenshots.sh <app-dir>` runs them.
 Future<File> takeScreenshot(
   WidgetTester tester,
   Widget app, {
@@ -322,71 +346,113 @@ Future<File> takeScreenshot(
   required Locale locale,
   required String name,
   Brightness brightness = Brightness.light,
-  String? caption,
-  Color captionBackground = const Color(0xFF1B1B1F),
+  StoreCaption? caption,
   String dir = 'store',
 }) async {
   await tester.runAsync(_loadFonts);
+  final ratio = device.pixelRatio;
   tester.view
-    ..physicalSize = device.size * device.pixelRatio
-    ..devicePixelRatio = device.pixelRatio;
+    ..physicalSize = device.size * ratio
+    ..devicePixelRatio = ratio
+    ..padding = FakeViewPadding(top: device.padding.top * ratio, bottom: device.padding.bottom * ratio)
+    ..viewPadding = FakeViewPadding(top: device.padding.top * ratio, bottom: device.padding.bottom * ratio);
   tester.platformDispatcher
     ..localesTestValue = [locale]
     ..platformBrightnessTestValue = brightness;
   addTearDown(tester.view.reset);
   addTearDown(tester.platformDispatcher.clearAllTestValues);
   final key = GlobalKey();
-  final screen = SizedBox.fromSize(size: device.size, child: app);
-  final textColor = ThemeData.estimateBrightnessForColor(captionBackground) == Brightness.dark
-      ? Colors.white
-      : Colors.black;
+  final screenKey = GlobalKey();
+  final screen = SizedBox.fromSize(key: screenKey, size: device.size, child: app);
+  Widget Function(Color? outline) frame = (_) => screen;
+  if (caption != null) {
+    final band = caption.background;
+    final style = caption.style.copyWith(
+      color:
+          caption.style.color ??
+          (_contrast(Colors.white, band) >= _contrast(Colors.black, band) ? Colors.white : Colors.black),
+    );
+    expect(_contrast(style.color!, band), greaterThanOrEqualTo(4.5), reason: 'caption contrast');
+    int linesAt(double width) {
+      final painter = TextPainter(
+        text: TextSpan(text: caption.text, style: style),
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      )..layout(maxWidth: width);
+      final lines = painter.computeLineMetrics().length;
+      painter.dispose();
+      return lines;
+    }
+
+    // The narrowest width that keeps the line count balances the lines.
+    var width = device.size.width - 64;
+    final lines = linesAt(width);
+    expect(lines, lessThanOrEqualTo(2), reason: '"${caption.text}" takes $lines lines');
+    while (width > 40 && linesAt(width - 2) == lines) {
+      width -= 2;
+    }
+    frame = (outline) => ColoredBox(
+      color: band,
+      child: Column(
+        children: [
+          SizedBox(
+            height: 88 + 2 * (style.fontSize ?? 14) * (style.height ?? 1.2),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(32, 56, 32, 32),
+              child: Center(
+                child: SizedBox(
+                  width: width,
+                  child: Text(
+                    caption.text,
+                    textAlign: TextAlign.center,
+                    textDirection: TextDirection.ltr,
+                    style: style,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(40, 0, 40, 40),
+              child: FittedBox(
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                    border: outline == null ? null : Border.all(color: outline),
+                    borderRadius: BorderRadius.circular(48),
+                  ),
+                  child: ClipRRect(borderRadius: BorderRadius.circular(48), child: screen),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   // Widget tests draw shadows as outlines and every platform as Android, unless told otherwise;
   // debug builds draw the DEBUG banner, which no store image may show.
   debugDisableShadows = false;
   WidgetsApp.debugAllowBannerOverride = false;
   debugDefaultTargetPlatformOverride = device.platform;
   try {
-    await tester.pumpWidget(
-      RepaintBoundary(
-        key: key,
-        child: caption == null
-            ? screen
-            : ColoredBox(
-                color: captionBackground,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(32, 56, 32, 32),
-                      child: Text(
-                        caption,
-                        textAlign: TextAlign.center,
-                        textDirection: TextDirection.ltr,
-                        style: TextStyle(
-                          fontFamily: 'Roboto',
-                          fontSize: 34,
-                          height: 1.2,
-                          fontWeight: FontWeight.w700,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(40, 0, 40, 40),
-                        child: FittedBox(
-                          child: ClipRRect(borderRadius: BorderRadius.circular(48), child: screen),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-      ),
-    );
+    await tester.pumpWidget(RepaintBoundary(key: key, child: frame(null)));
     await tester.pumpAndSettle();
+    // A screen too close in colour to the band gets a hairline edge.
+    final scaffold = find.descendant(of: find.byKey(screenKey), matching: find.byType(Scaffold));
+    if (caption != null && scaffold.evaluate().isNotEmpty) {
+      final theme = Theme.of(tester.element(scaffold.first));
+      if (_contrast(theme.scaffoldBackgroundColor, caption.background) < 1.5) {
+        await tester.pumpWidget(
+          RepaintBoundary(key: key, child: frame(theme.colorScheme.onSurface.withValues(alpha: 0.12))),
+        );
+        await tester.pumpAndSettle();
+      }
+    }
     final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
     final png = await tester.runAsync(() async {
-      final image = await boundary.toImage(pixelRatio: device.pixelRatio);
+      final image = await boundary.toImage(pixelRatio: ratio);
       final rgba = await image.toByteData();
       final png = _rgbPng(image.width, image.height, rgba!.buffer.asUint8List());
       image.dispose();
@@ -401,6 +467,12 @@ Future<File> takeScreenshot(
     WidgetsApp.debugAllowBannerOverride = true;
     debugDefaultTargetPlatformOverride = null;
   }
+}
+
+/// The WCAG contrast ratio of two colours, from 1 to 21.
+double _contrast(Color a, Color b) {
+  final (x, y) = (a.computeLuminance() + 0.05, b.computeLuminance() + 0.05);
+  return x > y ? x / y : y / x;
 }
 
 /// The pixel size of a PNG file, and whether it has an alpha channel.
