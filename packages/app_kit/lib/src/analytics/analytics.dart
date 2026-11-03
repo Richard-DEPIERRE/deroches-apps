@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
+import '../config/app_config.dart';
 import '../data/kit_state.dart';
 import 'events.dart';
+import 'posthog_backend.dart';
 
 /// A property value: a number, a yes/no, or one of the app's own enum values.
 /// Never text, so nothing the user typed or made can reach an event.
@@ -14,9 +17,8 @@ extension type const Prop._(Object value) {
   Prop.choice(Enum choice) : value = choice.name;
 }
 
-/// Where checked events go: PostHog in a release build (its backend is the
-/// next kit issue), `FakeAnalyticsBackend` from `package:app_kit/testing.dart`
-/// in tests.
+/// Where checked events go: PostHog in a release build (`PostHogBackend`),
+/// `FakeAnalyticsBackend` from `package:app_kit/testing.dart` in tests.
 abstract interface class AnalyticsBackend {
   Future<void> start();
   Future<void> stop();
@@ -46,7 +48,7 @@ class Analytics {
     kitState.addListener(_stopWhenOff);
   }
 
-  /// `null` sends nothing (no PostHog key, or a debug build); names are still checked.
+  /// `null` sends nothing (no PostHog key, or a debug build).
   final AnalyticsBackend? backend;
   final String appId;
   final String appVersion;
@@ -113,4 +115,27 @@ class Analytics {
 int daysSinceInstall(DateTime installed, DateTime now) {
   DateTime day(DateTime t) => DateTime.utc(t.year, t.month, t.day);
   return max(0, day(now).difference(day(installed)).inDays);
+}
+
+/// Builds the app's [Analytics] at start-up, after the kit state has started
+/// loading. Only a release build of an app whose config has a
+/// [AppConfig.postHogKey] gets PostHog; otherwise names are still checked and
+/// nothing is sent.
+Future<Analytics> startAnalytics(
+  AppConfig config, {
+  required KitStateController kitState,
+  required String Function() locale,
+  List<AnalyticsEvent> appEvents = const [],
+  @visibleForTesting bool releaseBuild = kReleaseMode,
+}) async {
+  final key = config.postHogKey;
+  final info = await PackageInfo.fromPlatform();
+  return Analytics(
+    backend: releaseBuild && key != null ? PostHogBackend(key) : null,
+    kitState: kitState,
+    appId: config.slug,
+    appVersion: info.version,
+    locale: locale,
+    appEvents: appEvents,
+  );
 }
