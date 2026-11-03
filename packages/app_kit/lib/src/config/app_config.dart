@@ -32,6 +32,8 @@ class AppConfig {
     required this.plans,
     this.entitlementId = 'pro',
     this.sentryDsn,
+    this.revenueCatAppleKey,
+    this.revenueCatGoogleKey,
   });
 
   /// The store wrapper's slug: lowercase letters, digits and hyphens.
@@ -55,6 +57,12 @@ class AppConfig {
   /// The app's Sentry DSN, a public client key (ADR 0005); `null` sends no crash reports.
   final String? sentryDsn;
 
+  /// RevenueCat's public SDK keys for the App Store (`appl_…`) and Google
+  /// Play (`goog_…`); `null` sells nothing on that platform. Never the secret
+  /// API key (ADR 0001, section 13).
+  final String? revenueCatAppleKey;
+  final String? revenueCatGoogleKey;
+
   static final _slug = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[a-z]{2,}$');
 
@@ -65,6 +73,8 @@ class AppConfig {
     if (plans.isEmpty) 'no plan to sell',
     if (entitlementId.isEmpty) 'no entitlement id',
     if (sentryDsn != null && Uri.tryParse(sentryDsn!)?.scheme != 'https') 'Sentry DSN "$sentryDsn" is not an https URL',
+    if (revenueCatAppleKey?.startsWith('appl_') == false) 'RevenueCat Apple key is not a public SDK key (appl_…)',
+    if (revenueCatGoogleKey?.startsWith('goog_') == false) 'RevenueCat Google key is not a public SDK key (goog_…)',
     for (final lang in kitLanguages) ...[
       if ((names[lang] ?? '').trim().isEmpty) 'no app name in "$lang"',
       if (legal[lang] == null)
