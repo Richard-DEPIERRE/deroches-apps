@@ -211,4 +211,38 @@ class KitLocalizationsEn extends KitLocalizations {
   @override
   String get paywallRestoreFailed =>
       'Purchases couldn’t be restored. Check your connection, then try again.';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageDevice => 'Phone’s language';
+
+  @override
+  String get settingsStatistics =>
+      'Share anonymous usage statistics and crash reports';
+
+  @override
+  String get settingsStatisticsDetail =>
+      'Nothing that identifies you. Crash reports follow this choice from the next launch.';
+
+  @override
+  String get settingsPrivacy => 'Privacy';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String settingsVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get settingsLanguageFrench => 'Français';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
 }

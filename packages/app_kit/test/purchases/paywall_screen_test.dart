@@ -170,7 +170,6 @@ void main() {
     KitScope(
       config: config,
       crashReporter: FakeCrashReporter(),
-      languageOverride: ValueNotifier(null),
       child: Builder(
         builder: (context) => Scaffold(
           body: TextButton(

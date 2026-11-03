@@ -208,5 +208,53 @@
   "paywallRestoreFailed": "Purchases couldn’t be restored. Check your connection, then try again.",
   "@paywallRestoreFailed": {
     "description": "Snackbar: restore couldn't reach the store."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen."
+  },
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "Header of the language choice in settings."
+  },
+  "settingsLanguageDevice": "Phone’s language",
+  "@settingsLanguageDevice": {
+    "description": "Language choice that follows the phone's language (French or English, English otherwise)."
+  },
+  "settingsStatistics": "Share anonymous usage statistics and crash reports",
+  "@settingsStatistics": {
+    "description": "Settings switch (ADR 0005, section 2): it covers analytics and crash reports. Must name crash reports."
+  },
+  "settingsStatisticsDetail": "Nothing that identifies you. Crash reports follow this choice from the next launch.",
+  "@settingsStatisticsDetail": {
+    "description": "Under the statistics switch: what is sent, and that crash reports follow the switch only from the next launch, either way."
+  },
+  "settingsPrivacy": "Privacy",
+  "@settingsPrivacy": {
+    "description": "Header of the privacy section in settings (the statistics switch)."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Header of the about section in settings (the app version)."
+  },
+  "settingsVersion": "Version {version} ({build})",
+  "@settingsVersion": {
+    "description": "The app's version and build number, in settings.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageFrench": "Français",
+  "@settingsLanguageFrench": {
+    "description": "French, written in French in both languages."
+  },
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": {
+    "description": "English, written in English in both languages."
   }
 }

@@ -27,6 +27,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Exemple du kit'), findsOneWidget);
     expect(find.textContaining('ne sont jamais publiés'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Réglages'));
+    await tester.pumpAndSettle();
+    expect(find.text('Langue du téléphone'), findsOneWidget);
   });
 
   testWidgets('the sample app loads in English, onboarding first', (tester) async {
@@ -37,6 +41,10 @@ void main() {
     expect(find.text('Kit example'), findsOneWidget);
     expect(find.textContaining('never ship'), findsOneWidget);
     expect(find.text('Something went well'), findsOneWidget, reason: 'reports a good moment to the rating prompt');
+
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Phone’s language'), findsOneWidget);
   });
 
   test('every sample app message is in English and in French', () {

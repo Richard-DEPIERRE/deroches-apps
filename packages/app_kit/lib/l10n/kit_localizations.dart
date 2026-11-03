@@ -331,6 +331,66 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'Purchases couldn’t be restored. Check your connection, then try again.'**
   String get paywallRestoreFailed;
+
+  /// Title of the settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// Header of the language choice in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguage;
+
+  /// Language choice that follows the phone's language (French or English, English otherwise).
+  ///
+  /// In en, this message translates to:
+  /// **'Phone’s language'**
+  String get settingsLanguageDevice;
+
+  /// Settings switch (ADR 0005, section 2): it covers analytics and crash reports. Must name crash reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Share anonymous usage statistics and crash reports'**
+  String get settingsStatistics;
+
+  /// Under the statistics switch: what is sent, and that crash reports follow the switch only from the next launch, either way.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing that identifies you. Crash reports follow this choice from the next launch.'**
+  String get settingsStatisticsDetail;
+
+  /// Header of the privacy section in settings (the statistics switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacy;
+
+  /// Header of the about section in settings (the app version).
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAbout;
+
+  /// The app's version and build number, in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version} ({build})'**
+  String settingsVersion(String version, String build);
+
+  /// French, written in French in both languages.
+  ///
+  /// In en, this message translates to:
+  /// **'Français'**
+  String get settingsLanguageFrench;
+
+  /// English, written in English in both languages.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get settingsLanguageEnglish;
 }
 
 class _KitLocalizationsDelegate

@@ -211,4 +211,38 @@ class KitLocalizationsFr extends KitLocalizations {
   @override
   String get paywallRestoreFailed =>
       'Les achats n’ont pas pu être restaurés. Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get settingsTitle => 'Réglages';
+
+  @override
+  String get settingsLanguage => 'Langue';
+
+  @override
+  String get settingsLanguageDevice => 'Langue du téléphone';
+
+  @override
+  String get settingsStatistics =>
+      'Partager des statistiques d’utilisation et des rapports de plantage anonymes';
+
+  @override
+  String get settingsStatisticsDetail =>
+      'Rien qui vous identifie. Les rapports de plantage suivent ce choix au prochain lancement.';
+
+  @override
+  String get settingsPrivacy => 'Confidentialité';
+
+  @override
+  String get settingsAbout => 'À propos';
+
+  @override
+  String settingsVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get settingsLanguageFrench => 'Français';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
 }

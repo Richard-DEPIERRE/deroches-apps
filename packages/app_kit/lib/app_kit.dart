@@ -21,3 +21,4 @@ export 'src/purchases/paywall_screen.dart';
 export 'src/purchases/purchases.dart';
 export 'src/purchases/revenuecat_purchases.dart' show RevenueCatPurchases;
 export 'src/rating/rating_prompt.dart';
+export 'src/settings/settings_screen.dart';
