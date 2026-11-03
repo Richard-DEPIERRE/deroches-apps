@@ -20,6 +20,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Parses the Android backup rules in test/backup_rules_test.dart.
+  xml: ^6.6.1
 
 flutter:
   uses-material-design: true
