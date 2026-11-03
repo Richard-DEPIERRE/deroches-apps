@@ -137,7 +137,7 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String paywallPricePerPeriod(String price, String period) {
-    return '$price par $period';
+    return '$price par $period';
   }
 
   @override
@@ -158,7 +158,7 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String paywallSubscribe(String price, String period) {
-    return 'S’abonner pour $price par $period';
+    return 'S’abonner pour $price par $period';
   }
 
   @override
@@ -177,4 +177,38 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get paywallLoading => 'Chargement des prix';
+
+  @override
+  String get paywallError =>
+      'Les prix n’ont pas pu se charger. Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get paywallRetry => 'Réessayer';
+
+  @override
+  String get paywallEntitled => 'Vous avez déjà accès à tout.';
+
+  @override
+  String get paywallManage => 'Gérer l’abonnement';
+
+  @override
+  String get paywallPurchased => 'Achat confirmé, merci !';
+
+  @override
+  String get paywallRestored => 'Achats restaurés.';
+
+  @override
+  String get paywallNothingToRestore =>
+      'Aucun achat à restaurer sur ce compte.';
+
+  @override
+  String get paywallPending => 'Achat en attente de validation.';
+
+  @override
+  String get paywallBuyFailed =>
+      'L’achat n’a pas abouti. Réessayez dans un instant.';
+
+  @override
+  String get paywallRestoreFailed =>
+      'Les achats n’ont pas pu être restaurés. Vérifiez votre connexion, puis réessayez.';
 }

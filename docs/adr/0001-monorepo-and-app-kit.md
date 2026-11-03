@@ -73,6 +73,9 @@ its own issue. The kit's sample app shows the wiring and its placeholder screens
   each plan's price and period as the store gives them, when it renews and at what price, how to cancel (a plain line
   pointing to the store's subscription settings), "Restore purchases", the terms and privacy links, and a close button
   that works at once. No countdown, "only today", fake trial, guilt wording or delayed close button (anti-goal 3).
+- **No free trial or introductory price**, real or fake: the paywall states one store price per plan, so app setup
+  creates none and `RevenueCatPurchases` never sells a package that carries one. Adding trials later means disclosing
+  them on the paywall first, through a design review.
 - **Soft paywall, enforced in code**: the kit refuses to show a paywall before onboarding is complete and the app has
   reported its first useful moment (`markFirstValue()`), so a hard paywall on day one can't be built by mistake. The
   core of every app stays free; where the paywall shows is the Product Lead's call through a validated epic.
