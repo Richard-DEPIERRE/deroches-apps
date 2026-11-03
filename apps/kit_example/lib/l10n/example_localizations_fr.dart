@@ -31,6 +31,9 @@ class ExampleLocalizationsFr extends ExampleLocalizations {
   String get exampleGoodMoment => 'Quelque chose s’est bien passé';
 
   @override
+  String get exampleSeePlans => 'Voir les offres';
+
+  @override
   String get examplePaywallHeader => 'Notes et exports illimités';
 
   @override

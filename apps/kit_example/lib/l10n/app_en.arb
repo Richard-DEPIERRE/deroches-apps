@@ -24,6 +24,10 @@
   "@exampleGoodMoment": {
     "description": "Sample app button that reports a good moment to the rating prompt."
   },
+  "exampleSeePlans": "See the plans",
+  "@exampleSeePlans": {
+    "description": "Sample app button that opens the paywall once the soft-paywall gate allows it."
+  },
   "examplePaywallHeader": "Unlimited notes and exports",
   "@examplePaywallHeader": {
     "description": "Sample app paywall header: what the plans unlock."

@@ -22,6 +22,7 @@ final exampleConfig = AppConfig(
 );
 
 /// The sample app. [screen], for screenshots, replaces its home (onboarding first).
+/// Without [purchases] (no RevenueCat key) it sells nothing.
 Widget buildApp({
   WidgetBuilder? screen,
   CrashReporter crashReporter = const NoopCrashReporter(),
@@ -32,6 +33,7 @@ Widget buildApp({
   StoreReview review = const InAppStoreReview(),
 }) {
   final rating = RatingPrompt(kitState: kitState, review: review, analytics: analytics);
+  final gate = PaywallGate(kitState);
   return KitApp(
     config: exampleConfig,
     crashReporter: crashReporter,
@@ -58,6 +60,9 @@ Widget buildApp({
         ],
         child: PlaceholderHome(
           rating: rating,
+          gate: gate,
+          kitState: kitState,
+          purchases: purchases,
           settings: (_) => SettingsScreen(
             kitState: kitState,
             analytics: analytics,
@@ -88,13 +93,14 @@ Future<void> main() async {
   );
   // Null here: the sample app has no RevenueCat key, so it sells nothing.
   final store = await RevenueCatPurchases.start(exampleConfig);
+  final purchases = store == null ? null : Purchases(backend: store, analytics: analytics, plans: exampleConfig.plans);
   runApp(
     buildApp(
       crashReporter: crashReporter,
       kitState: kitState,
       analytics: analytics,
       data: ExampleData(directory),
-      purchases: store == null ? null : Purchases(backend: store, analytics: analytics, plans: exampleConfig.plans),
+      purchases: purchases,
     ),
   );
 }
@@ -117,12 +123,25 @@ class _Art extends StatelessWidget {
 }
 
 /// Shows the wiring works: the app's name from its config, its own strings,
-/// and a good moment reported to the rating prompt.
+/// a good moment reported to the rating prompt and the paywall gate, and the
+/// plans once the gate allows them.
 class PlaceholderHome extends StatelessWidget {
-  const PlaceholderHome({super.key, required this.rating, required this.settings});
+  const PlaceholderHome({
+    super.key,
+    required this.rating,
+    required this.gate,
+    required this.kitState,
+    required this.settings,
+    this.purchases,
+  });
 
   final RatingPrompt rating;
+  final PaywallGate gate;
+  final KitStateController kitState;
+  final Purchases? purchases;
   final WidgetBuilder settings;
+
+  static const placement = 'home';
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +166,35 @@ class PlaceholderHome extends StatelessWidget {
               Text(ExampleLocalizations.of(context).exampleHomeBody, style: Theme.of(context).textTheme.bodyLarge),
               const SizedBox(height: 24),
               FilledButton(
-                onPressed: rating.goodMoment,
+                // In a real app: the first note saved.
+                onPressed: () {
+                  gate.markFirstValue();
+                  rating.goodMoment();
+                },
                 child: Text(ExampleLocalizations.of(context).exampleGoodMoment),
+              ),
+              ListenableBuilder(
+                listenable: kitState,
+                builder: (context, _) {
+                  final purchases = this.purchases;
+                  if (purchases == null || !gate.canShow(placement)) return const SizedBox.shrink();
+                  final l10n = ExampleLocalizations.of(context);
+                  // The label lines up with the text above; the pressed highlight spills into the margin.
+                  final rtl = Directionality.of(context) == TextDirection.rtl;
+                  return Transform.translate(
+                    offset: Offset(rtl ? 12 : -12, 0),
+                    child: TextButton(
+                      onPressed: () => showPaywall(
+                        context,
+                        placement: placement,
+                        gate: gate,
+                        purchases: purchases,
+                        header: Text(l10n.examplePaywallHeader),
+                      ),
+                      child: Text(l10n.exampleSeePlans),
+                    ),
+                  );
+                },
               ),
             ],
           ),
