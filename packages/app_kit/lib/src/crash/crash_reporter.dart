@@ -25,7 +25,8 @@ class NoopCrashReporter implements CrashReporter {
 /// Sends framework and uncaught async errors to [reporter].
 ///
 /// Flutter errors still go to the handler it replaces (in an app, the one that
-/// prints them; in a widget test, the one that fails the test).
+/// prints them; in a widget test, the one that fails the test). Sentry's own
+/// Flutter-error handler is removed in `configureSentry`, so it isn't that one.
 ///
 /// Returns a function that puts the previous handlers back.
 VoidCallback installCrashReporter(CrashReporter reporter) {

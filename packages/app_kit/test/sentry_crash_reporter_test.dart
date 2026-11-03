@@ -6,6 +6,8 @@ import 'package:app_kit/testing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry_flutter/src/exception/flutter_error_integration.dart';
 
 const _dsn = 'https://public@o0.ingest.de.sentry.io/0';
 
@@ -117,6 +119,12 @@ void main() {
     expect(options.enableAutoNativeBreadcrumbs, isFalse);
     expect(options.enablePrintBreadcrumbs, isFalse);
     expect(options.enableUserInteractionBreadcrumbs, isFalse);
+  });
+
+  test("Sentry's own Flutter-error hook is removed, so the kit's hook reports each error once", () {
+    final options = SentryFlutterOptions()..addIntegration(FlutterErrorIntegration());
+    configureSentry(options, dsn: _dsn, slug: 'carnet-km', version: '1.2.0', build: '14');
+    expect(options.integrations.whereType<FlutterErrorIntegration>(), isEmpty);
   });
 
   test('debug builds, and apps without a DSN, send nothing', () async {
