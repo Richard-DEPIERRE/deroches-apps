@@ -1,5 +1,21 @@
 {
   "@@locale": "fr",
   "kitErrorTitle": "Un problème est survenu",
-  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages."
+  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.",
+  "paywallClose": "Fermer",
+  "paywallPlanWeekly": "Hebdomadaire",
+  "paywallPlanYearly": "Annuel",
+  "paywallPlanLifetime": "À vie",
+  "paywallPeriod": "{unit, select, day{{count, plural, =1{jour} other{{count} jours}}} week{{count, plural, =1{semaine} other{{count} semaines}}} month{{count, plural, =1{mois} other{{count} mois}}} other{{count, plural, =1{an} other{{count} ans}}}}",
+  "paywallPricePerPeriod": "{price} / {period}",
+  "paywallRenews": "Se renouvelle automatiquement à {price} / {period}, à la fin de chaque période, jusqu’à résiliation.",
+  "paywallOneTime": "Achat unique, sans renouvellement.",
+  "paywallCancelAppStore": "Résiliez à tout moment, au moins 24 heures avant le renouvellement, dans Réglages › votre nom › Abonnements.",
+  "paywallCancelGooglePlay": "Résiliez à tout moment dans Google Play › Paiements et abonnements › Abonnements.",
+  "paywallSubscribe": "S’abonner pour {price} / {period}",
+  "paywallBuyOnce": "Acheter pour {price}",
+  "paywallRestore": "Restaurer les achats",
+  "paywallTerms": "Conditions d’utilisation",
+  "paywallPrivacy": "Politique de confidentialité",
+  "paywallLoading": "Chargement des prix"
 }

@@ -22,6 +22,8 @@ dependencies:
   package_info_plus: ^10.2.2
   file_picker: ^13.3.2
   posthog_flutter: ^5.58.4
+  # Opens the legal links (the paywall's terms and privacy, then settings).
+  url_launcher: ^6.3.2
 
 flutter:
   generate: true

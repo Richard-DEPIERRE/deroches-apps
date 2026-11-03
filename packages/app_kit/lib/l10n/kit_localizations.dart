@@ -109,6 +109,102 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'This part of the app couldn’t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.'**
   String get kitErrorBody;
+
+  /// Tooltip of the paywall's close button: neutral, never guilt wording.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get paywallClose;
+
+  /// Name of the weekly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get paywallPlanWeekly;
+
+  /// Name of the yearly plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Yearly'**
+  String get paywallPlanYearly;
+
+  /// Name of the lifetime plan (a one-time purchase).
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get paywallPlanLifetime;
+
+  /// A subscription's billing period as the store gives it (unit: day, week, month or year).
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, day{{count, plural, =1{day} other{{count} days}}} week{{count, plural, =1{week} other{{count} weeks}}} month{{count, plural, =1{month} other{{count} months}}} other{{count, plural, =1{year} other{{count} years}}}}'**
+  String paywallPeriod(String unit, int count);
+
+  /// A subscription's price as the store formats it, and its period.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} / {period}'**
+  String paywallPricePerPeriod(String price, String period);
+
+  /// When a subscription renews and at what price.
+  ///
+  /// In en, this message translates to:
+  /// **'Renews automatically at {price} / {period}, at the end of each period, until you cancel.'**
+  String paywallRenews(String price, String period);
+
+  /// Under the lifetime plan.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase, never renews.'**
+  String get paywallOneTime;
+
+  /// How to cancel on iPhone: the path to the App Store subscriptions in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime, at least 24 hours before renewal, in Settings › your name › Subscriptions.'**
+  String get paywallCancelAppStore;
+
+  /// How to cancel on Android: the path to the Google Play subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime in Google Play › Payments & subscriptions › Subscriptions.'**
+  String get paywallCancelGooglePlay;
+
+  /// Buy button for a subscription; the price is the store's.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe for {price} / {period}'**
+  String paywallSubscribe(String price, String period);
+
+  /// Buy button for the lifetime plan; the price is the store's.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy for {price}'**
+  String paywallBuyOnce(String price);
+
+  /// Restores the store account's purchases.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get paywallRestore;
+
+  /// Link to the app's terms.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get paywallTerms;
+
+  /// Link to the app's privacy policy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get paywallPrivacy;
+
+  /// Screen-reader label while the store's prices load.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading prices'**
+  String get paywallLoading;
 }
 
 class _KitLocalizationsDelegate
