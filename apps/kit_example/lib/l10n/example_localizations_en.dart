@@ -28,4 +28,16 @@ class ExampleLocalizationsEn extends ExampleLocalizations {
 
   @override
   String get exampleGoodMoment => 'Something went well';
+
+  @override
+  String get examplePaywallHeader => 'Unlimited notes and exports';
+
+  @override
+  String get exampleShotOnboarding => 'A short welcome, then your notes';
+
+  @override
+  String get exampleShotPaywall => 'Clear prices, no commitment';
+
+  @override
+  String get exampleShotSettings => 'Your language, your choices';
 }

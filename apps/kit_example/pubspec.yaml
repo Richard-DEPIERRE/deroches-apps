@@ -21,6 +21,8 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Gives the settings screen a made-up version in test/screenshots_test.dart.
+  package_info_plus: ^10.2.2
   # Parses the Android backup rules in test/backup_rules_test.dart.
   xml: ^6.6.1
 

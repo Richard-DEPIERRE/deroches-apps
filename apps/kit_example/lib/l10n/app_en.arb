@@ -23,5 +23,21 @@
   "exampleGoodMoment": "Something went well",
   "@exampleGoodMoment": {
     "description": "Sample app button that reports a good moment to the rating prompt."
+  },
+  "examplePaywallHeader": "Unlimited notes and exports",
+  "@examplePaywallHeader": {
+    "description": "Sample app paywall header: what the plans unlock."
+  },
+  "exampleShotOnboarding": "A short welcome, then your notes",
+  "@exampleShotOnboarding": {
+    "description": "Store screenshot caption over the onboarding screen."
+  },
+  "exampleShotPaywall": "Clear prices, no commitment",
+  "@exampleShotPaywall": {
+    "description": "Store screenshot caption over the paywall."
+  },
+  "exampleShotSettings": "Your language, your choices",
+  "@exampleShotSettings": {
+    "description": "Store screenshot caption over the settings screen."
   }
 }
