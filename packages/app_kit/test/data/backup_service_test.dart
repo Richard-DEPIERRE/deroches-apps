@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -223,5 +224,17 @@ void main() {
     expect(bytesOf('notes'), notesBefore);
     await inUse.save(before);
     expect(await notes().open(), before);
+  });
+
+  test('a file over the size limit is refused before it is read', () async {
+    await expectRefused(List.filled(BackupService.maxBytes + 1, 0x20), BackupFailure.tooLarge);
+  });
+
+  test('every failure has its own message, in French and in English', () {
+    for (final lang in ['fr', 'en']) {
+      final l = lookupKitLocalizations(Locale(lang));
+      final messages = {for (final reason in BackupFailure.values) reason.message(l)};
+      expect(messages, hasLength(BackupFailure.values.length), reason: lang);
+    }
   });
 }
