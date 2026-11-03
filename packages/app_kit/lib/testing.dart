@@ -50,9 +50,9 @@ class FakeAnalyticsBackend implements AnalyticsBackend {
 /// Plays the store: the `default` offering's three packages, at made-up prices.
 class FakePurchasesBackend implements PurchasesBackend {
   final storePackages = [
-    const StorePackage(id: r'$rc_weekly', price: '0,99 €', period: 'P1W'),
-    const StorePackage(id: r'$rc_annual', price: '9,99 €', period: 'P1Y'),
-    const StorePackage(id: r'$rc_lifetime', price: '24,99 €'),
+    const StorePackage(id: r'$rc_weekly', price: '0,99\u00a0€', period: 'P1W'),
+    const StorePackage(id: r'$rc_annual', price: '9,99\u00a0€', period: 'P1Y'),
+    const StorePackage(id: r'$rc_lifetime', price: '24,99\u00a0€'),
   ];
 
   /// What the next [buy] returns; a [Purchased] turns the entitlement on.
@@ -63,6 +63,12 @@ class FakePurchasesBackend implements PurchasesBackend {
 
   /// [restore] can't reach the store.
   bool failRestore = false;
+
+  /// [packages] can't reach the store.
+  bool failPackages = false;
+
+  @override
+  Uri? manageUrl;
 
   /// While set and not complete, [packages] waits for it: the prices are loading.
   Completer<void>? holdPackages;
@@ -76,6 +82,7 @@ class FakePurchasesBackend implements PurchasesBackend {
   @override
   Future<List<StorePackage>> packages() async {
     await holdPackages?.future;
+    if (failPackages) throw StateError('store unreachable');
     return List.of(storePackages);
   }
 
@@ -91,6 +98,19 @@ class FakePurchasesBackend implements PurchasesBackend {
     if (failRestore) throw StateError('store unreachable');
     entitled.value = ownedOnStore;
   }
+}
+
+/// Counts the rating prompts the kit asked the platform for.
+class FakeStoreReview implements StoreReview {
+  /// False plays a platform without the store's prompt.
+  bool available = true;
+  int requests = 0;
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Future<void> requestReview() async => requests++;
 }
 
 /// Plays the system save dialog and file picker: keeps what was saved, and

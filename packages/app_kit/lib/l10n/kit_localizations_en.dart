@@ -137,7 +137,7 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String paywallPricePerPeriod(String price, String period) {
-    return '$price per $period';
+    return '$price per $period';
   }
 
   @override
@@ -158,7 +158,7 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String paywallSubscribe(String price, String period) {
-    return 'Subscribe for $price per $period';
+    return 'Subscribe for $price per $period';
   }
 
   @override
@@ -179,6 +179,40 @@ class KitLocalizationsEn extends KitLocalizations {
   String get paywallLoading => 'Loading prices';
 
   @override
+  String get paywallError =>
+      'Prices couldn’t load. Check your connection, then try again.';
+
+  @override
+  String get paywallRetry => 'Try again';
+
+  @override
+  String get paywallEntitled => 'You already have full access.';
+
+  @override
+  String get paywallManage => 'Manage subscription';
+
+  @override
+  String get paywallPurchased => 'Purchase confirmed, thank you!';
+
+  @override
+  String get paywallRestored => 'Purchases restored.';
+
+  @override
+  String get paywallNothingToRestore =>
+      'No purchases to restore on this account.';
+
+  @override
+  String get paywallPending => 'Purchase waiting for approval.';
+
+  @override
+  String get paywallBuyFailed =>
+      'The purchase didn’t go through. Try again in a moment.';
+
+  @override
+  String get paywallRestoreFailed =>
+      'Purchases couldn’t be restored. Check your connection, then try again.';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -193,7 +227,10 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get settingsStatisticsDetail =>
-      'Nothing that identifies you. Crash reports stop from the next launch.';
+      'Nothing that identifies you. Crash reports follow this choice from the next launch.';
+
+  @override
+  String get settingsPrivacy => 'Privacy';
 
   @override
   String get settingsAbout => 'About';

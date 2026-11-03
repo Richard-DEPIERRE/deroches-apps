@@ -96,7 +96,7 @@
       }
     }
   },
-  "paywallPricePerPeriod": "{price} per {period}",
+  "paywallPricePerPeriod": "{price} per {period}",
   "@paywallPricePerPeriod": {
     "description": "A subscription's price as the store formats it, and its period.",
     "placeholders": {
@@ -132,7 +132,7 @@
   "@paywallCancelGooglePlay": {
     "description": "How to cancel on Android: the path to the Google Play subscriptions."
   },
-  "paywallSubscribe": "Subscribe for {price} per {period}",
+  "paywallSubscribe": "Subscribe for {price} per {period}",
   "@paywallSubscribe": {
     "description": "Buy button for a subscription; the price is the store's.",
     "placeholders": {
@@ -169,6 +169,46 @@
   "@paywallLoading": {
     "description": "Screen-reader label while the store's prices load."
   },
+  "paywallError": "Prices couldn’t load. Check your connection, then try again.",
+  "@paywallError": {
+    "description": "Shown instead of the plans when the store's prices can't be loaded."
+  },
+  "paywallRetry": "Try again",
+  "@paywallRetry": {
+    "description": "Button under paywallError: loads the prices again."
+  },
+  "paywallEntitled": "You already have full access.",
+  "@paywallEntitled": {
+    "description": "Shown instead of the plans while the purchase is active."
+  },
+  "paywallManage": "Manage subscription",
+  "@paywallManage": {
+    "description": "Button that opens the store's page for the active subscription."
+  },
+  "paywallPurchased": "Purchase confirmed, thank you!",
+  "@paywallPurchased": {
+    "description": "Snackbar on the app's screen once a purchase went through and the paywall closed."
+  },
+  "paywallRestored": "Purchases restored.",
+  "@paywallRestored": {
+    "description": "Snackbar: restore found a purchase."
+  },
+  "paywallNothingToRestore": "No purchases to restore on this account.",
+  "@paywallNothingToRestore": {
+    "description": "Snackbar: restore found no purchase on the store account."
+  },
+  "paywallPending": "Purchase waiting for approval.",
+  "@paywallPending": {
+    "description": "Snackbar: the purchase waits for someone else, such as a parent (Ask to Buy)."
+  },
+  "paywallBuyFailed": "The purchase didn’t go through. Try again in a moment.",
+  "@paywallBuyFailed": {
+    "description": "Snackbar: the store failed the purchase. Never shown when the user cancels."
+  },
+  "paywallRestoreFailed": "Purchases couldn’t be restored. Check your connection, then try again.",
+  "@paywallRestoreFailed": {
+    "description": "Snackbar: restore couldn't reach the store."
+  },
   "settingsTitle": "Settings",
   "@settingsTitle": {
     "description": "Title of the settings screen."
@@ -185,9 +225,13 @@
   "@settingsStatistics": {
     "description": "Settings switch (ADR 0005, section 2): it covers analytics and crash reports. Must name crash reports."
   },
-  "settingsStatisticsDetail": "Nothing that identifies you. Crash reports stop from the next launch.",
+  "settingsStatisticsDetail": "Nothing that identifies you. Crash reports follow this choice from the next launch.",
   "@settingsStatisticsDetail": {
-    "description": "Under the statistics switch: what is sent, and when turning it off takes effect for crash reports."
+    "description": "Under the statistics switch: what is sent, and that crash reports follow the switch only from the next launch, either way."
+  },
+  "settingsPrivacy": "Privacy",
+  "@settingsPrivacy": {
+    "description": "Header of the privacy section in settings (the statistics switch)."
   },
   "settingsAbout": "About",
   "@settingsAbout": {

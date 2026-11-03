@@ -25,12 +25,16 @@ const texts = {
   'fr': (
     title: 'Réglages',
     device: 'Langue du téléphone',
+    headers: ['Langue', 'Confidentialité', 'À propos'],
+    switchDetail: 'Rien qui vous identifie. Les rapports de plantage suivent ce choix au prochain lancement.',
     switchLabel: 'Partager des statistiques d’utilisation et des rapports de plantage anonymes',
     version: 'Version 1.2.0 (34)',
   ),
   'en': (
     title: 'Settings',
     device: 'Phone’s language',
+    headers: ['Language', 'Privacy', 'About'],
+    switchDetail: 'Nothing that identifies you. Crash reports follow this choice from the next launch.',
     switchLabel: 'Share anonymous usage statistics and crash reports',
     version: 'Version 1.2.0 (34)',
   ),
@@ -99,13 +103,36 @@ void main() {
   for (final MapEntry(key: lang, value: t) in texts.entries) {
     final device = Locale(lang);
 
+    // In screen order: scrollUntilVisible only scrolls down.
     testWidgets('$lang: every item is there, on a small phone at large text', (tester) async {
       await launch(tester, device);
       expect(find.text(t.title), findsOneWidget);
-      for (final text in ['App section', t.device, 'Français', 'English', t.switchLabel, t.version]) {
+      for (final text in [
+        'App section',
+        t.headers[0],
+        t.device,
+        'Français',
+        'English',
+        t.headers[1],
+        t.switchLabel,
+        t.switchDetail,
+        t.headers[2],
+        t.version,
+      ]) {
         await expectVisible(tester, text);
       }
       expect(tester.takeException(), isNull, reason: 'no overflow at twice the text size');
+    });
+
+    testWidgets('$lang: section headers are headings for screen readers', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await launch(tester, device);
+      for (final text in t.headers) {
+        await expectVisible(tester, text);
+        expect(tester.getSemantics(find.text(text)), matchesSemantics(label: text, isHeader: true));
+      }
+      expect(find.byType(Divider), findsNothing);
+      semantics.dispose();
     });
 
     testWidgets('$lang: the statistics switch is saved', (tester) async {

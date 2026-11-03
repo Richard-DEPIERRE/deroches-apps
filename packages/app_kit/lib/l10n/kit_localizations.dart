@@ -209,7 +209,7 @@ abstract class KitLocalizations {
   /// A subscription's price as the store formats it, and its period.
   ///
   /// In en, this message translates to:
-  /// **'{price} per {period}'**
+  /// **'{price} per {period}'**
   String paywallPricePerPeriod(String price, String period);
 
   /// When a subscription renews and at what price.
@@ -239,7 +239,7 @@ abstract class KitLocalizations {
   /// Buy button for a subscription; the price is the store's.
   ///
   /// In en, this message translates to:
-  /// **'Subscribe for {price} per {period}'**
+  /// **'Subscribe for {price} per {period}'**
   String paywallSubscribe(String price, String period);
 
   /// Buy button for the lifetime plan; the price is the store's.
@@ -272,6 +272,66 @@ abstract class KitLocalizations {
   /// **'Loading prices'**
   String get paywallLoading;
 
+  /// Shown instead of the plans when the store's prices can't be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices couldn’t load. Check your connection, then try again.'**
+  String get paywallError;
+
+  /// Button under paywallError: loads the prices again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get paywallRetry;
+
+  /// Shown instead of the plans while the purchase is active.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have full access.'**
+  String get paywallEntitled;
+
+  /// Button that opens the store's page for the active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get paywallManage;
+
+  /// Snackbar on the app's screen once a purchase went through and the paywall closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase confirmed, thank you!'**
+  String get paywallPurchased;
+
+  /// Snackbar: restore found a purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored.'**
+  String get paywallRestored;
+
+  /// Snackbar: restore found no purchase on the store account.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases to restore on this account.'**
+  String get paywallNothingToRestore;
+
+  /// Snackbar: the purchase waits for someone else, such as a parent (Ask to Buy).
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase waiting for approval.'**
+  String get paywallPending;
+
+  /// Snackbar: the store failed the purchase. Never shown when the user cancels.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase didn’t go through. Try again in a moment.'**
+  String get paywallBuyFailed;
+
+  /// Snackbar: restore couldn't reach the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases couldn’t be restored. Check your connection, then try again.'**
+  String get paywallRestoreFailed;
+
   /// Title of the settings screen.
   ///
   /// In en, this message translates to:
@@ -296,11 +356,17 @@ abstract class KitLocalizations {
   /// **'Share anonymous usage statistics and crash reports'**
   String get settingsStatistics;
 
-  /// Under the statistics switch: what is sent, and when turning it off takes effect for crash reports.
+  /// Under the statistics switch: what is sent, and that crash reports follow the switch only from the next launch, either way.
   ///
   /// In en, this message translates to:
-  /// **'Nothing that identifies you. Crash reports stop from the next launch.'**
+  /// **'Nothing that identifies you. Crash reports follow this choice from the next launch.'**
   String get settingsStatisticsDetail;
+
+  /// Header of the privacy section in settings (the statistics switch).
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacy;
 
   /// Header of the about section in settings (the app version).
   ///

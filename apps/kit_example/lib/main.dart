@@ -25,7 +25,9 @@ Widget buildApp({
   CrashReporter crashReporter = const NoopCrashReporter(),
   required KitStateController kitState,
   required Analytics analytics,
+  StoreReview review = const InAppStoreReview(),
 }) {
+  final rating = RatingPrompt(kitState: kitState, review: review, analytics: analytics);
   return KitApp(
     config: exampleConfig,
     crashReporter: crashReporter,
@@ -49,7 +51,10 @@ Widget buildApp({
             illustration: const _Art(Icons.lock),
           ),
         ],
-        child: PlaceholderHome(settings: (_) => SettingsScreen(kitState: kitState)),
+        child: PlaceholderHome(
+          rating: rating,
+          settings: (_) => SettingsScreen(kitState: kitState),
+        ),
       );
     },
   );
@@ -90,10 +95,12 @@ class _Art extends StatelessWidget {
   }
 }
 
-/// Shows the wiring works: the app's name from its config, its own strings.
+/// Shows the wiring works: the app's name from its config, its own strings,
+/// and a good moment reported to the rating prompt.
 class PlaceholderHome extends StatelessWidget {
-  const PlaceholderHome({super.key, required this.settings});
+  const PlaceholderHome({super.key, required this.rating, required this.settings});
 
+  final RatingPrompt rating;
   final WidgetBuilder settings;
 
   @override
@@ -113,7 +120,17 @@ class PlaceholderHome extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Text(ExampleLocalizations.of(context).exampleHomeBody, style: Theme.of(context).textTheme.bodyLarge),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(ExampleLocalizations.of(context).exampleHomeBody, style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: rating.goodMoment,
+                child: Text(ExampleLocalizations.of(context).exampleGoodMoment),
+              ),
+            ],
+          ),
         ),
       ),
     );

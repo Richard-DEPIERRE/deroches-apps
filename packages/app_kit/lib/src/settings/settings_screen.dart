@@ -29,7 +29,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = Theme.of(context);
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-      child: Text(text, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+      child: Semantics(
+        header: true,
+        child: Text(text, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+      ),
     );
 
     return Scaffold(
@@ -60,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                 ),
               ),
-              const Divider(),
+              header(l10n.settingsPrivacy),
               SwitchListTile(
                 title: Text(l10n.settingsStatistics),
                 subtitle: Text(l10n.settingsStatisticsDetail),

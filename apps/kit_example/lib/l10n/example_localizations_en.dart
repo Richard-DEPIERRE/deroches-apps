@@ -25,4 +25,7 @@ class ExampleLocalizationsEn extends ExampleLocalizations {
   @override
   String get exampleOnboarding2Body =>
       'Nothing you write leaves the device. You can skip these pages at any time.';
+
+  @override
+  String get exampleGoodMoment => 'Something went well';
 }
