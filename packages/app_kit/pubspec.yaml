@@ -14,7 +14,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
-  # For lib/testing.dart, the fakes and helpers app tests import.
+  # For lib/testing.dart, the fakes and helpers (the data-upgrade test among
+  # them) that app tests import; never reaches a release build.
   flutter_test:
     sdk: flutter
   sentry_flutter: ^10.2.0
