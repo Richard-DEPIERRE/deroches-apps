@@ -164,15 +164,20 @@ class PlaceholderHome extends StatelessWidget {
                   final purchases = this.purchases;
                   if (purchases == null || !gate.canShow(placement)) return const SizedBox.shrink();
                   final l10n = ExampleLocalizations.of(context);
-                  return TextButton(
-                    onPressed: () => showPaywall(
-                      context,
-                      placement: placement,
-                      gate: gate,
-                      purchases: purchases,
-                      header: Text(l10n.examplePaywallHeader),
+                  // The label lines up with the text above; the pressed highlight spills into the margin.
+                  final rtl = Directionality.of(context) == TextDirection.rtl;
+                  return Transform.translate(
+                    offset: Offset(rtl ? 12 : -12, 0),
+                    child: TextButton(
+                      onPressed: () => showPaywall(
+                        context,
+                        placement: placement,
+                        gate: gate,
+                        purchases: purchases,
+                        header: Text(l10n.examplePaywallHeader),
+                      ),
+                      child: Text(l10n.exampleSeePlans),
                     ),
-                    child: Text(l10n.exampleSeePlans),
                   );
                 },
               ),

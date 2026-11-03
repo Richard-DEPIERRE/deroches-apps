@@ -58,6 +58,11 @@ void main() {
 
     await tester.tap(find.text('Something went well'));
     await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(find.text('See the plans')).dx,
+      tester.getTopLeft(find.textContaining('never ship')).dx,
+      reason: 'the label lines up with the body text (DAPP-105)',
+    );
     await tester.tap(find.text('See the plans'));
     await tester.pumpAndSettle();
     expect(find.text('Unlimited notes and exports'), findsOneWidget);
