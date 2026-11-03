@@ -106,6 +106,30 @@ abstract class ExampleLocalizations {
   /// In en, this message translates to:
   /// **'This is the kit\'s sample app. Its screens never ship.'**
   String get exampleHomeBody;
+
+  /// Sample app onboarding, page 1 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get exampleOnboarding1Title;
+
+  /// Sample app onboarding, page 1 body.
+  ///
+  /// In en, this message translates to:
+  /// **'This page shows how an app introduces itself on first launch.'**
+  String get exampleOnboarding1Body;
+
+  /// Sample app onboarding, page 2 title.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on your phone'**
+  String get exampleOnboarding2Title;
+
+  /// Sample app onboarding, page 2 body.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing you write leaves the device. You can skip these pages at any time.'**
+  String get exampleOnboarding2Body;
 }
 
 class _ExampleLocalizationsDelegate

@@ -110,6 +110,30 @@ abstract class KitLocalizations {
   /// **'This part of the app couldn’t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.'**
   String get kitErrorBody;
 
+  /// Onboarding button that skips the remaining pages and opens the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get kitOnboardingSkip;
+
+  /// Onboarding button that goes to the next page.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get kitOnboardingNext;
+
+  /// Onboarding button on the last page; opens the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get kitOnboardingDone;
+
+  /// Screen-reader label of the onboarding page dots.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {current} of {total}'**
+  String kitOnboardingPage(int current, int total);
+
   /// Shown when a backup export or restore fails because the data can't be read: a picked file that isn't this app's backup, or a damaged backup or document. Must not say it is the picked file: an export fails this way too.
   ///
   /// In en, this message translates to:

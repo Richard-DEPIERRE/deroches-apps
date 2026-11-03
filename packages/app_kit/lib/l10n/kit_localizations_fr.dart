@@ -16,6 +16,20 @@ class KitLocalizationsFr extends KitLocalizations {
       'Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.';
 
   @override
+  String get kitOnboardingSkip => 'Passer';
+
+  @override
+  String get kitOnboardingNext => 'Suivant';
+
+  @override
+  String get kitOnboardingDone => 'Commencer';
+
+  @override
+  String kitOnboardingPage(int current, int total) {
+    return 'Page $current sur $total';
+  }
+
+  @override
   String get backupFailedUnreadable =>
       'Ces données n’ont pas pu être lues : elles sont abîmées, ou ne viennent pas de cette application. Vos données n’ont pas changé.';
 

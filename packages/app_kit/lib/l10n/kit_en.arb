@@ -8,6 +8,30 @@
   "@kitErrorBody": {
     "description": "Body of the error screen: what happened and what the user can do."
   },
+  "kitOnboardingSkip": "Skip",
+  "@kitOnboardingSkip": {
+    "description": "Onboarding button that skips the remaining pages and opens the app."
+  },
+  "kitOnboardingNext": "Next",
+  "@kitOnboardingNext": {
+    "description": "Onboarding button that goes to the next page."
+  },
+  "kitOnboardingDone": "Get started",
+  "@kitOnboardingDone": {
+    "description": "Onboarding button on the last page; opens the app."
+  },
+  "kitOnboardingPage": "Page {current} of {total}",
+  "@kitOnboardingPage": {
+    "description": "Screen-reader label of the onboarding page dots.",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "backupFailedUnreadable": "This data couldn’t be read: it’s damaged, or it isn’t from this app. Your data hasn’t changed.",
   "@backupFailedUnreadable": {
     "description": "Shown when a backup export or restore fails because the data can't be read: a picked file that isn't this app's backup, or a damaged backup or document. Must not say it is the picked file: an export fails this way too."

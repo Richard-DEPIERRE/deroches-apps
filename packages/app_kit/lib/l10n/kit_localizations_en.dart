@@ -16,6 +16,20 @@ class KitLocalizationsEn extends KitLocalizations {
       'This part of the app couldn’t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.';
 
   @override
+  String get kitOnboardingSkip => 'Skip';
+
+  @override
+  String get kitOnboardingNext => 'Next';
+
+  @override
+  String get kitOnboardingDone => 'Get started';
+
+  @override
+  String kitOnboardingPage(int current, int total) {
+    return 'Page $current of $total';
+  }
+
+  @override
   String get backupFailedUnreadable =>
       'This data couldn’t be read: it’s damaged, or it isn’t from this app. Your data hasn’t changed.';
 
