@@ -17,6 +17,7 @@ AppConfig _config({
   String? postHogKey,
   String? revenueCatAppleKey,
   String? revenueCatGoogleKey,
+  String? appStoreId,
 }) => AppConfig(
   slug: slug,
   names: names,
@@ -27,12 +28,20 @@ AppConfig _config({
   postHogKey: postHogKey,
   revenueCatAppleKey: revenueCatAppleKey,
   revenueCatGoogleKey: revenueCatGoogleKey,
+  appStoreId: appStoreId,
 );
 
 void main() {
   test('a complete config has no problems', () {
     expect(_config().problems, isEmpty);
     expect(_config().check, returnsNormally);
+  });
+
+  test('the App Store id is digits, when there is one', () {
+    expect(_config(appStoreId: '6478123456').problems, isEmpty);
+    for (final bad in ['', 'id6478123456', '6478 123', 'fr.example.carnet']) {
+      expect(_config(appStoreId: bad).problems, [contains('App Store id')], reason: bad);
+    }
   });
 
   test('the slug must be the store wrapper form', () {
