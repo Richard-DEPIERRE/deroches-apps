@@ -234,74 +234,77 @@ class _PaywallScreenState extends State<PaywallScreen> {
       ),
       child: SafeArea(
         top: false,
-        minimum: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height / 4),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      !picked.renews
-                          ? l10n.paywallOneTime
-                          : ios
-                          ? l10n.paywallCancelAppStore
-                          : l10n.paywallCancelGooglePlay,
-                      style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-                      textAlign: TextAlign.center,
-                    ),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      children: [
-                        TextButton(
-                          onPressed: _busy != _Busy.none ? null : () => _restore(l10n),
-                          child: _Spinning(_busy == _Busy.restoring, colors.primary, Text(l10n.paywallRestore)),
-                        ),
-                        // The legal pair breaks as one, so neither link is ever alone on a line.
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () => widget.openLink(widget.legal.terms),
-                              child: Text(l10n.paywallTerms),
-                            ),
-                            TextButton(
-                              onPressed: () => widget.openLink(widget.legal.privacy),
-                              child: Text(l10n.paywallPrivacy),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
+        // Padding, not `minimum`: the button keeps 16 above the home indicator, as in onboarding.
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height / 4),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        !picked.renews
+                            ? l10n.paywallOneTime
+                            : ios
+                            ? l10n.paywallCancelAppStore
+                            : l10n.paywallCancelGooglePlay,
+                        style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                        textAlign: TextAlign.center,
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: _busy != _Busy.none ? null : () => _restore(l10n),
+                            child: _Spinning(_busy == _Busy.restoring, colors.primary, Text(l10n.paywallRestore)),
+                          ),
+                          // The legal pair breaks as one, so neither link is ever alone on a line.
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              TextButton(
+                                onPressed: () => widget.openLink(widget.legal.terms),
+                                child: Text(l10n.paywallTerms),
+                              ),
+                              TextButton(
+                                onPressed: () => widget.openLink(widget.legal.privacy),
+                                child: Text(l10n.paywallPrivacy),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            FilledButton(
-              // While buying it keeps its colours, so it reads as in progress, not unavailable.
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(52),
-                disabledBackgroundColor: _busy == _Busy.buying ? colors.primary : null,
-                disabledForegroundColor: _busy == _Busy.buying ? colors.onPrimary : null,
-              ),
-              onPressed: _busy != _Busy.none ? null : () => _buy(picked, l10n),
-              child: _Spinning(
-                _busy == _Busy.buying,
-                colors.onPrimary,
-                Text(
-                  picked.renews
-                      ? l10n.paywallSubscribe(picked.price, _perPeriod(l10n, picked))
-                      : l10n.paywallBuyOnce(picked.price),
-                  textAlign: TextAlign.center,
+              const SizedBox(height: 8),
+              FilledButton(
+                // While buying it keeps its colours, so it reads as in progress, not unavailable.
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                  disabledBackgroundColor: _busy == _Busy.buying ? colors.primary : null,
+                  disabledForegroundColor: _busy == _Busy.buying ? colors.onPrimary : null,
+                ),
+                onPressed: _busy != _Busy.none ? null : () => _buy(picked, l10n),
+                child: _Spinning(
+                  _busy == _Busy.buying,
+                  colors.onPrimary,
+                  Text(
+                    picked.renews
+                        ? l10n.paywallSubscribe(picked.price, _perPeriod(l10n, picked))
+                        : l10n.paywallBuyOnce(picked.price),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
