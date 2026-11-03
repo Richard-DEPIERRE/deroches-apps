@@ -111,9 +111,11 @@ class BackupService {
     if (bytes == null) return const BackupCancelled();
     final restored = _decode(bytes);
 
-    final current = {
-      for (final store in restored.keys) store: store.file.existsSync() ? await store.file.readAsBytes() : null,
-    };
+    final current = <DataStore, List<int>?>{};
+    for (final store in restored.keys) {
+      await store.flush(); // keep a save still being written
+      current[store] = store.file.existsSync() ? await store.file.readAsBytes() : null;
+    }
     try {
       for (final MapEntry(key: store, value: data) in restored.entries) {
         if (current[store] case final bytes?) {
@@ -124,7 +126,8 @@ class BackupService {
     } catch (_) {
       for (final MapEntry(key: store, value: bytes) in current.entries) {
         if (bytes != null) {
-          await store.file.writeAsBytes(bytes, flush: true);
+          final temp = await File('${store.file.path}.tmp').writeAsBytes(bytes, flush: true);
+          await temp.rename(store.file.path);
         } else if (store.file.existsSync()) {
           await store.file.delete();
         }

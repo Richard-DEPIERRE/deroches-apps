@@ -105,6 +105,20 @@ void main() {
     expect(copy('kit'), {'onboarded': false});
   });
 
+  test('a save still being written when the restore starts is in the copy it keeps', () async {
+    await seed(before);
+    await service().export();
+    final inUse = notes();
+    await inUse.open();
+    final saving = inUse.save({'notes': <Object?>[]});
+    files.picked = files.saved.values.single;
+    expect(await service([inUse, kit()]).restore(), isA<BackupDone>());
+    await saving;
+    final copy = jsonDecode(File('${dir.path}/notes.json.before-restore').readAsStringSync());
+    expect(copy['data'], {'notes': <Object?>[]});
+    expect(await notes().open(), before);
+  });
+
   test('an old backup restores and upgrades with the app\'s migrations', () async {
     await seed({'notes': <Object?>[]});
     files.picked = utf8.encode(
@@ -154,6 +168,20 @@ void main() {
       }),
       BackupFailure.newerSchema,
     );
+  });
+
+  test('a backup whose later document is bad is refused before the good one is written', () async {
+    await expectRefused(
+      backupOf({
+        'notes': {
+          'schema': 2,
+          'data': {'notes': <Object?>[]},
+        },
+        'kit': {'schema': 2, 'data': <String, Object?>{}},
+      }),
+      BackupFailure.newerSchema,
+    );
+    expect(File('${dir.path}/notes.json.before-restore').existsSync(), isFalse);
   });
 
   test('a backup a migration can\'t upgrade is refused with the current data intact', () async {

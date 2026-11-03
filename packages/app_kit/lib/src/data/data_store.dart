@@ -81,8 +81,11 @@ class DataStore {
     return _enqueue(data);
   }
 
+  /// Waits for the saves already called to be written (failed ones included).
+  Future<void> flush() => _saving.catchError((Object _) {});
+
   Future<(int, Map<String, Object?>)> _read() async {
-    await _saving.catchError((Object _) {}); // read what earlier saves wrote
+    await flush(); // read what earlier saves wrote
     if (!file.existsSync()) return (schema, initial());
     final (from, data) = _decode(await file.readAsBytes());
     return (from, upgrade(data, from: from, migrations: migrations));
