@@ -14,7 +14,8 @@ Future<void> pumpApp(WidgetTester tester, Locale deviceLocale) async {
   await tester.runAsync(kitState.load);
   tester.platformDispatcher.localesTestValue = [deviceLocale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  await tester.pumpWidget(buildApp(kitState: kitState));
+  final analytics = Analytics(kitState: kitState, appId: exampleConfig.slug, appVersion: '0.1.0', locale: () => 'en');
+  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics));
   await tester.pumpAndSettle();
 }
 

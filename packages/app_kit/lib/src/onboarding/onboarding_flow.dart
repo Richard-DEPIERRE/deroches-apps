@@ -43,7 +43,8 @@ class OnboardingFlow extends StatelessWidget {
         pages: pages,
         onDone: (skipped) {
           analytics.track(skipped ? 'onboarding.dismiss.skipped' : 'onboarding.complete.finished');
-          kitState.update((s) => s.copyWith(onboardingCompleted: true));
+          // A failed save still lets the user in; onboarding shows again next launch.
+          kitState.update((s) => s.copyWith(onboardingCompleted: true)).catchError((Object _) {});
         },
       ),
       _ => child,
@@ -64,12 +65,19 @@ class _Pages extends StatefulWidget {
 class _PagesState extends State<_Pages> {
   final _controller = PageController();
   int _page = 0;
+  bool _done = false;
 
   bool get _last => _page == widget.pages.length - 1;
 
   void _go(int page) => MediaQuery.disableAnimationsOf(context)
       ? _controller.jumpToPage(page)
       : _controller.animateToPage(page, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+
+  void _finish(bool skipped) {
+    if (_done) return; // a double tap counts once
+    _done = true;
+    widget.onDone(skipped);
+  }
 
   @override
   void dispose() {
@@ -102,7 +110,7 @@ class _PagesState extends State<_Pages> {
                         maintainSize: true,
                         maintainAnimation: true,
                         maintainState: true,
-                        child: TextButton(onPressed: () => widget.onDone(true), child: Text(l10n.kitOnboardingSkip)),
+                        child: TextButton(onPressed: () => _finish(true), child: Text(l10n.kitOnboardingSkip)),
                       ),
                     ),
                   ),
@@ -169,7 +177,7 @@ class _PagesState extends State<_Pages> {
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                     child: FilledButton(
                       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                      onPressed: _last ? () => widget.onDone(false) : () => _go(_page + 1),
+                      onPressed: _last ? () => _finish(false) : () => _go(_page + 1),
                       child: Text(_last ? l10n.kitOnboardingDone : l10n.kitOnboardingNext),
                     ),
                   ),

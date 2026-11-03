@@ -77,6 +77,13 @@ void main() {
     expect((await launch(tester)).state!.onboardingCompleted, isTrue);
   });
 
+  testWidgets('a double tap on Skip counts once', (tester) async {
+    await launch(tester);
+    await tester.tap(find.text('Skip'));
+    await tapAndSave(tester, 'Skip');
+    expect(sent().where((e) => e == 'onboarding.dismiss.skipped'), hasLength(1));
+  });
+
   testWidgets('back goes to the previous page, and on the first page leaves the app', (tester) async {
     final calls = <String>[];
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {

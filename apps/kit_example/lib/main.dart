@@ -23,15 +23,11 @@ final exampleConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter(), required KitStateController kitState}) {
-  // No backend: the sample app has no PostHog key, so it sends nothing.
-  final analytics = Analytics(
-    kitState: kitState,
-    appId: exampleConfig.slug,
-    appVersion: '0.1.0',
-    locale: () => resolveKitLocale(WidgetsBinding.instance.platformDispatcher.locales).languageCode,
-    appEvents: notesEvents,
-  );
+Widget buildApp({
+  CrashReporter crashReporter = const NoopCrashReporter(),
+  required KitStateController kitState,
+  required Analytics analytics,
+}) {
   return KitApp(
     config: exampleConfig,
     crashReporter: crashReporter,
@@ -66,7 +62,14 @@ Future<void> main() async {
   final crashReporter = await startCrashReporting(exampleConfig);
   final kitState = KitStateController(directory: await getApplicationSupportDirectory(), appId: exampleConfig.slug);
   unawaited(kitState.load());
-  runApp(buildApp(crashReporter: crashReporter, kitState: kitState));
+  // Sends nothing here either: the sample app has no PostHog key.
+  final analytics = await startAnalytics(
+    exampleConfig,
+    kitState: kitState,
+    locale: () => resolveKitLocale(WidgetsBinding.instance.platformDispatcher.locales).languageCode,
+    appEvents: notesEvents,
+  );
+  runApp(buildApp(crashReporter: crashReporter, kitState: kitState, analytics: analytics));
 }
 
 class _Art extends StatelessWidget {
