@@ -30,6 +30,9 @@ class ExampleLocalizationsEn extends ExampleLocalizations {
   String get exampleGoodMoment => 'Something went well';
 
   @override
+  String get exampleSeePlans => 'See the plans';
+
+  @override
   String get examplePaywallHeader => 'Unlimited notes and exports';
 
   @override

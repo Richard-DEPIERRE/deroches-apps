@@ -137,6 +137,12 @@ abstract class ExampleLocalizations {
   /// **'Something went well'**
   String get exampleGoodMoment;
 
+  /// Sample app button that opens the paywall once the soft-paywall gate allows it.
+  ///
+  /// In en, this message translates to:
+  /// **'See the plans'**
+  String get exampleSeePlans;
+
   /// Sample app paywall header: what the plans unlock.
   ///
   /// In en, this message translates to:

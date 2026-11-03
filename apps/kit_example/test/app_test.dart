@@ -15,7 +15,10 @@ Future<void> pumpApp(WidgetTester tester, Locale deviceLocale, {StoreReview? rev
   tester.platformDispatcher.localesTestValue = [deviceLocale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final analytics = Analytics(kitState: kitState, appId: exampleConfig.slug, appVersion: '0.1.0', locale: () => 'en');
-  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, review: review ?? FakeStoreReview()));
+  final purchases = Purchases(backend: FakePurchasesBackend(), analytics: analytics, plans: exampleConfig.plans);
+  await tester.pumpWidget(
+    buildApp(kitState: kitState, analytics: analytics, purchases: purchases, review: review ?? FakeStoreReview()),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -45,6 +48,30 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     expect(find.text('Phone’s language'), findsOneWidget);
+  });
+
+  testWidgets('the plans show only after the first useful moment, then open and close', (tester) async {
+    await pumpApp(tester, const Locale('en', 'US'));
+    await tester.tap(find.text('Skip'));
+    await tester.pumpAndSettle();
+    expect(find.text('See the plans'), findsNothing, reason: 'no paywall before the first useful moment');
+
+    await tester.tap(find.text('Something went well'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getTopLeft(find.text('See the plans')).dx,
+      tester.getTopLeft(find.textContaining('never ship')).dx,
+      reason: 'the label lines up with the body text (DAPP-105)',
+    );
+    await tester.tap(find.text('See the plans'));
+    await tester.pumpAndSettle();
+    expect(find.text('Unlimited notes and exports'), findsOneWidget);
+    expect(find.text('Restore purchases'), findsOneWidget);
+
+    await tester.tap(find.widgetWithIcon(IconButton, Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.text('Unlimited notes and exports'), findsNothing);
+    expect(find.text('See the plans'), findsOneWidget);
   });
 
   test('every sample app message is in English and in French', () {
