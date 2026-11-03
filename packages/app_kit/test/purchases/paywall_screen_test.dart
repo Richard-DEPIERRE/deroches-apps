@@ -335,7 +335,10 @@ void main() {
         expect(find.text(want.restore), findsNothing);
         await tester.tap(find.text(want.manage));
         expect(opened, [store.manageUrl]);
-        expect(find.widgetWithText(FilledButton, want.close), findsOneWidget);
+        final manage = tester.getSize(find.widgetWithText(OutlinedButton, want.manage));
+        expect(tester.getSize(find.widgetWithText(FilledButton, want.close)).width, manage.width, reason: 'one width');
+        expect(manage.width, lessThanOrEqualTo(340));
+        expect(manage.height, greaterThanOrEqualTo(48));
       });
 
       testWidgets('a lifetime purchase has nothing to manage', (tester) async {
@@ -409,7 +412,11 @@ void main() {
     await tester.tap(find.byType(FilledButton));
     await tester.pump();
 
-    expect(find.descendant(of: find.byType(FilledButton), matching: find.byType(CircularProgressIndicator)), findsOne);
+    final colors = Theme.of(tester.element(find.byType(FilledButton))).colorScheme;
+    final spinner = find.descendant(of: find.byType(FilledButton), matching: find.byType(CircularProgressIndicator));
+    expect(tester.widget<CircularProgressIndicator>(spinner).color, colors.onPrimary);
+    final fill = find.descendant(of: find.byType(FilledButton), matching: find.byType(Material));
+    expect(tester.widget<Material>(fill).color, colors.primary, reason: 'in progress, not greyed out');
     expect(tester.getSize(find.byType(FilledButton)).width, width);
     expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Restore purchases')).enabled, isFalse);
     expect(tester.widget<ListTile>(find.widgetWithText(ListTile, 'Weekly')).onTap, isNull);
@@ -419,6 +426,31 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isTrue, reason: 'never stuck busy');
     expect(find.text('The purchase didn’t go through. Try again in a moment.'), findsOneWidget);
+  });
+
+  testWidgets('while restoring, Restore spins and the buy button waits', (tester) async {
+    final store = _HeldStore();
+    purchases = Purchases(backend: store, analytics: purchases.analytics, plans: config.plans);
+    await pumpPaywall(tester, 'en', snackBars: true);
+    final restore = find.widgetWithText(TextButton, 'Restore purchases');
+    await tester.ensureVisible(restore);
+    final size = tester.getSize(restore);
+    await tester.tap(restore);
+    await tester.pump();
+
+    expect(find.descendant(of: restore, matching: find.byType(CircularProgressIndicator)), findsOne);
+    expect(tester.getSize(restore), size);
+    expect(
+      find.descendant(of: find.byType(FilledButton), matching: find.byType(CircularProgressIndicator)),
+      findsNothing,
+    );
+    expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isFalse);
+    expect(tester.widget<ListTile>(find.widgetWithText(ListTile, 'Weekly')).onTap, isNull);
+
+    store.restoring.complete();
+    await tester.pumpAndSettle();
+    expect(find.text('No purchases to restore on this account.'), findsOneWidget);
+    expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isTrue);
   });
 
   testWidgets('in French on a 375dp phone, Terms and Privacy stay together on one line', (tester) async {
@@ -482,6 +514,15 @@ void main() {
 class _HeldStore extends FakePurchasesBackend {
   final held = Completer<PurchaseResult>();
 
+  /// [restore] waits on it.
+  final restoring = Completer<void>();
+
   @override
   Future<PurchaseResult> buy(String id) => held.future;
+
+  @override
+  Future<void> restore() async {
+    await restoring.future;
+    await super.restore();
+  }
 }

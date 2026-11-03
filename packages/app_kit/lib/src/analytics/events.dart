@@ -52,7 +52,10 @@ const kitEvents = [
   AnalyticsEvent('paywall.view.*', readBy: 'funnel: paywall conversion, by placement (Product Lead)'),
   AnalyticsEvent('paywall.tap.weekly|yearly|lifetime|restore', readBy: 'funnel: paywall conversion, by plan'),
   AnalyticsEvent('paywall.dismiss.*', readBy: 'funnel: paywall conversion, by placement'),
-  AnalyticsEvent('purchase.complete.weekly|yearly|lifetime', readBy: 'dashboard: conversion by day since install; funnel: paywall'),
+  AnalyticsEvent(
+    'purchase.complete.weekly|yearly|lifetime',
+    readBy: 'dashboard: conversion by day since install; funnel: paywall',
+  ),
   AnalyticsEvent('purchase.fail.*', readBy: 'dashboard: purchase failures, by reason'),
   AnalyticsEvent('backup.complete.export|restore', readBy: 'dashboard: backup use'),
   AnalyticsEvent('backup.fail.*', readBy: 'dashboard: backup failures, by reason'),

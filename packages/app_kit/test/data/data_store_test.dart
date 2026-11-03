@@ -72,21 +72,37 @@ void main() {
   });
 
   test('a save keeps the previous good file as .bak', () async {
-    await (await opened()).save({'notes': <Object?>['old']});
-    await (await opened()).save({'notes': <Object?>['new']});
+    await (await opened()).save({
+      'notes': <Object?>['old'],
+    });
+    await (await opened()).save({
+      'notes': <Object?>['new'],
+    });
 
-    expect(jsonDecode(file('.bak').readAsStringSync())['data'], {'notes': ['old']});
-    expect(await store().open(), {'notes': ['new']});
+    expect(jsonDecode(file('.bak').readAsStringSync())['data'], {
+      'notes': ['old'],
+    });
+    expect(await store().open(), {
+      'notes': ['new'],
+    });
   });
 
   test('an interrupted write leaves the old data readable', () async {
-    await (await opened()).save({'notes': <Object?>['old']});
+    await (await opened()).save({
+      'notes': <Object?>['old'],
+    });
     file('.tmp').writeAsStringSync('{"format": "deroches.da'); // crashed mid-write
 
     final s = store();
-    expect(await s.open(), {'notes': ['old']});
-    await s.save({'notes': <Object?>['new']});
-    expect(await store().open(), {'notes': ['new']});
+    expect(await s.open(), {
+      'notes': ['old'],
+    });
+    await s.save({
+      'notes': <Object?>['new'],
+    });
+    expect(await store().open(), {
+      'notes': ['new'],
+    });
   });
 
   test('a corrupt file is an error, never an empty app', () async {
@@ -171,7 +187,9 @@ void main() {
   test('two saves without an await keep the document readable', () async {
     final s = await opened();
     final big = {'notes': List<Object?>.filled(2000, 'a long note')};
-    final small = {'notes': <Object?>['last']};
+    final small = {
+      'notes': <Object?>['last'],
+    };
 
     await Future.wait([s.save(big), s.save(small)]);
     expect(await store().open(), small);
@@ -179,7 +197,9 @@ void main() {
 
   test('a reopen waits for saves still in the queue', () async {
     final s = await opened();
-    final latest = {'notes': <Object?>['saved without an await']};
+    final latest = {
+      'notes': <Object?>['saved without an await'],
+    };
 
     unawaited(s.save(latest));
     expect(await s.open(), latest);

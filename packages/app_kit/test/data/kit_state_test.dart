@@ -9,8 +9,7 @@ void main() {
   tearDown(() => dir.deleteSync(recursive: true));
 
   var today = DateTime.utc(2026, 11, 1);
-  KitStateController controller() =>
-      KitStateController(directory: dir, appId: 'carnet-km', now: () => today);
+  KitStateController controller() => KitStateController(directory: dir, appId: 'carnet-km', now: () => today);
 
   test('the defaults on a first launch', () async {
     final kit = controller();

@@ -51,7 +51,11 @@ void main() {
 
   test('properties are numbers, yes/no or the app\'s own choices, added to the envelope', () async {
     final a = analytics();
-    a.track('paywall.view.settings', {'step': const Prop.number(2), 'pro': const Prop.flag(false), 'plan': Prop.choice(Plan.yearly)});
+    a.track('paywall.view.settings', {
+      'step': const Prop.number(2),
+      'pro': const Prop.flag(false),
+      'plan': Prop.choice(Plan.yearly),
+    });
     await a.idle;
 
     final sent = backend.events.single.properties;
@@ -68,13 +72,19 @@ void main() {
       expect(() => a.track(name), throwsArgumentError, reason: name);
     }
     expect(() => a.track('app.open.cold', {'Bad Key': const Prop.number(1)}), throwsArgumentError);
-    expect(() => a.track('app.open.cold', {'app_id': const Prop.number(1)}), throwsArgumentError, reason: 'the envelope is the kit\'s');
+    expect(
+      () => a.track('app.open.cold', {'app_id': const Prop.number(1)}),
+      throwsArgumentError,
+      reason: 'the envelope is the kit\'s',
+    );
     await a.idle;
     expect(backend.events, isEmpty);
   });
 
   test('an app registers its own events', () async {
-    final a = analytics(appEvents: const [AnalyticsEvent('notes.create.note', readBy: 'dashboard: notes made per day')]);
+    final a = analytics(
+      appEvents: const [AnalyticsEvent('notes.create.note', readBy: 'dashboard: notes made per day')],
+    );
     a.track('notes.create.note');
     await a.idle;
     expect(backend.events.single.name, 'notes.create.note');
@@ -113,7 +123,13 @@ void main() {
 
   test('nothing is sent before the kit state is loaded', () async {
     final unloaded = KitStateController(directory: dir, appId: 'carnet-km');
-    final a = Analytics(backend: backend, kitState: unloaded, appId: 'carnet-km', appVersion: '1.2.0', locale: () => 'en');
+    final a = Analytics(
+      backend: backend,
+      kitState: unloaded,
+      appId: 'carnet-km',
+      appVersion: '1.2.0',
+      locale: () => 'en',
+    );
     a.track('app.open.cold');
     await a.idle;
     expect(backend.started, isFalse);

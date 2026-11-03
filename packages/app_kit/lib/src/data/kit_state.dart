@@ -63,9 +63,7 @@ class KitState {
     firstValueReached: json['first_value_reached']! as bool,
     languageOverride: json['language_override'] as String?,
     analyticsEnabled: json['analytics_enabled']! as bool,
-    ratingPrompts: List.unmodifiable([
-      for (final d in json['rating_prompts']! as List) DateTime.parse(d as String),
-    ]),
+    ratingPrompts: List.unmodifiable([for (final d in json['rating_prompts']! as List) DateTime.parse(d as String)]),
   );
 
   @override
@@ -95,13 +93,7 @@ class KitState {
 class KitStateController extends ChangeNotifier {
   KitStateController({required Directory directory, required String appId, DateTime Function()? now})
     : _now = now ?? DateTime.now,
-      _store = DataStore(
-        directory: directory,
-        appId: appId,
-        name: 'kit',
-        initial: () => const {},
-        now: now,
-      );
+      _store = DataStore(directory: directory, appId: appId, name: 'kit', initial: () => const {}, now: now);
 
   final DataStore _store;
   final DateTime Function() _now;
