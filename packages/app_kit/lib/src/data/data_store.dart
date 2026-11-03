@@ -63,16 +63,29 @@ class DataStore {
   /// Saving is allowed only once [open] has succeeded.
   Future<Map<String, Object?>> open() async {
     _opened = false;
-    await _saving.catchError((Object _) {}); // read what earlier saves wrote
-    if (!file.existsSync()) {
-      _opened = true;
-      return initial();
-    }
-    final (from, data) = _decode(await file.readAsBytes());
-    final upgraded = upgrade(data, from: from, migrations: migrations);
+    final (from, upgraded) = await _read();
     if (from < schema) await _enqueue(upgraded);
     _opened = true;
     return upgraded;
+  }
+
+  /// Reads the document at the current schema without saving anything (what
+  /// a backup exports). Throws a [DataException].
+  Future<Map<String, Object?>> read() async => (await _read()).$2;
+
+  /// Replaces the document with [data] without reading it first, even when
+  /// the current file can't be opened: a backup restore. Saving is refused
+  /// until the document is opened again, so stale data can't overwrite it.
+  Future<void> replace(Map<String, Object?> data) {
+    _opened = false;
+    return _enqueue(data);
+  }
+
+  Future<(int, Map<String, Object?>)> _read() async {
+    await _saving.catchError((Object _) {}); // read what earlier saves wrote
+    if (!file.existsSync()) return (schema, initial());
+    final (from, data) = _decode(await file.readAsBytes());
+    return (from, upgrade(data, from: from, migrations: migrations));
   }
 
   /// Writes [data] atomically: a temporary file, flushed, then renamed over

@@ -1,5 +1,10 @@
 {
   "@@locale": "fr",
   "kitErrorTitle": "Un problème est survenu",
-  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages."
+  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.",
+  "backupFailedUnreadable": "Ce fichier n’est pas une sauvegarde de cette application, ou il est abîmé. Vos données n’ont pas changé.",
+  "backupFailedOtherApp": "Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.",
+  "backupFailedNewerSchema": "Cette sauvegarde vient d’une version plus récente de l’application. Vos données n’ont pas changé. Mettez‑la à jour, puis réessayez.",
+  "backupFailedMigration": "Impossible d’ouvrir cette sauvegarde. Vos données n’ont pas changé. Écrivez‑nous depuis les réglages.",
+  "backupFailedFile": "Le fichier n’a pas pu être lu ou écrit. Vos données n’ont pas changé. Réessayez."
 }

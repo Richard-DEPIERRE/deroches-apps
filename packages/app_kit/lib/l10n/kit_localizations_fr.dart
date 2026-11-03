@@ -14,4 +14,24 @@ class KitLocalizationsFr extends KitLocalizations {
   @override
   String get kitErrorBody =>
       'Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.';
+
+  @override
+  String get backupFailedUnreadable =>
+      'Ce fichier n’est pas une sauvegarde de cette application, ou il est abîmé. Vos données n’ont pas changé.';
+
+  @override
+  String get backupFailedOtherApp =>
+      'Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.';
+
+  @override
+  String get backupFailedNewerSchema =>
+      'Cette sauvegarde vient d’une version plus récente de l’application. Vos données n’ont pas changé. Mettez‑la à jour, puis réessayez.';
+
+  @override
+  String get backupFailedMigration =>
+      'Impossible d’ouvrir cette sauvegarde. Vos données n’ont pas changé. Écrivez‑nous depuis les réglages.';
+
+  @override
+  String get backupFailedFile =>
+      'Le fichier n’a pas pu être lu ou écrit. Vos données n’ont pas changé. Réessayez.';
 }

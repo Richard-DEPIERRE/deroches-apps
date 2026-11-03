@@ -109,6 +109,36 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'This part of the app couldn’t be shown. Close the app and open it again. If it keeps happening, write to us from Settings.'**
   String get kitErrorBody;
+
+  /// Shown when a backup export or restore fails because of a file that isn't a backup, or is cut short or damaged.
+  ///
+  /// In en, this message translates to:
+  /// **'This file isn’t a backup of this app, or it’s damaged. Your data hasn’t changed.'**
+  String get backupFailedUnreadable;
+
+  /// Shown when a backup export or restore fails because of another app's backup.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup comes from another app. Your data hasn’t changed.'**
+  String get backupFailedOtherApp;
+
+  /// Shown when a backup export or restore fails because of a backup made by a newer version of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup comes from a newer version of the app. Your data hasn’t changed. Update the app, then try again.'**
+  String get backupFailedNewerSchema;
+
+  /// Shown when a backup export or restore fails because of the app's migrations failed on the backup's data.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup couldn’t be opened. Your data hasn’t changed. Write to us from Settings.'**
+  String get backupFailedMigration;
+
+  /// Shown when a backup export or restore fails because of a file couldn't be read or written.
+  ///
+  /// In en, this message translates to:
+  /// **'The file couldn’t be read or written. Your data hasn’t changed. Try again.'**
+  String get backupFailedFile;
 }
 
 class _KitLocalizationsDelegate
