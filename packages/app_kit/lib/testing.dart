@@ -27,6 +27,25 @@ class FakeCrashReporter implements CrashReporter {
   void addBreadcrumb(String message) => breadcrumbs.add(message);
 }
 
+/// One event a [FakeAnalyticsBackend] received, envelope included.
+typedef SentEvent = ({String name, Map<String, Object> properties});
+
+/// Keeps the events [Analytics] would send, instead of sending them.
+class FakeAnalyticsBackend implements AnalyticsBackend {
+  final events = <SentEvent>[];
+  bool started = false;
+
+  @override
+  Future<void> start() async => started = true;
+
+  @override
+  Future<void> stop() async => started = false;
+
+  @override
+  Future<void> capture(String event, Map<String, Object> properties) async =>
+      events.add((name: event, properties: properties));
+}
+
 /// Plays the system save dialog and file picker: keeps what was saved, and
 /// hands back [picked] (null: the user cancels the picker).
 class FakeBackupFiles implements BackupFiles {
