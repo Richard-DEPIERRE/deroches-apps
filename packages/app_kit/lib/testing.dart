@@ -46,6 +46,46 @@ class FakeAnalyticsBackend implements AnalyticsBackend {
       events.add((name: event, properties: properties));
 }
 
+/// Plays the store: the `default` offering's three packages, at made-up prices.
+class FakePurchasesBackend implements PurchasesBackend {
+  final storePackages = [
+    const StorePackage(id: r'$rc_weekly', price: '0,99 €', period: 'P1W'),
+    const StorePackage(id: r'$rc_annual', price: '9,99 €', period: 'P1Y'),
+    const StorePackage(id: r'$rc_lifetime', price: '24,99 €'),
+  ];
+
+  /// What the next [buy] returns; a [Purchased] turns the entitlement on.
+  PurchaseResult nextResult = const Purchased();
+
+  /// The store account owns a plan, so [restore] finds it.
+  bool ownedOnStore = false;
+
+  /// [restore] can't reach the store.
+  bool failRestore = false;
+
+  /// The package ids bought, in order.
+  final bought = <String>[];
+
+  @override
+  final ValueNotifier<bool> entitled = ValueNotifier(false);
+
+  @override
+  Future<List<StorePackage>> packages() async => List.of(storePackages);
+
+  @override
+  Future<PurchaseResult> buy(String id) async {
+    bought.add(id);
+    if (nextResult is Purchased) entitled.value = ownedOnStore = true;
+    return nextResult;
+  }
+
+  @override
+  Future<void> restore() async {
+    if (failRestore) throw StateError('store unreachable');
+    entitled.value = ownedOnStore;
+  }
+}
+
 /// Plays the system save dialog and file picker: keeps what was saved, and
 /// hands back [picked] (null: the user cancels the picker).
 class FakeBackupFiles implements BackupFiles {
