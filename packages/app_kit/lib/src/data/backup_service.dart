@@ -14,7 +14,7 @@ abstract interface class BackupFiles {
   Future<bool> save(String fileName, Uint8List bytes);
 
   /// The picked file's bytes, or null if the user cancelled. Throws
-  /// [BackupTooLarge], without reading it, if the file is over [maxBytes].
+  /// [BackupTooLarge], without reading past [maxBytes], if the file is over it.
   Future<Uint8List?> pick({required int maxBytes});
 }
 
@@ -39,9 +39,15 @@ class SystemBackupFiles implements BackupFiles {
   Future<Uint8List?> pick({required int maxBytes}) async {
     final file = await FilePicker.pickFile();
     if (file == null) return null;
-    final bytes = await file.length();
-    if (bytes != null && bytes > maxBytes) throw BackupTooLarge(bytes);
-    return file.readAsBytes();
+    final length = await file.length();
+    if (length != null && length > maxBytes) throw BackupTooLarge(length);
+    // Read in chunks and stop past the limit, in case the size was unknown.
+    final bytes = BytesBuilder(copy: false);
+    await for (final chunk in file.readAsByteStream()) {
+      bytes.add(chunk);
+      if (bytes.length > maxBytes) throw BackupTooLarge(bytes.length);
+    }
+    return bytes.takeBytes();
   }
 }
 
