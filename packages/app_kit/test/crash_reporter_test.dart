@@ -24,4 +24,17 @@ void main() {
       [('in a widget', true, false), ('async', true, true)],
     );
   });
+
+  test('installCrashReporter passes Flutter errors on to the handler it replaced', () {
+    final before = FlutterError.onError;
+    addTearDown(() => FlutterError.onError = before);
+    final seen = <Object>[];
+    FlutterError.onError = (details) => seen.add(details.exception);
+
+    final restore = installCrashReporter(FakeCrashReporter());
+    FlutterError.reportError(FlutterErrorDetails(exception: StateError('in a widget')));
+    restore();
+
+    expect(seen, [isStateError]);
+  });
 }

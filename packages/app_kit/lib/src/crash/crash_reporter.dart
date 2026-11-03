@@ -24,12 +24,15 @@ class NoopCrashReporter implements CrashReporter {
 
 /// Sends framework and uncaught async errors to [reporter].
 ///
+/// Flutter errors still go to the handler it replaces (in an app, the one that
+/// prints them; in a widget test, the one that fails the test).
+///
 /// Returns a function that puts the previous handlers back.
 VoidCallback installCrashReporter(CrashReporter reporter) {
   final previousFlutter = FlutterError.onError;
   final previousPlatform = PlatformDispatcher.instance.onError;
   FlutterError.onError = (details) {
-    FlutterError.presentError(details);
+    (previousFlutter ?? FlutterError.presentError)(details);
     reporter.recordError(details.exception, details.stack);
   };
   PlatformDispatcher.instance.onError = (error, stack) {
