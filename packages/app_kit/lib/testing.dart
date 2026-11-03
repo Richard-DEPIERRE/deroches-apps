@@ -64,6 +64,12 @@ class FakePurchasesBackend implements PurchasesBackend {
   /// [restore] can't reach the store.
   bool failRestore = false;
 
+  /// [packages] can't reach the store.
+  bool failPackages = false;
+
+  @override
+  Uri? manageUrl;
+
   /// While set and not complete, [packages] waits for it: the prices are loading.
   Completer<void>? holdPackages;
 
@@ -76,6 +82,7 @@ class FakePurchasesBackend implements PurchasesBackend {
   @override
   Future<List<StorePackage>> packages() async {
     await holdPackages?.future;
+    if (failPackages) throw StateError('store unreachable');
     return List.of(storePackages);
   }
 

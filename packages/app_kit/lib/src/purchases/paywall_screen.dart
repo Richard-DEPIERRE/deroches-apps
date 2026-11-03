@@ -11,6 +11,7 @@ import 'purchases.dart';
 /// ([PaywallGate.canShow]). Completes with whether the app's entitlement is
 /// active once the paywall closes; false at once, showing nothing, when the
 /// gate refuses. [header] is the app's own words on what the plans unlock.
+/// After a purchase, the screen underneath confirms it.
 Future<bool> showPaywall(
   BuildContext context, {
   required String placement,
@@ -20,12 +21,14 @@ Future<bool> showPaywall(
 }) async {
   if (!gate.canShow(placement)) return false;
   final legal = KitScope.of(context).config.legal[Localizations.localeOf(context).languageCode]!;
-  await Navigator.of(context).push(
-    MaterialPageRoute<void>(
+  final thanks = KitLocalizations.of(context).paywallPurchased;
+  final bought = await Navigator.of(context).push(
+    MaterialPageRoute<bool>(
       fullscreenDialog: true,
       builder: (_) => PaywallScreen(placement: placement, purchases: purchases, legal: legal, header: header),
     ),
   );
+  if (bought == true && context.mounted) ScaffoldMessenger.maybeOf(context)?.showSnackBar(_snackBar(thanks));
   return purchases.entitled.value;
 }
 
@@ -86,23 +89,47 @@ class _PaywallScreenState extends State<PaywallScreen> {
     return offers;
   }
 
-  Future<void> _buy(PlanOffer offer) async {
+  void _say(String message) => ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(_snackBar(message));
+
+  Future<void> _buy(PlanOffer offer, KitLocalizations l10n) async {
     _purchases.analytics.track('paywall.tap.${offer.plan.name}');
     setState(() => _busy = true);
-    final result = await _purchases.buy(offer);
+    final PurchaseResult result;
+    try {
+      result = await _purchases.buy(offer);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
     if (!mounted) return;
-    setState(() => _busy = false);
-    if (result is Purchased) {
-      _bought = true;
-      Navigator.of(context).pop();
+    switch (result) {
+      case Purchased():
+        _bought = true;
+        Navigator.of(context).pop(true);
+      case PurchasePending():
+        _say(l10n.paywallPending);
+      case PurchaseFailed():
+        _say(l10n.paywallBuyFailed);
+      case PurchaseCancelled(): // the user's choice: nothing to say
     }
   }
 
-  Future<void> _restore() async {
+  Future<void> _restore(KitLocalizations l10n) async {
     _purchases.analytics.track('paywall.tap.restore');
     setState(() => _busy = true);
-    await _purchases.restore();
-    if (mounted) setState(() => _busy = false);
+    final RestoreResult result;
+    try {
+      result = await _purchases.restore();
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    if (!mounted) return;
+    _say(switch (result) {
+      RestoreResult.restored => l10n.paywallRestored,
+      RestoreResult.nothingToRestore => l10n.paywallNothingToRestore,
+      RestoreResult.failed => l10n.paywallRestoreFailed,
+    });
   }
 
   @override
@@ -112,23 +139,49 @@ class _PaywallScreenState extends State<PaywallScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (didPop && !_bought) _purchases.analytics.track('paywall.dismiss.${widget.placement}');
       },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.close),
-            tooltip: l10n.paywallClose,
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-        ),
-        body: SafeArea(
-          child: FutureBuilder(
-            future: _offers,
-            builder: (context, snapshot) => switch (snapshot.data) {
-              final offers? => _plans(context, l10n, offers),
-              null => Center(child: CircularProgressIndicator(semanticsLabel: l10n.paywallLoading)),
-            },
-          ),
+      // The screen follows the entitlement as it changes, such as when the
+      // store's customer info arrives after the paywall opened.
+      child: ValueListenableBuilder(
+        valueListenable: _purchases.entitled,
+        builder: (context, entitled, _) => FutureBuilder(
+          future: _offers,
+          builder: (context, snapshot) {
+            final offers = entitled ? null : snapshot.data;
+            return Scaffold(
+              appBar: AppBar(
+                automaticallyImplyLeading: false,
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  tooltip: l10n.paywallClose,
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
+              body: SafeArea(
+                child: switch (snapshot) {
+                  _ when entitled => _Message(Icons.check_circle, l10n.paywallEntitled, [
+                    if (_purchases.manageUrl case final url?)
+                      OutlinedButton(onPressed: () => widget.openLink(url), child: Text(l10n.paywallManage)),
+                    FilledButton(onPressed: () => Navigator.of(context).maybePop(), child: Text(l10n.paywallClose)),
+                  ]),
+                  AsyncSnapshot(:final data?) => _plans(context, l10n, data),
+                  AsyncSnapshot(hasError: true, connectionState: ConnectionState.done) =>
+                    _Message(null, l10n.paywallError, [
+                      OutlinedButton(
+                        onPressed: () => setState(() {
+                          _offers = _load();
+                        }),
+                        child: Text(l10n.paywallRetry),
+                      ),
+                    ]),
+                  _ => Center(child: CircularProgressIndicator(semanticsLabel: l10n.paywallLoading)),
+                },
+              ),
+              // The footer as the bottom bar, so snackbars float above it.
+              bottomNavigationBar: offers == null
+                  ? null
+                  : _footer(context, l10n, offers.firstWhere((o) => o.plan == _picked)),
+            );
+          },
         ),
       ),
     );
@@ -136,113 +189,142 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _plans(BuildContext context, KitLocalizations l10n, List<PlanOffer> offers) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final picked = offers.firstWhere((o) => o.plan == _picked);
-    final ios = theme.platform == TargetPlatform.iOS || theme.platform == TargetPlatform.macOS;
-    String perPeriod(PlanOffer o) => l10n.paywallPeriod(_period(o).unit, _period(o).count);
-    return LayoutBuilder(
-      builder: (context, box) => Column(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
-                  for (final offer in offers) ...[
-                    const SizedBox(height: 12),
-                    _PlanCard(
-                      selected: offer.plan == _picked,
-                      onTap: _busy ? null : () => setState(() => _picked = offer.plan),
-                      name: switch (offer.plan) {
-                        Plan.weekly => l10n.paywallPlanWeekly,
-                        Plan.yearly => l10n.paywallPlanYearly,
-                        Plan.lifetime => l10n.paywallPlanLifetime,
-                      },
-                      price: offer.renews ? l10n.paywallPricePerPeriod(offer.price, perPeriod(offer)) : offer.price,
-                      terms: offer.renews
-                          ? l10n.paywallRenews(
-                              l10n.paywallEvery(_period(offer).unit, _period(offer).count),
-                              offer.price,
-                            )
-                          : l10n.paywallOneTime,
+          DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
+          for (final offer in offers) ...[
+            const SizedBox(height: 12),
+            _PlanCard(
+              selected: offer.plan == _picked,
+              onTap: _busy ? null : () => setState(() => _picked = offer.plan),
+              name: switch (offer.plan) {
+                Plan.weekly => l10n.paywallPlanWeekly,
+                Plan.yearly => l10n.paywallPlanYearly,
+                Plan.lifetime => l10n.paywallPlanLifetime,
+              },
+              price: offer.renews ? l10n.paywallPricePerPeriod(offer.price, _perPeriod(l10n, offer)) : offer.price,
+              terms: offer.renews
+                  ? l10n.paywallRenews(l10n.paywallEvery(_period(offer).unit, _period(offer).count), offer.price)
+                  : l10n.paywallOneTime,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// Pinned, so the button and what it does stay on screen. On a small phone
+  /// at a large text size, the lines above the button scroll within a quarter
+  /// of the screen instead of pushing it off, leaving room for a snackbar.
+  Widget _footer(BuildContext context, KitLocalizations l10n, PlanOffer picked) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final ios = theme.platform == TargetPlatform.iOS || theme.platform == TargetPlatform.macOS;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
+      ),
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height / 4),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      !picked.renews
+                          ? l10n.paywallOneTime
+                          : ios
+                          ? l10n.paywallCancelAppStore
+                          : l10n.paywallCancelGooglePlay,
+                      style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        TextButton(onPressed: _busy ? null : () => _restore(l10n), child: Text(l10n.paywallRestore)),
+                        // The legal pair breaks as one, so neither link is ever alone on a line.
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          children: [
+                            TextButton(
+                              onPressed: () => widget.openLink(widget.legal.terms),
+                              child: Text(l10n.paywallTerms),
+                            ),
+                            TextButton(
+                              onPressed: () => widget.openLink(widget.legal.privacy),
+                              child: Text(l10n.paywallPrivacy),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-          // Pinned, so the button and what it does stay on screen. On a small phone
-          // at a large text size, the lines above the button scroll within half
-          // the screen instead of pushing it off.
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: colors.surface,
-              border: Border(top: BorderSide(color: colors.outlineVariant)),
-            ),
-            child: SafeArea(
-              top: false,
-              minimum: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              onPressed: _busy ? null : () => _buy(picked, l10n),
+              // While busy, a spinner in place of the label, at the label's size.
+              child: Stack(
+                alignment: Alignment.center,
                 children: [
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: box.maxHeight / 2),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            !picked.renews
-                                ? l10n.paywallOneTime
-                                : ios
-                                ? l10n.paywallCancelAppStore
-                                : l10n.paywallCancelGooglePlay,
-                            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
-                            textAlign: TextAlign.center,
-                          ),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            children: [
-                              TextButton(onPressed: _busy ? null : _restore, child: Text(l10n.paywallRestore)),
-                              // The legal pair breaks as one, so neither link is ever alone on a line.
-                              Wrap(
-                                alignment: WrapAlignment.center,
-                                children: [
-                                  TextButton(
-                                    onPressed: () => widget.openLink(widget.legal.terms),
-                                    child: Text(l10n.paywallTerms),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => widget.openLink(widget.legal.privacy),
-                                    child: Text(l10n.paywallPrivacy),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  FilledButton(
-                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                    onPressed: _busy ? null : () => _buy(picked),
+                  Visibility.maintain(
+                    visible: !_busy,
                     child: Text(
                       picked.renews
-                          ? l10n.paywallSubscribe(picked.price, perPeriod(picked))
+                          ? l10n.paywallSubscribe(picked.price, _perPeriod(l10n, picked))
                           : l10n.paywallBuyOnce(picked.price),
                       textAlign: TextAlign.center,
                     ),
                   ),
+                  if (_busy) const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
                 ],
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+SnackBar _snackBar(String message) => SnackBar(behavior: SnackBarBehavior.floating, content: Text(message));
+
+/// A calm message in place of the plans, with its buttons.
+class _Message extends StatelessWidget {
+  const _Message(this.icon, this.text, this.actions);
+
+  final IconData? icon;
+  final String text;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[Icon(icon, size: 48, color: theme.colorScheme.primary), const SizedBox(height: 16)],
+            Text(text, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+            for (final action in actions) ...[const SizedBox(height: 12), action],
+          ],
+        ),
       ),
     );
   }
@@ -308,6 +390,8 @@ class _PlanCard extends StatelessWidget {
 
 /// The store's ISO 8601 periods we can put in words: `P1W`, `P3M`, `P1Y`.
 final _isoPeriod = RegExp(r'^P(\d+)([DWMY])$');
+
+String _perPeriod(KitLocalizations l10n, PlanOffer o) => l10n.paywallPeriod(_period(o).unit, _period(o).count);
 
 /// A subscription's period, as the unit and count the messages take.
 ({String unit, int count}) _period(PlanOffer offer) {

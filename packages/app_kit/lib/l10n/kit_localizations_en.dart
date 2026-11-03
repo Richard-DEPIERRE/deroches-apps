@@ -163,4 +163,38 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get paywallLoading => 'Loading prices';
+
+  @override
+  String get paywallError =>
+      'Prices couldn’t load. Check your connection, then try again.';
+
+  @override
+  String get paywallRetry => 'Try again';
+
+  @override
+  String get paywallEntitled => 'You already have full access.';
+
+  @override
+  String get paywallManage => 'Manage subscription';
+
+  @override
+  String get paywallPurchased => 'Purchase confirmed, thank you!';
+
+  @override
+  String get paywallRestored => 'Purchases restored.';
+
+  @override
+  String get paywallNothingToRestore =>
+      'No purchases to restore on this account.';
+
+  @override
+  String get paywallPending => 'Purchase waiting for approval.';
+
+  @override
+  String get paywallBuyFailed =>
+      'The purchase didn’t go through. Try again in a moment.';
+
+  @override
+  String get paywallRestoreFailed =>
+      'Purchases couldn’t be restored. Check your connection, then try again.';
 }

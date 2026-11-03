@@ -24,5 +24,15 @@
   "paywallRestore": "Restaurer les achats",
   "paywallTerms": "Conditions",
   "paywallPrivacy": "Confidentialité",
-  "paywallLoading": "Chargement des prix"
+  "paywallLoading": "Chargement des prix",
+  "paywallError": "Les prix n’ont pas pu se charger. Vérifiez votre connexion, puis réessayez.",
+  "paywallRetry": "Réessayer",
+  "paywallEntitled": "Vous avez déjà accès à tout.",
+  "paywallManage": "Gérer l’abonnement",
+  "paywallPurchased": "Achat confirmé, merci !",
+  "paywallRestored": "Achats restaurés.",
+  "paywallNothingToRestore": "Aucun achat à restaurer sur ce compte.",
+  "paywallPending": "Achat en attente de validation.",
+  "paywallBuyFailed": "L’achat n’a pas abouti. Réessayez dans un instant.",
+  "paywallRestoreFailed": "Les achats n’ont pas pu être restaurés. Vérifiez votre connexion, puis réessayez."
 }

@@ -28,16 +28,29 @@ class RevenueCatPurchases implements PurchasesBackend {
   final String _entitlementId;
   final _entitled = ValueNotifier(false);
   var _packages = <String, rc.Package>{};
+  Uri? _manageUrl;
 
   @override
   ValueListenable<bool> get entitled => _entitled;
 
-  void _update(rc.CustomerInfo info) => _entitled.value = info.entitlements.active.containsKey(_entitlementId);
+  @override
+  Uri? get manageUrl => _manageUrl;
+
+  void _update(rc.CustomerInfo info) {
+    final manage = info.managementURL;
+    _manageUrl = manage == null ? null : Uri.tryParse(manage);
+    _entitled.value = info.entitlements.active.containsKey(_entitlementId);
+  }
 
   @override
   Future<List<StorePackage>> packages() async {
     final offering = (await rc.Purchases.getOfferings()).getOffering('default');
-    _packages = {for (final p in offering?.availablePackages ?? <rc.Package>[]) p.identifier: p};
+    // A free trial or introductory price is never sold: the paywall only states
+    // the store's one price, so an app's products carry none (ADR 0001, section 4).
+    _packages = {
+      for (final p in offering?.availablePackages ?? <rc.Package>[])
+        if (p.storeProduct.introductoryPrice == null) p.identifier: p,
+    };
     return [
       for (final p in _packages.values)
         StorePackage(id: p.identifier, price: p.storeProduct.priceString, period: p.storeProduct.subscriptionPeriod),

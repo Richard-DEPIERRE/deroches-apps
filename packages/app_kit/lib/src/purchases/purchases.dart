@@ -104,6 +104,10 @@ abstract interface class PurchasesBackend {
 
   /// Whether the app's entitlement is active.
   ValueListenable<bool> get entitled;
+
+  /// The store's page for managing the active subscription; null without one,
+  /// such as for a lifetime purchase. Set before [entitled] changes.
+  Uri? get manageUrl;
 }
 
 /// The only way an app sells (ADR 0001, section 4): the plans of its
@@ -118,6 +122,9 @@ class Purchases {
   /// The entitlement: true once a plan is bought or restored.
   ValueListenable<bool> get entitled => backend.entitled;
 
+  /// See [PurchasesBackend.manageUrl].
+  Uri? get manageUrl => backend.manageUrl;
+
   /// The plans the app sells and the store has, in [Plan] order. Throws when
   /// the store can't be reached.
   Future<List<PlanOffer>> offers() async {
@@ -129,7 +136,12 @@ class Purchases {
   }
 
   Future<PurchaseResult> buy(PlanOffer offer) async {
-    final result = await backend.buy(offer.package.id);
+    PurchaseResult result;
+    try {
+      result = await backend.buy(offer.package.id);
+    } catch (e) {
+      result = PurchaseFailed(PurchaseFailure.other, '$e');
+    }
     switch (result) {
       case Purchased():
         analytics.track('purchase.complete.${offer.plan.name}');

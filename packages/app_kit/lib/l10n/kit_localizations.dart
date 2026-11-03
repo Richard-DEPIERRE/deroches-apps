@@ -247,6 +247,66 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'Loading prices'**
   String get paywallLoading;
+
+  /// Shown instead of the plans when the store's prices can't be loaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Prices couldn’t load. Check your connection, then try again.'**
+  String get paywallError;
+
+  /// Button under paywallError: loads the prices again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get paywallRetry;
+
+  /// Shown instead of the plans while the purchase is active.
+  ///
+  /// In en, this message translates to:
+  /// **'You already have full access.'**
+  String get paywallEntitled;
+
+  /// Button that opens the store's page for the active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage subscription'**
+  String get paywallManage;
+
+  /// Snackbar on the app's screen once a purchase went through and the paywall closed.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase confirmed, thank you!'**
+  String get paywallPurchased;
+
+  /// Snackbar: restore found a purchase.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases restored.'**
+  String get paywallRestored;
+
+  /// Snackbar: restore found no purchase on the store account.
+  ///
+  /// In en, this message translates to:
+  /// **'No purchases to restore on this account.'**
+  String get paywallNothingToRestore;
+
+  /// Snackbar: the purchase waits for someone else, such as a parent (Ask to Buy).
+  ///
+  /// In en, this message translates to:
+  /// **'Purchase waiting for approval.'**
+  String get paywallPending;
+
+  /// Snackbar: the store failed the purchase. Never shown when the user cancels.
+  ///
+  /// In en, this message translates to:
+  /// **'The purchase didn’t go through. Try again in a moment.'**
+  String get paywallBuyFailed;
+
+  /// Snackbar: restore couldn't reach the store.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases couldn’t be restored. Check your connection, then try again.'**
+  String get paywallRestoreFailed;
 }
 
 class _KitLocalizationsDelegate

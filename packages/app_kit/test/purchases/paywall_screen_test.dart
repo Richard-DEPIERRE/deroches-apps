@@ -25,6 +25,16 @@ const expected = {
     privacy: 'Privacy',
     close: 'Close',
     buttons: ['Subscribe for 0,99 €\u00a0per\u00a0week', 'Subscribe for 9,99 €\u00a0per\u00a0year', 'Buy for 24,99 €'],
+    error: 'Prices couldn’t load. Check your connection, then try again.',
+    retry: 'Try again',
+    entitled: 'You already have full access.',
+    manage: 'Manage subscription',
+    purchased: 'Purchase confirmed, thank you!',
+    restored: 'Purchases restored.',
+    nothingToRestore: 'No purchases to restore on this account.',
+    pending: 'Purchase waiting for approval.',
+    buyFailed: 'The purchase didn’t go through. Try again in a moment.',
+    restoreFailed: 'Purchases couldn’t be restored. Check your connection, then try again.',
   ),
   'fr': (
     plans: ['Hebdomadaire', '0,99 €\u00a0par\u00a0semaine', 'Annuel', '9,99 €\u00a0par\u00a0an', 'À vie', '24,99 €'],
@@ -45,6 +55,16 @@ const expected = {
       'S’abonner pour 9,99 €\u00a0par\u00a0an',
       'Acheter pour 24,99 €',
     ],
+    error: 'Les prix n’ont pas pu se charger. Vérifiez votre connexion, puis réessayez.',
+    retry: 'Réessayer',
+    entitled: 'Vous avez déjà accès à tout.',
+    manage: 'Gérer l’abonnement',
+    purchased: 'Achat confirmé, merci\u00a0!',
+    restored: 'Achats restaurés.',
+    nothingToRestore: 'Aucun achat à restaurer sur ce compte.',
+    pending: 'Achat en attente de validation.',
+    buyFailed: 'L’achat n’a pas abouti. Réessayez dans un instant.',
+    restoreFailed: 'Les achats n’ont pas pu être restaurés. Vérifiez votre connexion, puis réessayez.',
   ),
 };
 
@@ -95,21 +115,34 @@ void main() {
     return [for (final e in sent.events) e.name];
   }
 
-  /// The paywall alone, as the screen of the app.
-  Future<void> pumpPaywall(WidgetTester tester, String lang, {String header = 'Unlimited exports'}) => pumpOnSmallPhone(
-    tester,
-    Locale(lang),
-    PaywallScreen(
-      placement: 'export',
-      purchases: purchases,
-      legal: legal[lang]!,
-      header: Text(header),
-      openLink: (uri) async {
-        opened.add(uri);
-        return true;
-      },
-    ),
-  );
+  /// The paywall alone, as the screen of the app. With [snackBars], on a
+  /// 390×844 phone, still at 2× text: the test font's square glyphs leave a
+  /// snackbar no room above the footer on the smallest phone.
+  Future<void> pumpPaywall(
+    WidgetTester tester,
+    String lang, {
+    String header = 'Unlimited exports',
+    bool snackBars = false,
+  }) async {
+    await pumpOnSmallPhone(
+      tester,
+      Locale(lang),
+      PaywallScreen(
+        placement: 'export',
+        purchases: purchases,
+        legal: legal[lang]!,
+        header: Text(header),
+        openLink: (uri) async {
+          opened.add(uri);
+          return true;
+        },
+      ),
+    );
+    if (snackBars) {
+      tester.view.physicalSize = const Size(780, 1688);
+      await tester.pumpAndSettle();
+    }
+  }
 
   /// An app screen whose button opens the paywall through the gate; the
   /// result lands in [result].
@@ -233,16 +266,121 @@ void main() {
         expect(await events(tester), ['paywall.view.export', 'paywall.dismiss.export']);
       });
 
-      testWidgets('restore calls the purchases module', (tester) async {
-        store.ownedOnStore = true;
-        await pumpPaywall(tester, lang);
-
+      Future<void> tapRestore(WidgetTester tester) async {
         await tester.ensureVisible(find.text(want.restore));
         await tester.tap(find.text(want.restore));
         await tester.pumpAndSettle();
+      }
+
+      testWidgets('a restore that finds a purchase says so and shows it active', (tester) async {
+        store.ownedOnStore = true;
+        await pumpPaywall(tester, lang, snackBars: true);
+        await tapRestore(tester);
 
         expect(purchases.entitled.value, isTrue);
+        expect(find.text(want.restored), findsOneWidget);
+        expect(find.text(want.entitled), findsOneWidget);
         expect(await events(tester), ['paywall.view.export', 'paywall.tap.restore']);
+      });
+
+      testWidgets('restore says when there is nothing to restore, or the store is out of reach', (tester) async {
+        await pumpPaywall(tester, lang, snackBars: true);
+        await tapRestore(tester);
+        expect(find.text(want.nothingToRestore), findsOneWidget);
+
+        ScaffoldMessenger.of(tester.element(find.byType(PaywallScreen))).removeCurrentSnackBar();
+        store.failRestore = true;
+        await tapRestore(tester);
+        expect(find.text(want.restoreFailed), findsOneWidget);
+        expect(find.byType(FilledButton), findsOneWidget, reason: 'the plans stay on sale');
+      });
+
+      testWidgets('when prices are unavailable, the user can try again or leave', (tester) async {
+        store.failPackages = true;
+        await pumpPaywall(tester, lang);
+
+        expect(find.text(want.error), findsOneWidget);
+        expect(find.byType(FilledButton), findsNothing);
+        expect(find.byType(CircularProgressIndicator), findsNothing);
+        store.failPackages = false;
+        await tester.ensureVisible(find.text(want.retry));
+        await tester.tap(find.text(want.retry));
+        await tester.pumpAndSettle();
+        expect(find.text(want.plans[2]), findsOneWidget);
+        expect(find.text(want.error), findsNothing);
+      });
+
+      testWidgets('when prices are unavailable, close still works', (tester) async {
+        final result = ValueNotifier<bool?>(null);
+        store.failPackages = true;
+        await pumpApp(tester, lang, result);
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        expect(find.text(want.error), findsOneWidget);
+
+        await tester.tap(find.byTooltip(want.close));
+        await tester.pumpAndSettle();
+        expect(find.byType(PaywallScreen), findsNothing);
+        expect(result.value, isFalse);
+      });
+
+      testWidgets('an active subscription shows as such, with nothing to buy and a way to manage it', (tester) async {
+        store
+          ..entitled.value = true
+          ..manageUrl = Uri.parse('https://apps.apple.com/account/subscriptions');
+        await pumpPaywall(tester, lang);
+
+        expect(find.text(want.entitled), findsOneWidget);
+        expect(find.text(want.plans[2]), findsNothing);
+        expect(find.text(want.restore), findsNothing);
+        await tester.tap(find.text(want.manage));
+        expect(opened, [store.manageUrl]);
+        expect(find.widgetWithText(FilledButton, want.close), findsOneWidget);
+      });
+
+      testWidgets('a lifetime purchase has nothing to manage', (tester) async {
+        store.entitled.value = true;
+        await pumpPaywall(tester, lang);
+
+        expect(find.text(want.entitled), findsOneWidget);
+        expect(find.text(want.manage), findsNothing);
+      });
+
+      testWidgets('a failed purchase says so and keeps the paywall open', (tester) async {
+        store.nextResult = const PurchaseFailed(PurchaseFailure.store, 'test');
+        await pumpPaywall(tester, lang, snackBars: true);
+        await tester.tap(find.byType(FilledButton));
+        await tester.pumpAndSettle();
+
+        expect(find.text(want.buyFailed), findsOneWidget);
+        expect(find.byType(FilledButton), findsOneWidget);
+        expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isTrue);
+      });
+
+      testWidgets('a pending purchase says it waits for approval; a cancelled one says nothing', (tester) async {
+        store.nextResult = const PurchasePending();
+        await pumpPaywall(tester, lang, snackBars: true);
+        await tester.tap(find.byType(FilledButton));
+        await tester.pumpAndSettle();
+        expect(find.text(want.pending), findsOneWidget);
+
+        ScaffoldMessenger.of(tester.element(find.byType(PaywallScreen))).removeCurrentSnackBar();
+        await tester.pumpAndSettle();
+        store.nextResult = const PurchaseCancelled();
+        await tester.tap(find.byType(FilledButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(SnackBar), findsNothing);
+      });
+
+      testWidgets('a purchase is confirmed on the screen underneath, once the paywall closes', (tester) async {
+        await pumpApp(tester, lang, ValueNotifier(null));
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(FilledButton));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(PaywallScreen), findsNothing);
+        expect(find.text(want.purchased), findsOneWidget);
       });
     });
   }
@@ -261,6 +399,26 @@ void main() {
     expect(find.byType(PaywallScreen), findsNothing);
     expect(result.value, isTrue);
     expect(await events(tester), ['paywall.view.export', 'paywall.tap.yearly', 'purchase.complete.yearly']);
+  });
+
+  testWidgets('while buying, the button spins and the plans and restore wait; close stays on', (tester) async {
+    final store = _HeldStore();
+    purchases = Purchases(backend: store, analytics: purchases.analytics, plans: config.plans);
+    await pumpPaywall(tester, 'en', snackBars: true);
+    final width = tester.getSize(find.byType(FilledButton)).width;
+    await tester.tap(find.byType(FilledButton));
+    await tester.pump();
+
+    expect(find.descendant(of: find.byType(FilledButton), matching: find.byType(CircularProgressIndicator)), findsOne);
+    expect(tester.getSize(find.byType(FilledButton)).width, width);
+    expect(tester.widget<TextButton>(find.widgetWithText(TextButton, 'Restore purchases')).enabled, isFalse);
+    expect(tester.widget<ListTile>(find.widgetWithText(ListTile, 'Weekly')).onTap, isNull);
+    expect(tester.widget<IconButton>(find.widgetWithIcon(IconButton, Icons.close)).onPressed, isNotNull);
+
+    store.held.completeError(StateError('store crashed'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<FilledButton>(find.byType(FilledButton)).enabled, isTrue, reason: 'never stuck busy');
+    expect(find.text('The purchase didn’t go through. Try again in a moment.'), findsOneWidget);
   });
 
   testWidgets('in French on a 375dp phone, Terms and Privacy stay together on one line', (tester) async {
@@ -318,4 +476,12 @@ void main() {
     expect(result.value, isFalse);
     expect(await events(tester), isEmpty);
   });
+}
+
+/// A store whose purchase waits on [held].
+class _HeldStore extends FakePurchasesBackend {
+  final held = Completer<PurchaseResult>();
+
+  @override
+  Future<PurchaseResult> buy(String id) => held.future;
 }

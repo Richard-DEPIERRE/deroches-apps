@@ -82,6 +82,16 @@ void main() {
     expect(await events(p), ['purchase.fail.not_allowed']);
   });
 
+  test('a purchase that throws is a failure, never an exception', () async {
+    final p = await purchases({Plan.weekly});
+    final offer = (await p.offers()).single;
+    final throwing = Purchases(backend: _ThrowingStore(), analytics: p.analytics, plans: p.plans);
+
+    final result = await throwing.buy(offer);
+    expect((result as PurchaseFailed).reason, PurchaseFailure.other);
+    expect(await events(p), ['purchase.fail.other']);
+  });
+
   test('restore with an entitlement on the store account unlocks it', () async {
     final p = await purchases({Plan.lifetime});
     store.ownedOnStore = true;
@@ -103,4 +113,9 @@ void main() {
 
     expect(await p.restore(), RestoreResult.failed);
   });
+}
+
+class _ThrowingStore extends FakePurchasesBackend {
+  @override
+  Future<PurchaseResult> buy(String id) async => throw StateError('store crashed');
 }
