@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+// ignore: implementation_imports
+import 'package:sentry_flutter/src/exception/flutter_error_integration.dart';
 
 import '../config/app_config.dart';
 import '../data/kit_state.dart';
@@ -55,6 +57,10 @@ void configureSentry(
     ..enableUserInteractionBreadcrumbs = false
     ..beforeBreadcrumb = _kitBreadcrumbOnly
     ..beforeSend = _anonymous;
+  // The kit's hook (installCrashReporter) reports Flutter errors and then calls
+  // the handler it replaced. Left in, Sentry's handler would send a second,
+  // fatal copy of each error and lower crash-free users.
+  options.integrations.whereType<FlutterErrorIntegration>().toList().forEach(options.removeIntegration);
 }
 
 Breadcrumb? _kitBreadcrumbOnly(Breadcrumb? crumb, Hint _) => crumb?.category == kitBreadcrumbCategory ? crumb : null;

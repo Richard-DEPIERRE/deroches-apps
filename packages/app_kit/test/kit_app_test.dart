@@ -123,8 +123,9 @@ void main() {
     expect(app.darkTheme!.textTheme.bodyMedium!.fontFamily, 'Inter');
   });
 
-  testWidgets('an error thrown in a widget reaches the CrashReporter', (tester) async {
+  testWidgets('an error thrown in a widget reaches the CrashReporter and the test framework', (tester) async {
     final crash = FakeCrashReporter();
+    final flutterBefore = FlutterError.onError;
     await tester.pumpWidget(
       KitApp(
         config: config,
@@ -134,9 +135,11 @@ void main() {
         home: (_) => throw StateError('boom in build'),
       ),
     );
-    // Unmount first: it gives the error handlers back to the test framework,
-    // so a failed expectation below fails the test instead of hanging it.
+    // The test framework still sees errors while KitApp runs, so a failed
+    // expect fails the test instead of hanging it (DAPP-111).
+    expect(tester.takeException(), isStateError);
     await tester.pumpWidget(const SizedBox());
+    expect(FlutterError.onError, same(flutterBefore));
     expect(crash.errors, hasLength(1));
     expect(crash.errors.single.error, isA<StateError>());
     expect(crash.errors.single.stack, isNotNull);
