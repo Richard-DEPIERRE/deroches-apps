@@ -21,6 +21,7 @@ dependencies:
   sentry_flutter: ^10.2.0
   package_info_plus: ^10.2.2
   file_picker: ^13.3.2
+  in_app_review: ^2.0.12
 
 flutter:
   generate: true

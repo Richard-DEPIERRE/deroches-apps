@@ -26,4 +26,7 @@ class ExampleLocalizationsFr extends ExampleLocalizations {
   @override
   String get exampleOnboarding2Body =>
       'Rien de ce que vous écrivez ne quitte l’appareil. Vous pouvez passer ces pages à tout moment.';
+
+  @override
+  String get exampleGoodMoment => 'Quelque chose s’est bien passé';
 }

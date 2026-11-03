@@ -19,5 +19,9 @@
   "exampleOnboarding2Body": "Nothing you write leaves the device. You can skip these pages at any time.",
   "@exampleOnboarding2Body": {
     "description": "Sample app onboarding, page 2 body."
+  },
+  "exampleGoodMoment": "Something went well",
+  "@exampleGoodMoment": {
+    "description": "Sample app button that reports a good moment to the rating prompt."
   }
 }

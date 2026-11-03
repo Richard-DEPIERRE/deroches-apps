@@ -23,7 +23,11 @@ final exampleConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter(), required KitStateController kitState}) {
+Widget buildApp({
+  CrashReporter crashReporter = const NoopCrashReporter(),
+  required KitStateController kitState,
+  StoreReview review = const InAppStoreReview(),
+}) {
   // No backend: the sample app has no PostHog key, so it sends nothing.
   final analytics = Analytics(
     kitState: kitState,
@@ -32,6 +36,7 @@ Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter(), requir
     locale: () => resolveKitLocale(WidgetsBinding.instance.platformDispatcher.locales).languageCode,
     appEvents: notesEvents,
   );
+  final rating = RatingPrompt(kitState: kitState, review: review, analytics: analytics);
   return KitApp(
     config: exampleConfig,
     crashReporter: crashReporter,
@@ -54,7 +59,7 @@ Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter(), requir
             illustration: const _Art(Icons.lock),
           ),
         ],
-        child: const PlaceholderHome(),
+        child: PlaceholderHome(rating: rating),
       );
     },
   );
@@ -78,9 +83,12 @@ class _Art extends StatelessWidget {
   Widget build(BuildContext context) => Icon(icon, size: 96, color: Theme.of(context).colorScheme.primary);
 }
 
-/// Shows the wiring works: the app's name from its config, its own strings.
+/// Shows the wiring works: the app's name from its config, its own strings,
+/// and a good moment reported to the rating prompt.
 class PlaceholderHome extends StatelessWidget {
-  const PlaceholderHome({super.key});
+  const PlaceholderHome({super.key, required this.rating});
+
+  final RatingPrompt rating;
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +98,17 @@ class PlaceholderHome extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Text(ExampleLocalizations.of(context).exampleHomeBody, style: Theme.of(context).textTheme.bodyLarge),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(ExampleLocalizations.of(context).exampleHomeBody, style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: rating.goodMoment,
+                child: Text(ExampleLocalizations.of(context).exampleGoodMoment),
+              ),
+            ],
+          ),
         ),
       ),
     );

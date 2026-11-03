@@ -15,3 +15,4 @@ export 'src/data/data_store.dart';
 export 'src/data/kit_state.dart';
 export 'src/l10n/language.dart';
 export 'src/onboarding/onboarding_flow.dart';
+export 'src/rating/rating_prompt.dart';

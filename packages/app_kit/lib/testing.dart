@@ -46,6 +46,19 @@ class FakeAnalyticsBackend implements AnalyticsBackend {
       events.add((name: event, properties: properties));
 }
 
+/// Counts the rating prompts the kit asked the platform for.
+class FakeStoreReview implements StoreReview {
+  /// False plays a platform without the store's prompt.
+  bool available = true;
+  int requests = 0;
+
+  @override
+  Future<bool> isAvailable() async => available;
+
+  @override
+  Future<void> requestReview() async => requests++;
+}
+
 /// Plays the system save dialog and file picker: keeps what was saved, and
 /// hands back [picked] (null: the user cancels the picker).
 class FakeBackupFiles implements BackupFiles {
