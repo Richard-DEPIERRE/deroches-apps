@@ -5,6 +5,7 @@ import 'package:app_kit/testing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kit_example/main.dart';
+import 'package:kit_example/notes.dart';
 
 /// A first launch, on a device in [deviceLocale].
 Future<void> pumpApp(WidgetTester tester, Locale deviceLocale, {StoreReview? review}) async {
@@ -15,7 +16,14 @@ Future<void> pumpApp(WidgetTester tester, Locale deviceLocale, {StoreReview? rev
   tester.platformDispatcher.localesTestValue = [deviceLocale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final analytics = Analytics(kitState: kitState, appId: exampleConfig.slug, appVersion: '0.1.0', locale: () => 'en');
-  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, review: review ?? FakeStoreReview()));
+  await tester.pumpWidget(
+    buildApp(
+      kitState: kitState,
+      analytics: analytics,
+      data: ExampleData(dir, files: FakeBackupFiles()),
+      review: review ?? FakeStoreReview(),
+    ),
+  );
   await tester.pumpAndSettle();
 }
 
@@ -31,6 +39,8 @@ void main() {
     await tester.tap(find.byTooltip('Réglages'));
     await tester.pumpAndSettle();
     expect(find.text('Langue du téléphone'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Exporter une sauvegarde'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Exporter une sauvegarde'), findsOneWidget);
   });
 
   testWidgets('the sample app loads in English, onboarding first', (tester) async {
@@ -45,6 +55,8 @@ void main() {
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
     expect(find.text('Phone’s language'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Export a backup'), 100, scrollable: find.byType(Scrollable).first);
+    expect(find.text('Export a backup'), findsOneWidget);
   });
 
   test('every sample app message is in English and in French', () {

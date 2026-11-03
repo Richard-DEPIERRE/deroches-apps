@@ -256,5 +256,37 @@
   "settingsLanguageEnglish": "English",
   "@settingsLanguageEnglish": {
     "description": "English, written in English in both languages."
+  },
+  "settingsPurchases": "Purchases",
+  "@settingsPurchases": {
+    "description": "Header of the purchases section in settings (Restore purchases)."
+  },
+  "settingsBackup": "Backup",
+  "@settingsBackup": {
+    "description": "Header of the backup section in settings."
+  },
+  "settingsBackupExport": "Export a backup",
+  "@settingsBackupExport": {
+    "description": "Saves a backup file through the system save dialog."
+  },
+  "settingsBackupExportDetail": "Save it to iCloud Drive, Google Drive or anywhere you like.",
+  "@settingsBackupExportDetail": {
+    "description": "Under Export a backup: where the file can go."
+  },
+  "settingsBackupRestore": "Restore a backup",
+  "@settingsBackupRestore": {
+    "description": "Picks a backup file and replaces the app's data with it."
+  },
+  "settingsBackupRestoreDetail": "Replaces the data on this phone with the backup’s.",
+  "@settingsBackupRestoreDetail": {
+    "description": "Under Restore a backup: what it does."
+  },
+  "settingsBackupExported": "Backup saved.",
+  "@settingsBackupExported": {
+    "description": "Shown after a backup was exported."
+  },
+  "settingsBackupRestored": "Backup restored.",
+  "@settingsBackupRestored": {
+    "description": "Shown after a backup was restored."
   }
 }

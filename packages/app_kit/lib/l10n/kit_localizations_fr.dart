@@ -245,4 +245,30 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get settingsLanguageEnglish => 'English';
+
+  @override
+  String get settingsPurchases => 'Achats';
+
+  @override
+  String get settingsBackup => 'Sauvegarde';
+
+  @override
+  String get settingsBackupExport => 'Exporter une sauvegarde';
+
+  @override
+  String get settingsBackupExportDetail =>
+      'Enregistrez‑la dans iCloud Drive, Google Drive ou ailleurs.';
+
+  @override
+  String get settingsBackupRestore => 'Restaurer une sauvegarde';
+
+  @override
+  String get settingsBackupRestoreDetail =>
+      'Remplace les données de ce téléphone par celles de la sauvegarde.';
+
+  @override
+  String get settingsBackupExported => 'Sauvegarde enregistrée.';
+
+  @override
+  String get settingsBackupRestored => 'Sauvegarde restaurée.';
 }

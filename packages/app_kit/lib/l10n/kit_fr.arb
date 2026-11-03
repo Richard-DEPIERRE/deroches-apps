@@ -48,5 +48,13 @@
   "settingsAbout": "À propos",
   "settingsVersion": "Version {version} ({build})",
   "settingsLanguageFrench": "Français",
-  "settingsLanguageEnglish": "English"
+  "settingsLanguageEnglish": "English",
+  "settingsPurchases": "Achats",
+  "settingsBackup": "Sauvegarde",
+  "settingsBackupExport": "Exporter une sauvegarde",
+  "settingsBackupExportDetail": "Enregistrez‑la dans iCloud Drive, Google Drive ou ailleurs.",
+  "settingsBackupRestore": "Restaurer une sauvegarde",
+  "settingsBackupRestoreDetail": "Remplace les données de ce téléphone par celles de la sauvegarde.",
+  "settingsBackupExported": "Sauvegarde enregistrée.",
+  "settingsBackupRestored": "Sauvegarde restaurée."
 }
