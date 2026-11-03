@@ -25,6 +25,7 @@ dependencies:
   purchases_flutter: ^11.0.0
   # Opens the legal links (the paywall's terms and privacy, then settings).
   url_launcher: ^6.3.2
+  in_app_review: ^2.0.12
 
 flutter:
   generate: true

@@ -130,6 +130,12 @@ abstract class ExampleLocalizations {
   /// In en, this message translates to:
   /// **'Nothing you write leaves the device. You can skip these pages at any time.'**
   String get exampleOnboarding2Body;
+
+  /// Sample app button that reports a good moment to the rating prompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went well'**
+  String get exampleGoodMoment;
 }
 
 class _ExampleLocalizationsDelegate
