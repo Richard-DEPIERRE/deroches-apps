@@ -208,13 +208,19 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             alignment: WrapAlignment.center,
                             children: [
                               TextButton(onPressed: _busy ? null : _restore, child: Text(l10n.paywallRestore)),
-                              TextButton(
-                                onPressed: () => widget.openLink(widget.legal.terms),
-                                child: Text(l10n.paywallTerms),
-                              ),
-                              TextButton(
-                                onPressed: () => widget.openLink(widget.legal.privacy),
-                                child: Text(l10n.paywallPrivacy),
+                              // The legal pair breaks as one, so neither link is ever alone on a line.
+                              Wrap(
+                                alignment: WrapAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => widget.openLink(widget.legal.terms),
+                                    child: Text(l10n.paywallTerms),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => widget.openLink(widget.legal.privacy),
+                                    child: Text(l10n.paywallPrivacy),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

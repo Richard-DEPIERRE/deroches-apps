@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// What the paywall must say, word for word, in each language, with the
@@ -260,6 +261,41 @@ void main() {
     expect(find.byType(PaywallScreen), findsNothing);
     expect(result.value, isTrue);
     expect(await events(tester), ['paywall.view.export', 'paywall.tap.yearly', 'purchase.complete.yearly']);
+  });
+
+  testWidgets('in French on a 375dp phone, Terms and Privacy stay together on one line', (tester) async {
+    // Real line breaks need real glyph widths: the SDK's Roboto, as on Android.
+    final fonts = '${Platform.environment['FLUTTER_ROOT']}/bin/cache/artifacts/material_fonts';
+    await tester.runAsync(() async {
+      final roboto = FontLoader('Roboto');
+      for (final weight in ['Regular', 'Medium']) {
+        roboto.addFont(File('$fonts/Roboto-$weight.ttf').readAsBytes().then(ByteData.sublistView));
+      }
+      await roboto.load();
+    });
+    tester.view
+      ..physicalSize = const Size(750, 1334)
+      ..devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: ThemeData(fontFamily: 'Roboto'),
+        locale: const Locale('fr'),
+        supportedLocales: kitLocales,
+        localizationsDelegates: KitLocalizations.localizationsDelegates,
+        home: PaywallScreen(
+          placement: 'export',
+          purchases: purchases,
+          legal: legal['fr']!,
+          header: const Text('Exports illimités'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final terms = tester.getRect(find.text('Conditions'));
+    final privacy = tester.getRect(find.text('Confidentialité'));
+    expect(privacy.center.dy, terms.center.dy, reason: 'Confidentialité alone on its line');
   });
 
   testWidgets('a period of several units is said in words', (tester) async {
