@@ -1,6 +1,7 @@
 /// Fakes and helpers for tests of the kit and of every app (ADR 0001, section 3).
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -63,6 +64,9 @@ class FakePurchasesBackend implements PurchasesBackend {
   /// [restore] can't reach the store.
   bool failRestore = false;
 
+  /// While set and not complete, [packages] waits for it: the prices are loading.
+  Completer<void>? holdPackages;
+
   /// The package ids bought, in order.
   final bought = <String>[];
 
@@ -70,7 +74,10 @@ class FakePurchasesBackend implements PurchasesBackend {
   final ValueNotifier<bool> entitled = ValueNotifier(false);
 
   @override
-  Future<List<StorePackage>> packages() async => List.of(storePackages);
+  Future<List<StorePackage>> packages() async {
+    await holdPackages?.future;
+    return List.of(storePackages);
+  }
 
   @override
   Future<PurchaseResult> buy(String id) async {

@@ -42,13 +42,13 @@ void main() {
     expect(arbProblems('${dir.path}/en.arb', '${dir.path}/fr.arb'), ['missing "b"', 'empty "c"']);
   });
 
-  testWidgets('the error screen fits the longest French string on a small phone at large text', (tester) async {
+  testWidgets('the error screen fits its longest French string on a small phone at large text', (tester) async {
     final fr = (jsonDecode(File('lib/l10n/kit_fr.arb').readAsStringSync()) as Map<String, dynamic>)
-      ..removeWhere((key, _) => key.startsWith('@'));
+      ..removeWhere((key, _) => !key.startsWith('kitError'));
     final longest = fr.values.cast<String>().reduce((a, b) => a.length >= b.length ? a : b);
 
     await pumpOnSmallPhone(tester, const Locale('fr'), const KitErrorView());
-    expect(find.text(longest), findsOneWidget, reason: 'the error screen holds the longest French kit string');
+    expect(find.text(longest), findsOneWidget, reason: 'the error screen holds its longest French string');
     expect(tester.takeException(), isNull);
   });
 }

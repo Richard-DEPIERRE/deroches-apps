@@ -31,5 +31,118 @@
   "backupFailedTooLarge": "This file is too large to be a backup of this app. Your data hasn’t changed.",
   "@backupFailedTooLarge": {
     "description": "Shown when a restore fails because the picked file is over the size limit (a few MB)."
+  },
+  "paywallClose": "Close",
+  "@paywallClose": {
+    "description": "Tooltip of the paywall's close button: neutral, never guilt wording."
+  },
+  "paywallPlanWeekly": "Weekly",
+  "@paywallPlanWeekly": {
+    "description": "Name of the weekly plan."
+  },
+  "paywallPlanYearly": "Yearly",
+  "@paywallPlanYearly": {
+    "description": "Name of the yearly plan."
+  },
+  "paywallPlanLifetime": "Lifetime",
+  "@paywallPlanLifetime": {
+    "description": "Name of the lifetime plan (a one-time purchase)."
+  },
+  "paywallPeriod": "{unit, select, day{{count, plural, =1{day} other{{count} days}}} week{{count, plural, =1{week} other{{count} weeks}}} month{{count, plural, =1{month} other{{count} months}}} other{{count, plural, =1{year} other{{count} years}}}}",
+  "@paywallPeriod": {
+    "description": "A subscription's billing period as the store gives it (unit: day, week, month or year).",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallEvery": "{unit, select, day{{count, plural, =1{every day} other{every {count} days}}} week{{count, plural, =1{every week} other{every {count} weeks}}} month{{count, plural, =1{every month} other{every {count} months}}} other{{count, plural, =1{every year} other{every {count} years}}}}",
+  "@paywallEvery": {
+    "description": "How often a subscription renews (unit: day, week, month or year).",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallPricePerPeriod": "{price} per {period}",
+  "@paywallPricePerPeriod": {
+    "description": "A subscription's price as the store formats it, and its period.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallRenews": "Renews automatically {every} at {price} until you cancel.",
+  "@paywallRenews": {
+    "description": "When a subscription renews and at what price.",
+    "placeholders": {
+      "every": {
+        "type": "String"
+      },
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallOneTime": "One-time purchase, never renews.",
+  "@paywallOneTime": {
+    "description": "Under the lifetime plan."
+  },
+  "paywallCancelAppStore": "Cancel anytime in Settings › your name › Subscriptions, at least 24 hours before renewal.",
+  "@paywallCancelAppStore": {
+    "description": "How to cancel on iPhone: the path to the App Store subscriptions in Settings."
+  },
+  "paywallCancelGooglePlay": "Cancel anytime in Google Play › Payments & subscriptions › Subscriptions.",
+  "@paywallCancelGooglePlay": {
+    "description": "How to cancel on Android: the path to the Google Play subscriptions."
+  },
+  "paywallSubscribe": "Subscribe for {price} per {period}",
+  "@paywallSubscribe": {
+    "description": "Buy button for a subscription; the price is the store's.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      },
+      "period": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallBuyOnce": "Buy for {price}",
+  "@paywallBuyOnce": {
+    "description": "Buy button for the lifetime plan; the price is the store's.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "paywallRestore": "Restore purchases",
+  "@paywallRestore": {
+    "description": "Restores the store account's purchases."
+  },
+  "paywallTerms": "Terms",
+  "@paywallTerms": {
+    "description": "Link to the app's terms, in the paywall's footer (short: the page has the full title)."
+  },
+  "paywallPrivacy": "Privacy",
+  "@paywallPrivacy": {
+    "description": "Link to the app's privacy policy, in the paywall's footer (short)."
+  },
+  "paywallLoading": "Loading prices",
+  "@paywallLoading": {
+    "description": "Screen-reader label while the store's prices load."
   }
 }
