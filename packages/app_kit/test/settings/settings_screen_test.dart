@@ -129,6 +129,7 @@ void main() {
     WidgetTester tester,
     Locale device, {
     bool sells = true,
+    bool pushed = false,
     AppConfig? appConfig,
   }) async {
     final kit = KitStateController(directory: dir, appId: 'carnet-km');
@@ -153,19 +154,32 @@ void main() {
         config: appConfig ?? config,
         seedColor: Colors.teal,
         kitState: kit,
-        home: (_) => SettingsScreen(
-          kitState: kit,
-          analytics: analytics,
-          purchases: sells ? Purchases(backend: store, analytics: analytics, plans: config.plans) : null,
-          backup: BackupService(appId: 'carnet-km', stores: [notes], files: files),
-          onBackupRestored: () => restores++,
-          appSections: const [ListTile(title: Text('App section'))],
-          openLink: (uri) async {
-            opened.add(uri);
-            await holdLink?.future;
-            return linksOpen;
-          },
-        ),
+        home: (_) {
+          final settings = SettingsScreen(
+            kitState: kit,
+            analytics: analytics,
+            purchases: sells ? Purchases(backend: store, analytics: analytics, plans: config.plans) : null,
+            backup: BackupService(appId: 'carnet-km', stores: [notes], files: files),
+            onBackupRestored: () => restores++,
+            appSections: const [ListTile(title: Text('App section'))],
+            openLink: (uri) async {
+              opened.add(uri);
+              await holdLink?.future;
+              return linksOpen;
+            },
+          );
+          // [pushed]: settings opened from the app's home, as apps do.
+          return !pushed
+              ? settings
+              : Scaffold(
+                  body: Builder(
+                    builder: (context) => TextButton(
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => settings)),
+                      child: const Text('Open settings'),
+                    ),
+                  ),
+                );
+        },
       ),
     );
     await tester.pumpAndSettle();
@@ -339,7 +353,10 @@ void main() {
       await tester.tap(find.text(t.terms));
       await tester.pump();
       expect(icon(t.terms), findsNothing);
-      expect(find.descendant(of: find.widgetWithText(ListTile, t.terms), matching: find.byType(CircularProgressIndicator)), findsOneWidget);
+      expect(
+        find.descendant(of: find.widgetWithText(ListTile, t.terms), matching: find.byType(CircularProgressIndicator)),
+        findsOneWidget,
+      );
       holdLink!.complete();
       await tester.pumpAndSettle();
       expect(icon(t.terms), findsOneWidget);
@@ -486,6 +503,20 @@ void main() {
     expect(confirmsCopy(android: true, sdk: 33), isFalse, reason: 'Android 13');
     expect(confirmsCopy(android: true, sdk: 35), isFalse);
     expect(confirmsCopy(android: true), isTrue, reason: 'level unknown: two confirmations beat none');
+  });
+
+  testWidgets('settings’ messages leave with the screen: none follows the user home', (tester) async {
+    await launch(tester, const Locale('en'), pushed: true);
+    await tester.tap(find.text('Open settings'));
+    await tester.pumpAndSettle();
+    linksOpen = false;
+    await tapAndWait(tester, 'Contact support');
+    expect(find.text('No email app found. Write to support@example.fr.'), findsOneWidget);
+
+    tester.state<NavigatorState>(find.byType(Navigator)).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Open settings'), findsOneWidget);
+    expect(find.text('No email app found. Write to support@example.fr.'), findsNothing);
   });
 
   testWidgets('a message without an action still leaves on its own', (tester) async {

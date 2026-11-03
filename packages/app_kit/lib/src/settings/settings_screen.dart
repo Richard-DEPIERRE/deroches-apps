@@ -57,6 +57,10 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final _info = PackageInfo.fromPlatform();
 
+  /// The screen's own messenger: its messages leave with it rather than
+  /// following the user to the screen underneath.
+  final _messenger = GlobalKey<ScaffoldMessengerState>();
+
   /// The item whose work is running: it spins, the others wait.
   _Action? _running;
 
@@ -77,8 +81,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (said != null) _say(said);
   }
 
-  void _say(_Said said) => ScaffoldMessenger.of(context)
-    ..removeCurrentSnackBar()
+  void _say(_Said said) => _messenger.currentState
+    ?..removeCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
         behavior: SnackBarBehavior.floating,
@@ -214,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
 
-    return Scaffold(
+    final screen = Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListenableBuilder(
         listenable: widget.kitState,
@@ -313,6 +317,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         },
       ),
     );
+    return ScaffoldMessenger(key: _messenger, child: screen);
   }
 }
 
