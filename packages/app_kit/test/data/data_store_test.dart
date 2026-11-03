@@ -199,4 +199,27 @@ void main() {
     file().writeAsBytesSync([0xff, 0xfe, 0x00, 0xc3]);
     await expectLater(store().open(), throwsProblem(DataProblem.unreadable));
   });
+
+  test('read upgrades an older document without saving it', () async {
+    writeEnvelope(1, {
+      'notes': [
+        {'id': 'n1', 'text': 'Pain'},
+      ],
+    });
+    final before = file().readAsBytesSync();
+    expect(await store(migrations: [renameText]).read(), {
+      'notes': [
+        {'id': 'n1', 'body': 'Pain'},
+      ],
+    });
+    expect(file().readAsBytesSync(), before);
+  });
+
+  test('replace overwrites an unreadable file, then saving waits for a reopen', () async {
+    final s = await opened();
+    file().writeAsStringSync('{"cut short');
+    await s.replace({'notes': <Object?>[]});
+    await expectLater(s.save({'notes': <Object?>[]}), throwsStateError);
+    expect(await s.open(), {'notes': <Object?>[]});
+  });
 }
