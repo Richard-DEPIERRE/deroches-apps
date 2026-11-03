@@ -66,7 +66,7 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   late Future<List<PlanOffer>> _offers;
   Plan? _picked;
-  bool _busy = false;
+  _Busy _busy = _Busy.none;
   bool _bought = false;
 
   Purchases get _purchases => widget.purchases;
@@ -95,12 +95,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<void> _buy(PlanOffer offer, KitLocalizations l10n) async {
     _purchases.analytics.track('paywall.tap.${offer.plan.name}');
-    setState(() => _busy = true);
+    setState(() => _busy = _Busy.buying);
     final PurchaseResult result;
     try {
       result = await _purchases.buy(offer);
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _busy = _Busy.none);
     }
     if (!mounted) return;
     switch (result) {
@@ -117,12 +117,12 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<void> _restore(KitLocalizations l10n) async {
     _purchases.analytics.track('paywall.tap.restore');
-    setState(() => _busy = true);
+    setState(() => _busy = _Busy.restoring);
     final RestoreResult result;
     try {
       result = await _purchases.restore();
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _busy = _Busy.none);
     }
     if (!mounted) return;
     _say(switch (result) {
@@ -199,7 +199,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             const SizedBox(height: 12),
             _PlanCard(
               selected: offer.plan == _picked,
-              onTap: _busy ? null : () => setState(() => _picked = offer.plan),
+              onTap: _busy != _Busy.none ? null : () => setState(() => _picked = offer.plan),
               name: switch (offer.plan) {
                 Plan.weekly => l10n.paywallPlanWeekly,
                 Plan.yearly => l10n.paywallPlanYearly,
@@ -253,7 +253,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     Wrap(
                       alignment: WrapAlignment.center,
                       children: [
-                        TextButton(onPressed: _busy ? null : () => _restore(l10n), child: Text(l10n.paywallRestore)),
+                        TextButton(
+                          onPressed: _busy != _Busy.none ? null : () => _restore(l10n),
+                          child: _Spinning(_busy == _Busy.restoring, colors.primary, Text(l10n.paywallRestore)),
+                        ),
                         // The legal pair breaks as one, so neither link is ever alone on a line.
                         Wrap(
                           alignment: WrapAlignment.center,
@@ -275,23 +278,22 @@ class _PaywallScreenState extends State<PaywallScreen> {
               ),
             ),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              onPressed: _busy ? null : () => _buy(picked, l10n),
-              // While busy, a spinner in place of the label, at the label's size.
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Visibility.maintain(
-                    visible: !_busy,
-                    child: Text(
-                      picked.renews
-                          ? l10n.paywallSubscribe(picked.price, _perPeriod(l10n, picked))
-                          : l10n.paywallBuyOnce(picked.price),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  if (_busy) const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)),
-                ],
+              // While buying it keeps its colours, so it reads as in progress, not unavailable.
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+                disabledBackgroundColor: _busy == _Busy.buying ? colors.primary : null,
+                disabledForegroundColor: _busy == _Busy.buying ? colors.onPrimary : null,
+              ),
+              onPressed: _busy != _Busy.none ? null : () => _buy(picked, l10n),
+              child: _Spinning(
+                _busy == _Busy.buying,
+                colors.onPrimary,
+                Text(
+                  picked.renews
+                      ? l10n.paywallSubscribe(picked.price, _perPeriod(l10n, picked))
+                      : l10n.paywallBuyOnce(picked.price),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ),
           ],
@@ -299,6 +301,27 @@ class _PaywallScreenState extends State<PaywallScreen> {
       ),
     );
   }
+}
+
+/// What the paywall is waiting on: the spinner shows where the user tapped.
+enum _Busy { none, buying, restoring }
+
+/// [label], or while [spinning] a 20dp spinner in its place, at the label's size.
+class _Spinning extends StatelessWidget {
+  const _Spinning(this.spinning, this.color, this.label);
+
+  final bool spinning;
+  final Color color;
+  final Widget label;
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    alignment: Alignment.center,
+    children: [
+      Visibility.maintain(visible: !spinning, child: label),
+      if (spinning) SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2, color: color)),
+    ],
+  );
 }
 
 SnackBar _snackBar(String message) => SnackBar(behavior: SnackBarBehavior.floating, content: Text(message));
@@ -314,16 +337,24 @@ class _Message extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // One rule for every message: text no wider than 340dp, buttons as wide as it.
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (icon != null) ...[Icon(icon, size: 48, color: theme.colorScheme.primary), const SizedBox(height: 16)],
-            Text(text, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
-            for (final action in actions) ...[const SizedBox(height: 12), action],
-          ],
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (icon != null) ...[Icon(icon, size: 48, color: theme.colorScheme.primary), const SizedBox(height: 16)],
+              Text(text, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
+              for (final action in actions) ...[
+                const SizedBox(height: 12),
+                ConstrainedBox(constraints: const BoxConstraints(minHeight: 48), child: action),
+              ],
+            ],
+          ),
         ),
       ),
     );
