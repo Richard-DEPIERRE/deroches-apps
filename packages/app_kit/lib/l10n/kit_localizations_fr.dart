@@ -177,4 +177,35 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get paywallLoading => 'Chargement des prix';
+
+  @override
+  String get settingsTitle => 'Réglages';
+
+  @override
+  String get settingsLanguage => 'Langue';
+
+  @override
+  String get settingsLanguageDevice => 'Langue du téléphone';
+
+  @override
+  String get settingsStatistics =>
+      'Partager des statistiques d’utilisation et des rapports de plantage anonymes';
+
+  @override
+  String get settingsStatisticsDetail =>
+      'Rien qui vous identifie. Les rapports de plantage s’arrêtent au prochain lancement.';
+
+  @override
+  String get settingsAbout => 'À propos';
+
+  @override
+  String settingsVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get settingsLanguageFrench => 'Français';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
 }

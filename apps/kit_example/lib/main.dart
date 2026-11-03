@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:app_kit/app_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
@@ -31,6 +29,7 @@ Widget buildApp({
   return KitApp(
     config: exampleConfig,
     crashReporter: crashReporter,
+    kitState: kitState,
     seedColor: Colors.indigo,
     localizationsDelegates: const [ExampleLocalizations.delegate],
     home: (context) {
@@ -50,7 +49,7 @@ Widget buildApp({
             illustration: const _Art(Icons.lock),
           ),
         ],
-        child: const PlaceholderHome(),
+        child: PlaceholderHome(settings: (_) => SettingsScreen(kitState: kitState)),
       );
     },
   );
@@ -58,10 +57,12 @@ Widget buildApp({
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final directory = await getApplicationSupportDirectory();
+  final kitState = KitStateController(directory: directory, appId: exampleConfig.slug);
+  // Read first: crash reporting starts only while the statistics switch is on (ADR 0005).
+  await kitState.load();
   // Sends nothing here: the sample app has no Sentry DSN, and debug builds never send.
-  final crashReporter = await startCrashReporting(exampleConfig);
-  final kitState = KitStateController(directory: await getApplicationSupportDirectory(), appId: exampleConfig.slug);
-  unawaited(kitState.load());
+  final crashReporter = await startCrashReporting(exampleConfig, kitState: kitState);
   // Sends nothing here either: the sample app has no PostHog key.
   final analytics = await startAnalytics(
     exampleConfig,
@@ -91,13 +92,24 @@ class _Art extends StatelessWidget {
 
 /// Shows the wiring works: the app's name from its config, its own strings.
 class PlaceholderHome extends StatelessWidget {
-  const PlaceholderHome({super.key});
+  const PlaceholderHome({super.key, required this.settings});
+
+  final WidgetBuilder settings;
 
   @override
   Widget build(BuildContext context) {
     final lang = Localizations.localeOf(context).languageCode;
     return Scaffold(
-      appBar: AppBar(title: Text(KitScope.of(context).config.names[lang]!)),
+      appBar: AppBar(
+        title: Text(KitScope.of(context).config.names[lang]!),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: KitLocalizations.of(context).settingsTitle,
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: settings)),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),

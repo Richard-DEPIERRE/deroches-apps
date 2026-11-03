@@ -168,5 +168,49 @@
   "paywallLoading": "Loading prices",
   "@paywallLoading": {
     "description": "Screen-reader label while the store's prices load."
+  },
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Title of the settings screen."
+  },
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "Header of the language choice in settings."
+  },
+  "settingsLanguageDevice": "Phone’s language",
+  "@settingsLanguageDevice": {
+    "description": "Language choice that follows the phone's language (French or English, English otherwise)."
+  },
+  "settingsStatistics": "Share anonymous usage statistics and crash reports",
+  "@settingsStatistics": {
+    "description": "Settings switch (ADR 0005, section 2): it covers analytics and crash reports. Must name crash reports."
+  },
+  "settingsStatisticsDetail": "Nothing that identifies you. Crash reports stop from the next launch.",
+  "@settingsStatisticsDetail": {
+    "description": "Under the statistics switch: what is sent, and when turning it off takes effect for crash reports."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Header of the about section in settings (the app version)."
+  },
+  "settingsVersion": "Version {version} ({build})",
+  "@settingsVersion": {
+    "description": "The app's version and build number, in settings.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "build": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLanguageFrench": "Français",
+  "@settingsLanguageFrench": {
+    "description": "French, written in French in both languages."
+  },
+  "settingsLanguageEnglish": "English",
+  "@settingsLanguageEnglish": {
+    "description": "English, written in English in both languages."
   }
 }

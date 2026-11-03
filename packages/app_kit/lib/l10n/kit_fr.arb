@@ -28,5 +28,14 @@
   "paywallRestore": "Restaurer les achats",
   "paywallTerms": "Conditions",
   "paywallPrivacy": "Confidentialité",
-  "paywallLoading": "Chargement des prix"
+  "paywallLoading": "Chargement des prix",
+  "settingsTitle": "Réglages",
+  "settingsLanguage": "Langue",
+  "settingsLanguageDevice": "Langue du téléphone",
+  "settingsStatistics": "Partager des statistiques d’utilisation et des rapports de plantage anonymes",
+  "settingsStatisticsDetail": "Rien qui vous identifie. Les rapports de plantage s’arrêtent au prochain lancement.",
+  "settingsAbout": "À propos",
+  "settingsVersion": "Version {version} ({build})",
+  "settingsLanguageFrench": "Français",
+  "settingsLanguageEnglish": "English"
 }

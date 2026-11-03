@@ -5,19 +5,10 @@ import '../crash/crash_reporter.dart';
 
 /// Hands the kit's services to widgets (ADR 0001, section 3).
 class KitScope extends InheritedWidget {
-  const KitScope({
-    super.key,
-    required this.config,
-    required this.crashReporter,
-    required this.languageOverride,
-    required super.child,
-  });
+  const KitScope({super.key, required this.config, required this.crashReporter, required super.child});
 
   final AppConfig config;
   final CrashReporter crashReporter;
-
-  /// The language the user picked in settings; `null` follows the device.
-  final ValueNotifier<Locale?> languageOverride;
 
   static KitScope of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<KitScope>();
@@ -26,8 +17,5 @@ class KitScope extends InheritedWidget {
   }
 
   @override
-  bool updateShouldNotify(KitScope oldWidget) =>
-      config != oldWidget.config ||
-      crashReporter != oldWidget.crashReporter ||
-      languageOverride != oldWidget.languageOverride;
+  bool updateShouldNotify(KitScope oldWidget) => config != oldWidget.config || crashReporter != oldWidget.crashReporter;
 }

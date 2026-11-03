@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/kit_localizations.dart';
 import '../config/app_config.dart';
 import '../crash/crash_reporter.dart';
+import '../data/kit_state.dart';
 import '../l10n/language.dart';
 import 'kit_error_view.dart';
 import 'kit_scope.dart';
@@ -16,11 +17,11 @@ class KitApp extends StatefulWidget {
     super.key,
     required this.config,
     required this.seedColor,
+    required this.kitState,
     required this.home,
     this.fontFamily,
     this.localizationsDelegates = const [],
     this.crashReporter = const NoopCrashReporter(),
-    this.languageOverride,
   }) {
     config.check();
   }
@@ -40,19 +41,17 @@ class KitApp extends StatefulWidget {
 
   final CrashReporter crashReporter;
 
-  /// The language the user picked; the kit makes one when none is given.
-  final ValueNotifier<Locale?>? languageOverride;
+  /// The kit's saved state. Its language, picked in settings, wins over the
+  /// device's and applies at once.
+  final KitStateController kitState;
 
   @override
   State<KitApp> createState() => _KitAppState();
 }
 
 class _KitAppState extends State<KitApp> {
-  late final ValueNotifier<Locale?> _ownOverride = ValueNotifier(null);
   late final VoidCallback _uninstallCrashReporter;
   final ErrorWidgetBuilder _previousErrorBuilder = ErrorWidget.builder;
-
-  ValueNotifier<Locale?> get _override => widget.languageOverride ?? _ownOverride;
 
   @override
   void initState() {
@@ -65,7 +64,6 @@ class _KitAppState extends State<KitApp> {
   void dispose() {
     _uninstallCrashReporter();
     ErrorWidget.builder = _previousErrorBuilder;
-    _ownOverride.dispose();
     super.dispose();
   }
 
@@ -79,14 +77,16 @@ class _KitAppState extends State<KitApp> {
     return KitScope(
       config: widget.config,
       crashReporter: widget.crashReporter,
-      languageOverride: _override,
-      child: ValueListenableBuilder(
-        valueListenable: _override,
-        builder: (context, override, _) => MaterialApp(
+      child: ListenableBuilder(
+        listenable: widget.kitState,
+        builder: (context, _) => MaterialApp(
           onGenerateTitle: (context) => widget.config.names[Localizations.localeOf(context).languageCode]!,
           theme: _theme(Brightness.light),
           darkTheme: _theme(Brightness.dark),
-          locale: override,
+          locale: switch (widget.kitState.state?.languageOverride) {
+            final lang? => Locale(lang),
+            null => null,
+          },
           supportedLocales: kitLocales,
           localeListResolutionCallback: (locales, _) => resolveKitLocale(locales),
           localizationsDelegates: [...widget.localizationsDelegates, ...KitLocalizations.localizationsDelegates],

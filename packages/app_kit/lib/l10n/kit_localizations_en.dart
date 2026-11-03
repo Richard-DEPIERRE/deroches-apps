@@ -177,4 +177,35 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get paywallLoading => 'Loading prices';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLanguage => 'Language';
+
+  @override
+  String get settingsLanguageDevice => 'Phone’s language';
+
+  @override
+  String get settingsStatistics =>
+      'Share anonymous usage statistics and crash reports';
+
+  @override
+  String get settingsStatisticsDetail =>
+      'Nothing that identifies you. Crash reports stop from the next launch.';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String settingsVersion(String version, String build) {
+    return 'Version $version ($build)';
+  }
+
+  @override
+  String get settingsLanguageFrench => 'Français';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
 }

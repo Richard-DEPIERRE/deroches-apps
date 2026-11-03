@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/src/crash/sentry_crash_reporter.dart' show configureSentry;
 import 'package:app_kit/testing.dart';
@@ -22,6 +24,15 @@ AppConfig _config({String? sentryDsn = _dsn}) => AppConfig(
   plans: const {Plan.yearly},
   sentryDsn: sentryDsn,
 );
+
+/// A loaded kit state, the switch on (its default).
+Future<KitStateController> _kit() async {
+  final dir = Directory.systemTemp.createTempSync('crash_kit_');
+  addTearDown(() => dir.deleteSync(recursive: true));
+  final kit = KitStateController(directory: dir, appId: 'carnet-km');
+  await kit.load();
+  return kit;
+}
 
 /// A hub set up as the kit sets Sentry up in a release build, sending to [transport].
 Hub _hub(FakeSentryTransport transport) {
@@ -110,9 +121,25 @@ void main() {
 
   test('debug builds, and apps without a DSN, send nothing', () async {
     for (final (config, release) in [(_config(), false), (_config(sentryDsn: null), true)]) {
-      final reporter = await startCrashReporting(config, releaseBuild: release);
+      final reporter = await startCrashReporting(config, kitState: await _kit(), releaseBuild: release);
       expect(reporter, isA<NoopCrashReporter>());
       expect(Sentry.isEnabled, isFalse);
+    }
+  });
+
+  test('the app skips crash reporting while the statistics switch is off, or unknown', () async {
+    final off = await _kit();
+    await off.update((s) => s.copyWith(analyticsEnabled: false));
+    final dir = Directory.systemTemp.createTempSync('crash_kit_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    File('${dir.path}/kit.json').writeAsStringSync('not json');
+    final unreadable = KitStateController(directory: dir, appId: 'carnet-km');
+    await unreadable.load();
+
+    for (final kit in [off, unreadable]) {
+      final reporter = await startCrashReporting(_config(), kitState: kit, releaseBuild: true);
+      expect(reporter, isA<NoopCrashReporter>());
+      expect(Sentry.isEnabled, isFalse, reason: 'no crash reports and no sessions');
     }
   });
 }

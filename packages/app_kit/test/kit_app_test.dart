@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,9 @@ final config = AppConfig(
   plans: const {Plan.yearly},
 );
 
+/// A kit state never loaded: the app follows the device's language.
+final unloaded = KitStateController(directory: Directory.systemTemp, appId: 'kit-test');
+
 /// A home screen that shows one kit string, so a test can see the language.
 Widget home(BuildContext context) => Text(KitLocalizations.of(context).kitErrorTitle);
 
@@ -37,20 +42,20 @@ void main() {
       legal: config.legal,
       plans: config.plans,
     );
-    expect(() => KitApp(config: bad, seedColor: Colors.teal, home: home), throwsStateError);
+    expect(() => KitApp(config: bad, seedColor: Colors.teal, kitState: unloaded, home: home), throwsStateError);
   });
 
   testWidgets('loads in French on a French device', (tester) async {
     await pumpWithDeviceLocales(tester, const [
       Locale('fr', 'FR'),
-    ], KitApp(config: config, seedColor: Colors.teal, home: home));
+    ], KitApp(config: config, seedColor: Colors.teal, kitState: unloaded, home: home));
     expect(find.text('Un problème est survenu'), findsOneWidget);
   });
 
   testWidgets('loads in English on an English device', (tester) async {
     await pumpWithDeviceLocales(tester, const [
       Locale('en', 'GB'),
-    ], KitApp(config: config, seedColor: Colors.teal, home: home));
+    ], KitApp(config: config, seedColor: Colors.teal, kitState: unloaded, home: home));
     expect(find.text('Something went wrong'), findsOneWidget);
   });
 
@@ -58,19 +63,22 @@ void main() {
     await pumpWithDeviceLocales(tester, const [
       Locale('de', 'DE'),
       Locale('fr', 'FR'),
-    ], KitApp(config: config, seedColor: Colors.teal, home: home));
+    ], KitApp(config: config, seedColor: Colors.teal, kitState: unloaded, home: home));
     expect(find.text('Something went wrong'), findsOneWidget);
   });
 
-  testWidgets('the language override wins over the device and can be cleared', (tester) async {
-    final override = ValueNotifier<Locale?>(const Locale('fr'));
-    addTearDown(override.dispose);
+  testWidgets('the language saved in the kit state wins over the device, and can be cleared', (tester) async {
+    final dir = Directory.systemTemp.createTempSync('kit_app_');
+    addTearDown(() => dir.deleteSync(recursive: true));
+    final kit = KitStateController(directory: dir, appId: 'kit-test');
+    await tester.runAsync(kit.load);
+    await tester.runAsync(() => kit.update((s) => s.copyWith(languageOverride: 'fr')));
     await pumpWithDeviceLocales(tester, const [
       Locale('en', 'US'),
-    ], KitApp(config: config, seedColor: Colors.teal, home: home, languageOverride: override));
+    ], KitApp(config: config, seedColor: Colors.teal, kitState: kit, home: home));
     expect(find.text('Un problème est survenu'), findsOneWidget);
 
-    override.value = null;
+    await tester.runAsync(() => kit.update((s) => s.copyWith(clearLanguageOverride: true)));
     await tester.pumpAndSettle();
     expect(find.text('Something went wrong'), findsOneWidget);
   });
@@ -82,6 +90,7 @@ void main() {
       KitApp(
         config: config,
         seedColor: Colors.teal,
+        kitState: unloaded,
         crashReporter: crash,
         home: (context) {
           scope = KitScope.of(context);
@@ -91,7 +100,6 @@ void main() {
     );
     expect(scope.config, same(config));
     expect(scope.crashReporter, same(crash));
-    expect(scope.languageOverride.value, isNull);
   });
 
   testWidgets('light and dark themes come from the seed colour and font', (tester) async {
@@ -100,6 +108,7 @@ void main() {
       KitApp(
         config: config,
         seedColor: Colors.teal,
+        kitState: unloaded,
         fontFamily: 'Inter',
         home: (context) {
           light = Theme.of(context);
@@ -120,6 +129,7 @@ void main() {
       KitApp(
         config: config,
         seedColor: Colors.teal,
+        kitState: unloaded,
         crashReporter: crash,
         home: (_) => throw StateError('boom in build'),
       ),
@@ -134,7 +144,9 @@ void main() {
 
   testWidgets('an uncaught async error reaches the CrashReporter', (tester) async {
     final crash = FakeCrashReporter();
-    await tester.pumpWidget(KitApp(config: config, seedColor: Colors.teal, crashReporter: crash, home: home));
+    await tester.pumpWidget(
+      KitApp(config: config, seedColor: Colors.teal, kitState: unloaded, crashReporter: crash, home: home),
+    );
     final handled = tester.binding.platformDispatcher.onError!(StateError('boom async'), StackTrace.current);
     await tester.pumpWidget(const SizedBox());
     expect(handled, isTrue);
