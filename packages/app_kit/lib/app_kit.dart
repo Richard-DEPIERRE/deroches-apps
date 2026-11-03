@@ -18,3 +18,4 @@ export 'src/l10n/language.dart';
 export 'src/purchases/paywall_gate.dart';
 export 'src/purchases/paywall_screen.dart';
 export 'src/purchases/purchases.dart';
+export 'src/purchases/revenuecat_purchases.dart' show RevenueCatPurchases;
