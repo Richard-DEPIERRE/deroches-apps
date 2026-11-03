@@ -8,6 +8,9 @@ import 'package:flutter/foundation.dart';
 const notesAppId = 'kit-example';
 const notesDocument = 'notes';
 
+/// The sample app's own analytics events, added to the kit's list.
+const notesEvents = [AnalyticsEvent('notes.create.note', readBy: 'dashboard: notes made per active user')];
+
 /// Schema 1 → 2: a note's `text` becomes `body`, and notes gain `pinned`.
 /// Written so that running it again on upgraded data changes nothing.
 Map<String, Object?> notesSchema2(Map<String, Object?> data) => {

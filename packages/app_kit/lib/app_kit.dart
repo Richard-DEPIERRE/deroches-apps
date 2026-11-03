@@ -2,6 +2,9 @@
 library;
 
 export 'l10n/kit_localizations.dart';
+export 'src/analytics/analytics.dart';
+export 'src/analytics/events.dart';
+export 'src/analytics/posthog_backend.dart' hide postHogConfig;
 export 'src/app/kit_app.dart';
 export 'src/app/kit_error_view.dart';
 export 'src/app/kit_scope.dart';
