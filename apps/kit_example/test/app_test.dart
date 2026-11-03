@@ -7,7 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kit_example/main.dart';
 
 /// A first launch, on a device in [deviceLocale].
-Future<void> pumpApp(WidgetTester tester, Locale deviceLocale) async {
+Future<void> pumpApp(WidgetTester tester, Locale deviceLocale, {StoreReview? review}) async {
   final dir = Directory.systemTemp.createTempSync('example_app_');
   addTearDown(() => dir.deleteSync(recursive: true));
   final kitState = KitStateController(directory: dir, appId: exampleConfig.slug);
@@ -15,7 +15,7 @@ Future<void> pumpApp(WidgetTester tester, Locale deviceLocale) async {
   tester.platformDispatcher.localesTestValue = [deviceLocale];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final analytics = Analytics(kitState: kitState, appId: exampleConfig.slug, appVersion: '0.1.0', locale: () => 'en');
-  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics));
+  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, review: review ?? FakeStoreReview()));
   await tester.pumpAndSettle();
 }
 
@@ -36,6 +36,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Kit example'), findsOneWidget);
     expect(find.textContaining('never ship'), findsOneWidget);
+    expect(find.text('Something went well'), findsOneWidget, reason: 'reports a good moment to the rating prompt');
   });
 
   test('every sample app message is in English and in French', () {
