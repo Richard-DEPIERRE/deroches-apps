@@ -11,5 +11,22 @@
   "backupFailedNewerSchema": "Cette sauvegarde vient d’une version plus récente de l’application. Vos données n’ont pas changé. Mettez‑la à jour, puis réessayez.",
   "backupFailedMigration": "Impossible d’ouvrir cette sauvegarde. Vos données n’ont pas changé. Écrivez‑nous depuis les réglages.",
   "backupFailedFile": "Le fichier n’a pas pu être lu ou écrit. Vos données n’ont pas changé. Réessayez.",
-  "backupFailedTooLarge": "Ce fichier est trop volumineux pour être une sauvegarde de cette application. Vos données n’ont pas changé."
+  "backupFailedTooLarge": "Ce fichier est trop volumineux pour être une sauvegarde de cette application. Vos données n’ont pas changé.",
+  "paywallClose": "Fermer",
+  "paywallPlanWeekly": "Hebdomadaire",
+  "paywallPlanYearly": "Annuel",
+  "paywallPlanLifetime": "À vie",
+  "paywallPeriod": "{unit, select, day{{count, plural, =1{jour} other{{count} jours}}} week{{count, plural, =1{semaine} other{{count} semaines}}} month{{count, plural, =1{mois} other{{count} mois}}} other{{count, plural, =1{an} other{{count} ans}}}}",
+  "paywallEvery": "{unit, select, day{{count, plural, =1{chaque jour} other{tous les {count} jours}}} week{{count, plural, =1{chaque semaine} other{toutes les {count} semaines}}} month{{count, plural, =1{chaque mois} other{tous les {count} mois}}} other{{count, plural, =1{chaque année} other{tous les {count} ans}}}}",
+  "paywallPricePerPeriod": "{price} par {period}",
+  "paywallRenews": "Se renouvelle automatiquement {every} à {price}, jusqu’à résiliation.",
+  "paywallOneTime": "Achat unique, sans renouvellement.",
+  "paywallCancelAppStore": "Résiliez à tout moment dans Réglages › votre nom › Abonnements, au moins 24 heures avant le renouvellement.",
+  "paywallCancelGooglePlay": "Résiliez à tout moment dans Google Play › Paiements et abonnements › Abonnements.",
+  "paywallSubscribe": "S’abonner pour {price} par {period}",
+  "paywallBuyOnce": "Acheter pour {price}",
+  "paywallRestore": "Restaurer les achats",
+  "paywallTerms": "Conditions",
+  "paywallPrivacy": "Confidentialité",
+  "paywallLoading": "Chargement des prix"
 }
