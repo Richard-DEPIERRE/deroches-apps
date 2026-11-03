@@ -14,6 +14,7 @@ AppConfig _config({
   Map<String, LegalLinks>? legal,
   Set<Plan> plans = const {Plan.yearly, Plan.lifetime},
   String? sentryDsn,
+  String? postHogKey,
 }) => AppConfig(
   slug: slug,
   names: names,
@@ -21,6 +22,7 @@ AppConfig _config({
   legal: legal ?? {'fr': _links('fr'), 'en': _links('en')},
   plans: plans,
   sentryDsn: sentryDsn,
+  postHogKey: postHogKey,
 );
 
 void main() {
@@ -70,5 +72,11 @@ void main() {
     expect(_config(sentryDsn: 'https://public@o0.ingest.de.sentry.io/0').problems, isEmpty);
     expect(_config(sentryDsn: 'http://public@o0.ingest.de.sentry.io/0').problems, [contains('DSN')]);
     expect(_config(sentryDsn: '').problems, [contains('DSN')]);
+  });
+
+  test('a PostHog key, when given, is a public project key', () {
+    expect(_config(postHogKey: 'phc_aBc123').problems, isEmpty);
+    expect(_config(postHogKey: 'phx_personalApiKey').problems, [contains('PostHog')], reason: 'a personal API key is a secret');
+    expect(_config(postHogKey: '').problems, [contains('PostHog')]);
   });
 }
