@@ -344,5 +344,13 @@
   "settingsTerms": "Terms of use",
   "@settingsTerms": {
     "description": "Link to the app's terms of use on its site."
+  },
+  "settingsSupportCopy": "Copy",
+  "@settingsSupportCopy": {
+    "description": "Action on the no-email-app message: copies the support address."
+  },
+  "settingsSupportCopied": "Address copied.",
+  "@settingsSupportCopied": {
+    "description": "Shown after the support address was copied."
   }
 }

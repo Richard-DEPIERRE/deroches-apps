@@ -6,6 +6,7 @@ import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -53,6 +54,8 @@ const texts = {
     terms: 'Conditions d’utilisation',
     mailBody: '\n\n—\nApplication\u00a0: 1.2.0 (34)\nSystème\u00a0: {system}\nLangue\u00a0: fr',
     noMailApp: 'Aucune application de messagerie. Écrivez à support@example.fr.',
+    copy: 'Copier',
+    copied: 'Adresse copiée.',
     linkFailed: 'La page n’a pas pu s’ouvrir. Réessayez plus tard.',
     version: 'Version 1.2.0 (34)',
   ),
@@ -81,6 +84,8 @@ const texts = {
     terms: 'Terms of use',
     mailBody: '\n\n—\nApp: 1.2.0 (34)\nSystem: {system}\nLanguage: en',
     noMailApp: 'No email app found. Write to support@example.fr.',
+    copy: 'Copy',
+    copied: 'Address copied.',
     linkFailed: 'The page couldn’t be opened. Try again later.',
     version: 'Version 1.2.0 (34)',
   ),
@@ -95,6 +100,7 @@ void main() {
   late int restores;
   late List<Uri> opened;
   late bool linksOpen;
+  Completer<void>? holdLink;
 
   setUp(() {
     dir = Directory.systemTemp.createTempSync('settings_');
@@ -106,6 +112,7 @@ void main() {
     restores = 0;
     opened = [];
     linksOpen = true;
+    holdLink = null;
     PackageInfo.setMockInitialValues(
       appName: 'Logbook',
       packageName: 'fr.example.carnet',
@@ -155,6 +162,7 @@ void main() {
           appSections: const [ListTile(title: Text('App section'))],
           openLink: (uri) async {
             opened.add(uri);
+            await holdLink?.future;
             return linksOpen;
           },
         ),
@@ -212,6 +220,7 @@ void main() {
         t.headers[1],
         t.switchLabel,
         t.switchDetail,
+        t.privacyPolicy,
         t.headers[2],
         t.restorePurchases,
         t.headers[3],
@@ -220,10 +229,9 @@ void main() {
         t.restore,
         t.restoreDetail,
         t.headers[4],
-        t.rate,
         t.support,
+        t.rate,
         t.legalNotice,
-        t.privacyPolicy,
         t.terms,
         t.version,
       ]) {
@@ -234,10 +242,12 @@ void main() {
 
     testWidgets('$lang: the legal links open the site’s pages in this language', (tester) async {
       await launch(tester, device);
-      for (final text in [t.legalNotice, t.privacyPolicy, t.terms]) {
+      // The privacy policy sits under the statistics switch it explains.
+      for (final text in [t.privacyPolicy, t.legalNotice, t.terms]) {
         await tapAndWait(tester, text);
       }
-      expect(opened, config.legal[lang]!.all);
+      final legal = config.legal[lang]!;
+      expect(opened, [legal.privacy, legal.legalNotice, legal.terms]);
       expect(find.byType(SnackBar), findsNothing);
     });
 
@@ -272,22 +282,63 @@ void main() {
       expect(mail.queryParameters.keys, ['subject', 'body']);
       expect(mail.queryParameters['subject'], '${config.names[lang]} 1.2.0 (34)');
       // Exactly the version, the system and the language: no install id, package or anything else.
-      final system = '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
+      final system = describeSystem(Platform.operatingSystem, Platform.operatingSystemVersion);
       expect(mail.queryParameters['body'], t.mailBody.replaceAll('{system}', system));
       expect(mail.toString(), isNot(contains('+')), reason: 'spaces as %20: mail apps show a + as is');
       expect(events(), contains('support.tap.email'));
     });
 
-    testWidgets('$lang: without an email app, Contact support gives the address', (tester) async {
+    testWidgets('$lang: without an email app, Contact support gives the address to copy', (tester) async {
+      final copied = <Object?>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
+        if (call.method == 'Clipboard.setData') copied.add((call.arguments as Map)['text']);
+        return null;
+      });
+      addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
       await launch(tester, device);
       linksOpen = false;
       await tapAndWait(tester, t.support);
       expect(find.text(t.noMailApp), findsOneWidget);
       expectMessage(tester, failure: true);
 
+      // Pressed, not tapped: the test font's square glyphs push the action below a
+      // 320 pt screen at twice the text size, which Roboto doesn't (design review shots).
+      tester.widget<SnackBarAction>(find.widgetWithText(SnackBarAction, t.copy)).onPressed();
+      await tester.pumpAndSettle();
+      expect(copied, ['support@example.fr']);
+      expect(find.text(t.copied), findsOneWidget);
+      expectMessage(tester, failure: false);
+
       await tapAndWait(tester, t.terms);
       expect(find.text(t.linkFailed), findsOneWidget);
       expectMessage(tester, failure: true);
+    });
+
+    testWidgets('$lang: rows that leave the app say so; the running one spins instead', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await launch(tester, device);
+      tester.view.physicalSize = const Size(640, 10000); // every row built, at twice the text size
+      await tester.pumpAndSettle();
+      Finder icon(String row) =>
+          find.descendant(of: find.widgetWithText(ListTile, row), matching: find.byIcon(Icons.open_in_new));
+      for (final row in [t.privacyPolicy, t.support, t.rate, t.legalNotice, t.terms]) {
+        expect(icon(row), findsOneWidget, reason: row);
+        final glyph = tester.widget<Icon>(icon(row));
+        expect((glyph.size, glyph.semanticLabel), (20, null), reason: 'decorative: the row is the button');
+      }
+      expect(icon(t.version), findsNothing);
+      expect(find.byIcon(Icons.open_in_new), findsNWidgets(5));
+      expect(tester.getSemantics(find.widgetWithText(ListTile, t.terms)).label, t.terms);
+
+      holdLink = Completer();
+      await tester.tap(find.text(t.terms));
+      await tester.pump();
+      expect(icon(t.terms), findsNothing);
+      expect(find.descendant(of: find.widgetWithText(ListTile, t.terms), matching: find.byType(CircularProgressIndicator)), findsOneWidget);
+      holdLink!.complete();
+      await tester.pumpAndSettle();
+      expect(icon(t.terms), findsOneWidget);
+      semantics.dispose();
     });
 
     testWidgets('$lang: section headers are headings for screen readers', (tester) async {
@@ -416,6 +467,13 @@ void main() {
       expect(events(), contains('backup.fail.other_app'));
     });
   }
+
+  test('the email names the system as support reads it: no build or kernel string', () {
+    expect(describeSystem('ios', 'Version 18.1 (Build 22B83)'), 'iOS 18.1');
+    expect(describeSystem('android', 'Linux 5.10.43-android12-9 #1 SMP PREEMPT', androidRelease: '14'), 'Android 14');
+    expect(describeSystem('android', 'Linux 5.10.43 #1 SMP PREEMPT'), 'Android', reason: 'release unknown: no kernel');
+    expect(describeSystem('macos', 'Version 15.1 (Build 24B83)'), 'macos Version 15.1 (Build 24B83)');
+  });
 
   testWidgets('the legal links follow the language chosen in settings', (tester) async {
     await launch(tester, const Locale('fr'));

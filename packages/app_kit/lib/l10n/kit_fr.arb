@@ -65,5 +65,7 @@
   "settingsLinkFailed": "La page n’a pas pu s’ouvrir. Réessayez plus tard.",
   "settingsLegalNotice": "Mentions légales",
   "settingsPrivacyPolicy": "Politique de confidentialité",
-  "settingsTerms": "Conditions d’utilisation"
+  "settingsTerms": "Conditions d’utilisation",
+  "settingsSupportCopy": "Copier",
+  "settingsSupportCopied": "Adresse copiée."
 }

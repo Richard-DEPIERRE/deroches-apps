@@ -493,6 +493,18 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'Terms of use'**
   String get settingsTerms;
+
+  /// Action on the no-email-app message: copies the support address.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get settingsSupportCopy;
+
+  /// Shown after the support address was copied.
+  ///
+  /// In en, this message translates to:
+  /// **'Address copied.'**
+  String get settingsSupportCopied;
 }
 
 class _KitLocalizationsDelegate

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,10 +14,10 @@ import '../data/kit_state.dart';
 import '../purchases/purchases.dart';
 
 /// The settings screen every app gets (ADR 0001, section 10): the app's own
-/// [appSections] first, then language, the statistics switch, restore
-/// purchases, backup, then "Rate the app" (the store page, not the prompt),
-/// "Contact support", the legal links in the language shown and the version.
-/// Results show in plain words.
+/// [appSections] first, then language, the statistics switch with the privacy
+/// policy, restore purchases, backup, then "Contact support", "Rate the app"
+/// (the store page, not the prompt), the legal notice and terms, and the
+/// version. Legal pages follow the language shown. Results show in plain words.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
@@ -72,18 +73,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
     if (!mounted) return;
     final said = message(KitLocalizations.of(context), result);
-    if (said == null) return;
-    ScaffoldMessenger.of(context)
-      ..removeCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          behavior: SnackBarBehavior.floating,
-          content: Text(said.text),
-          duration: said.failure ? const Duration(seconds: 8) : const Duration(seconds: 4),
-          showCloseIcon: said.failure,
-        ),
-      );
+    if (said != null) _say(said);
   }
+
+  void _say(_Said said) => ScaffoldMessenger.of(context)
+    ..removeCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(said.text),
+        duration: said.failure ? const Duration(seconds: 8) : const Duration(seconds: 4),
+        showCloseIcon: said.failure,
+        action: said.action,
+      ),
+    );
 
   /// Exports or restores, then sends its event and, after a restore, reopens
   /// the app's stores: even if the user has left the screen meanwhile, or the
@@ -103,8 +106,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   _Said? _backupMessage(KitLocalizations l10n, BackupResult result, {required bool restore}) => switch (result) {
-    BackupDone() => (text: restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported, failure: false),
-    BackupFailed(:final reason) => (text: reason.message(l10n), failure: true),
+    BackupDone() => _Said(restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported),
+    BackupFailed(:final reason) => _Said(reason.message(l10n), failure: true),
     BackupCancelled() => null, // the user's choice: nothing to say
   };
 
@@ -122,14 +125,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<Uri> _supportMail(String email, String name, String language, KitLocalizations l10n) async {
     final info = await _info;
     final version = '${info.version} (${info.buildNumber})';
-    final body = l10n.settingsSupportBody(
-      version,
-      '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
-      language,
-    );
+    final body = l10n.settingsSupportBody(version, await _system(), language);
     // Encoded by hand: Uri's query encoding writes spaces as +, which mail apps show.
     return Uri.parse(
       'mailto:$email?subject=${Uri.encodeComponent('$name $version')}&body=${Uri.encodeComponent(body)}',
+    );
+  }
+
+  /// The system for the support email. Dart gives a build string on iOS and the
+  /// kernel's on Android, so Android's release comes from its build property.
+  static Future<String> _system() async {
+    String? release;
+    if (Platform.isAndroid) {
+      try {
+        release = '${(await Process.run('getprop', ['ro.build.version.release'])).stdout}'.trim();
+      } on Object catch (e) {
+        debugPrint('settings: no Android release: $e');
+      }
+    }
+    return describeSystem(
+      Platform.operatingSystem,
+      Platform.operatingSystemVersion,
+      androidRelease: release == null || release.isEmpty ? null : release,
     );
   }
 
@@ -152,12 +169,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Future<T> Function() work,
       _Said? Function(KitLocalizations, T) message, {
       String? subtitle,
+      Widget? trailing,
     }) => ListTile(
       title: Text(title),
       subtitle: subtitle == null ? null : Text(subtitle),
       enabled: _running == null,
       trailing: _running != action
-          ? null
+          ? trailing
           : SizedBox.square(
               dimension: 20,
               child: CircularProgressIndicator(
@@ -168,11 +186,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
       onTap: () => _run(action, work, message),
     );
-    Widget link(_Action action, String title, Future<Uri> Function() page, {String? failed}) => item(
+    // A row that leaves the app says so; the icon is decorative, the row is the button.
+    final leaves = Icon(Icons.open_in_new, size: 20, color: theme.colorScheme.onSurfaceVariant);
+    Widget link(_Action action, String title, Future<Uri> Function() page, {_Said? failed}) => item(
       action,
       title,
       () async => widget.openLink(await page()),
-      (l10n, bool opened) => opened ? null : (text: failed ?? l10n.settingsLinkFailed, failure: true),
+      (l10n, bool opened) => opened ? null : failed ?? _Said(l10n.settingsLinkFailed, failure: true),
+      trailing: leaves,
     );
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -217,6 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: state?.analyticsEnabled ?? false,
                 onChanged: state == null ? null : (on) => _update((s) => s.copyWith(analyticsEnabled: on)),
               ),
+              link(_Action.privacy, l10n.settingsPrivacyPolicy, () async => legal.privacy),
               if (purchases != null) ...[
                 header(l10n.settingsPurchases),
                 item(
@@ -224,9 +246,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   l10n.paywallRestore,
                   purchases.restore,
                   (l10n, result) => switch (result) {
-                    RestoreResult.restored => (text: l10n.paywallRestored, failure: false),
-                    RestoreResult.nothingToRestore => (text: l10n.paywallNothingToRestore, failure: false),
-                    RestoreResult.failed => (text: l10n.paywallRestoreFailed, failure: true),
+                    RestoreResult.restored => _Said(l10n.paywallRestored),
+                    RestoreResult.nothingToRestore => _Said(l10n.paywallNothingToRestore),
+                    RestoreResult.failed => _Said(l10n.paywallRestoreFailed, failure: true),
                   },
                 ),
               ],
@@ -246,7 +268,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: l10n.settingsBackupRestoreDetail,
               ),
               header(l10n.settingsAbout),
-              if (ratePage != null) link(_Action.rate, l10n.settingsRate, ratePage),
               link(
                 _Action.support,
                 l10n.settingsSupport,
@@ -254,10 +275,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   widget.analytics.track('support.tap.email');
                   return _supportMail(config.supportEmail, config.names[language]!, language, l10n);
                 },
-                failed: l10n.settingsSupportNoMailApp(config.supportEmail),
+                // A floating message can't be selected: the address is one tap to copy.
+                failed: _Said(
+                  l10n.settingsSupportNoMailApp(config.supportEmail),
+                  failure: true,
+                  action: SnackBarAction(
+                    label: l10n.settingsSupportCopy,
+                    onPressed: () => Clipboard.setData(ClipboardData(text: config.supportEmail)).then((_) {
+                      if (mounted) _say(_Said(l10n.settingsSupportCopied));
+                    }),
+                  ),
+                ),
               ),
+              if (ratePage != null) link(_Action.rate, l10n.settingsRate, ratePage),
               link(_Action.legalNotice, l10n.settingsLegalNotice, () async => legal.legalNotice),
-              link(_Action.privacy, l10n.settingsPrivacyPolicy, () async => legal.privacy),
               link(_Action.terms, l10n.settingsTerms, () async => legal.terms),
               FutureBuilder(
                 future: _info,
@@ -278,5 +309,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
 enum _Action { restorePurchases, exportBackup, restoreBackup, rate, support, legalNotice, privacy, terms }
 
-/// What a message says, and whether it is a failure.
-typedef _Said = ({String text, bool failure});
+/// "iOS 18.1", "Android 14": the system as support reads it, from Dart's
+/// [os] and [version] and, on Android, the release; never a build or kernel string.
+@visibleForTesting
+String describeSystem(String os, String version, {String? androidRelease}) => switch (os) {
+  'ios' => 'iOS ${RegExp(r'\d+(\.\d+)*').firstMatch(version)?[0] ?? ''}'.trim(),
+  'android' => 'Android ${androidRelease ?? ''}'.trim(),
+  _ => '$os $version',
+};
+
+/// What a message says, whether it is a failure, and what it offers to do.
+class _Said {
+  const _Said(this.text, {this.failure = false, this.action});
+
+  final String text;
+  final bool failure;
+  final SnackBarAction? action;
+}

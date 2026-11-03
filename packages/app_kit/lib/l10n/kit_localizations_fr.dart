@@ -303,4 +303,10 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get settingsTerms => 'Conditions d’utilisation';
+
+  @override
+  String get settingsSupportCopy => 'Copier';
+
+  @override
+  String get settingsSupportCopied => 'Adresse copiée.';
 }
