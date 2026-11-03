@@ -1,15 +1,22 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/kit_localizations.dart';
 import '../analytics/analytics.dart';
+import '../app/kit_scope.dart';
 import '../data/backup_service.dart';
 import '../data/kit_state.dart';
 import '../purchases/purchases.dart';
 
 /// The settings screen every app gets (ADR 0001, section 10): the app's own
 /// [appSections] first, then language, the statistics switch, restore
-/// purchases, backup and the version. Results show in plain words.
+/// purchases, backup, then "Rate the app" (the store page, not the prompt),
+/// "Contact support", the legal links in the language shown and the version.
+/// Results show in plain words.
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
     super.key,
@@ -19,6 +26,7 @@ class SettingsScreen extends StatefulWidget {
     required this.onBackupRestored,
     this.purchases,
     this.appSections = const [],
+    this.openLink = _launch,
   });
 
   final KitStateController kitState;
@@ -33,6 +41,13 @@ class SettingsScreen extends StatefulWidget {
   final Purchases? purchases;
 
   final List<Widget> appSections;
+
+  /// Opens a store page, the support email or a legal page; false when nothing
+  /// opened it. Outside the app, so store pages open in the store app.
+  final Future<bool> Function(Uri) openLink;
+
+  static Future<bool> _launch(Uri uri) =>
+      launchUrl(uri, mode: LaunchMode.externalApplication).catchError((Object _) => false);
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -93,6 +108,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BackupCancelled() => null, // the user's choice: nothing to say
   };
 
+  /// The store page to rate the app on this platform; null hides the item.
+  Future<Uri> Function()? _ratePage(String? appStoreId) => switch (defaultTargetPlatform) {
+    TargetPlatform.iOS when appStoreId != null => () async =>
+        Uri.parse('https://apps.apple.com/app/id$appStoreId?action=write-review'),
+    TargetPlatform.android => () async =>
+        Uri.https('play.google.com', '/store/apps/details', {'id': (await _info).packageName}),
+    _ => null,
+  };
+
+  /// The support email: the app's name and version as subject; the version,
+  /// the system and the language under the user's words. No identifier, ever.
+  Future<Uri> _supportMail(String email, String name, String language, KitLocalizations l10n) async {
+    final info = await _info;
+    final version = '${info.version} (${info.buildNumber})';
+    final body = l10n.settingsSupportBody(
+      version,
+      '${Platform.operatingSystem} ${Platform.operatingSystemVersion}',
+      language,
+    );
+    // Encoded by hand: Uri's query encoding writes spaces as +, which mail apps show.
+    return Uri.parse(
+      'mailto:$email?subject=${Uri.encodeComponent('$name $version')}&body=${Uri.encodeComponent(body)}',
+    );
+  }
+
   // A failed save keeps the choice on screen; it is asked again next launch.
   void _update(KitState Function(KitState) change) =>
       widget.kitState.update(change).catchError((Object e) => debugPrint('settings: $e'));
@@ -102,6 +142,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = KitLocalizations.of(context);
     final theme = Theme.of(context);
     final purchases = widget.purchases;
+    final config = KitScope.of(context).config;
+    final language = Localizations.localeOf(context).languageCode;
+    final legal = config.legal[language]!;
+    final ratePage = _ratePage(config.appStoreId);
     Widget item<T>(
       _Action action,
       String title,
@@ -123,6 +167,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
       onTap: () => _run(action, work, message),
+    );
+    Widget link(_Action action, String title, Future<Uri> Function() page, {String? failed}) => item(
+      action,
+      title,
+      () async => widget.openLink(await page()),
+      (l10n, bool opened) => opened ? null : (text: failed ?? l10n.settingsLinkFailed, failure: true),
     );
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -196,6 +246,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 subtitle: l10n.settingsBackupRestoreDetail,
               ),
               header(l10n.settingsAbout),
+              if (ratePage != null) link(_Action.rate, l10n.settingsRate, ratePage),
+              link(
+                _Action.support,
+                l10n.settingsSupport,
+                () {
+                  widget.analytics.track('support.tap.email');
+                  return _supportMail(config.supportEmail, config.names[language]!, language, l10n);
+                },
+                failed: l10n.settingsSupportNoMailApp(config.supportEmail),
+              ),
+              link(_Action.legalNotice, l10n.settingsLegalNotice, () async => legal.legalNotice),
+              link(_Action.privacy, l10n.settingsPrivacyPolicy, () async => legal.privacy),
+              link(_Action.terms, l10n.settingsTerms, () async => legal.terms),
               FutureBuilder(
                 future: _info,
                 builder: (context, info) => ListTile(
@@ -213,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 }
 
-enum _Action { restorePurchases, exportBackup, restoreBackup }
+enum _Action { restorePurchases, exportBackup, restoreBackup, rate, support, legalNotice, privacy, terms }
 
 /// What a message says, and whether it is a failure.
 typedef _Said = ({String text, bool failure});

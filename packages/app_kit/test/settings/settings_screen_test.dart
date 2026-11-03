@@ -4,11 +4,12 @@ import 'dart:io';
 
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
-final config = AppConfig(
+AppConfig makeConfig({String? appStoreId = '6478123456'}) => AppConfig(
   slug: 'carnet-km',
   names: const {'fr': 'Carnet', 'en': 'Logbook'},
   supportEmail: 'support@example.fr',
@@ -21,7 +22,9 @@ final config = AppConfig(
       ),
   },
   plans: const {Plan.yearly},
+  appStoreId: appStoreId,
 );
+final config = makeConfig();
 
 /// What each language shows, as the tests look for it.
 const texts = {
@@ -43,6 +46,14 @@ const texts = {
     backupRestored: 'Sauvegarde restaurée.',
     otherApp: 'Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.',
     busy: 'En cours',
+    rate: 'Noter l’application',
+    support: 'Contacter l’assistance',
+    legalNotice: 'Mentions légales',
+    privacyPolicy: 'Politique de confidentialité',
+    terms: 'Conditions d’utilisation',
+    mailBody: '\n\n—\nApplication\u00a0: 1.2.0 (34)\nSystème\u00a0: {system}\nLangue\u00a0: fr',
+    noMailApp: 'Aucune application de messagerie. Écrivez à support@example.fr.',
+    linkFailed: 'La page n’a pas pu s’ouvrir. Réessayez plus tard.',
     version: 'Version 1.2.0 (34)',
   ),
   'en': (
@@ -63,6 +74,14 @@ const texts = {
     backupRestored: 'Backup restored.',
     otherApp: 'This backup comes from another app. Your data hasn’t changed.',
     busy: 'In progress',
+    rate: 'Rate the app',
+    support: 'Contact support',
+    legalNotice: 'Legal notice',
+    privacyPolicy: 'Privacy policy',
+    terms: 'Terms of use',
+    mailBody: '\n\n—\nApp: 1.2.0 (34)\nSystem: {system}\nLanguage: en',
+    noMailApp: 'No email app found. Write to support@example.fr.',
+    linkFailed: 'The page couldn’t be opened. Try again later.',
     version: 'Version 1.2.0 (34)',
   ),
 };
@@ -74,6 +93,8 @@ void main() {
   late FakeBackupFiles files;
   late DataStore notes;
   late int restores;
+  late List<Uri> opened;
+  late bool linksOpen;
 
   setUp(() {
     dir = Directory.systemTemp.createTempSync('settings_');
@@ -83,6 +104,8 @@ void main() {
     files = FakeBackupFiles();
     notes = DataStore(directory: dir, appId: 'carnet-km', name: 'notes', initial: () => {'notes': <Object?>[]});
     restores = 0;
+    opened = [];
+    linksOpen = true;
     PackageInfo.setMockInitialValues(
       appName: 'Logbook',
       packageName: 'fr.example.carnet',
@@ -95,7 +118,12 @@ void main() {
   /// The app as a launch opens it, kit state read from disk, on its settings
   /// screen: a small phone at twice the text size. [sells] false: the app
   /// sells nothing on this platform.
-  Future<KitStateController> launch(WidgetTester tester, Locale device, {bool sells = true}) async {
+  Future<KitStateController> launch(
+    WidgetTester tester,
+    Locale device, {
+    bool sells = true,
+    AppConfig? appConfig,
+  }) async {
     final kit = KitStateController(directory: dir, appId: 'carnet-km');
     await tester.runAsync(kit.load);
     final analytics = Analytics(
@@ -115,7 +143,7 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       KitApp(
-        config: config,
+        config: appConfig ?? config,
         seedColor: Colors.teal,
         kitState: kit,
         home: (_) => SettingsScreen(
@@ -125,6 +153,10 @@ void main() {
           backup: BackupService(appId: 'carnet-km', stores: [notes], files: files),
           onBackupRestored: () => restores++,
           appSections: const [ListTile(title: Text('App section'))],
+          openLink: (uri) async {
+            opened.add(uri);
+            return linksOpen;
+          },
         ),
       ),
     );
@@ -188,11 +220,74 @@ void main() {
         t.restore,
         t.restoreDetail,
         t.headers[4],
+        t.rate,
+        t.support,
+        t.legalNotice,
+        t.privacyPolicy,
+        t.terms,
         t.version,
       ]) {
         await expectVisible(tester, text);
       }
       expect(tester.takeException(), isNull, reason: 'no overflow at twice the text size');
+    });
+
+    testWidgets('$lang: the legal links open the site’s pages in this language', (tester) async {
+      await launch(tester, device);
+      for (final text in [t.legalNotice, t.privacyPolicy, t.terms]) {
+        await tapAndWait(tester, text);
+      }
+      expect(opened, config.legal[lang]!.all);
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('$lang: Rate the app opens the App Store’s review page on iOS', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await launch(tester, device);
+      await tapAndWait(tester, t.rate);
+      expect(opened, [Uri.parse('https://apps.apple.com/app/id6478123456?action=write-review')]);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('$lang: Rate the app is hidden on iOS without an App Store id', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      await launch(tester, device, appConfig: makeConfig(appStoreId: null));
+      await expectVisible(tester, t.version);
+      expect(find.text(t.rate), findsNothing);
+      debugDefaultTargetPlatformOverride = null;
+    });
+
+    testWidgets('$lang: Rate the app opens the Play page for the package on Android', (tester) async {
+      await launch(tester, device, appConfig: makeConfig(appStoreId: null));
+      await tapAndWait(tester, t.rate);
+      expect(opened, [Uri.parse('https://play.google.com/store/apps/details?id=fr.example.carnet')]);
+    });
+
+    testWidgets('$lang: Contact support writes to the app’s address, with no identifier', (tester) async {
+      await launch(tester, device);
+      await tapAndWait(tester, t.support);
+      final mail = opened.single;
+      expect(mail.scheme, 'mailto');
+      expect(mail.path, 'support@example.fr');
+      expect(mail.queryParameters.keys, ['subject', 'body']);
+      expect(mail.queryParameters['subject'], '${config.names[lang]} 1.2.0 (34)');
+      // Exactly the version, the system and the language: no install id, package or anything else.
+      final system = '${Platform.operatingSystem} ${Platform.operatingSystemVersion}';
+      expect(mail.queryParameters['body'], t.mailBody.replaceAll('{system}', system));
+      expect(mail.toString(), isNot(contains('+')), reason: 'spaces as %20: mail apps show a + as is');
+      expect(events(), contains('support.tap.email'));
+    });
+
+    testWidgets('$lang: without an email app, Contact support gives the address', (tester) async {
+      await launch(tester, device);
+      linksOpen = false;
+      await tapAndWait(tester, t.support);
+      expect(find.text(t.noMailApp), findsOneWidget);
+      expectMessage(tester, failure: true);
+
+      await tapAndWait(tester, t.terms);
+      expect(find.text(t.linkFailed), findsOneWidget);
+      expectMessage(tester, failure: true);
     });
 
     testWidgets('$lang: section headers are headings for screen readers', (tester) async {
@@ -321,6 +416,13 @@ void main() {
       expect(events(), contains('backup.fail.other_app'));
     });
   }
+
+  testWidgets('the legal links follow the language chosen in settings', (tester) async {
+    await launch(tester, const Locale('fr'));
+    await tapAndWait(tester, 'English');
+    await tapAndWait(tester, 'Legal notice');
+    expect(opened, [config.legal['en']!.legalNotice]);
+  });
 
   testWidgets('a language change re-renders the app at once and survives a restart', (tester) async {
     await launch(tester, const Locale('fr'));

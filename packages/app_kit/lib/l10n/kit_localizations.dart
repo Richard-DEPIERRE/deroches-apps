@@ -445,6 +445,54 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'In progress'**
   String get settingsBusy;
+
+  /// Opens the app's page in the App Store or Google Play, to leave a rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the app'**
+  String get settingsRate;
+
+  /// Opens an email to the app's support address.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact support'**
+  String get settingsSupport;
+
+  /// Bottom of the support email, under the space the user writes in. Only these three facts: never an identifier.
+  ///
+  /// In en, this message translates to:
+  /// **'\n\n—\nApp: {version}\nSystem: {system}\nLanguage: {language}'**
+  String settingsSupportBody(String version, String system, String language);
+
+  /// Shown when no email app opens for Contact support.
+  ///
+  /// In en, this message translates to:
+  /// **'No email app found. Write to {email}.'**
+  String settingsSupportNoMailApp(String email);
+
+  /// Shown when a page from settings (store page, legal page) doesn't open.
+  ///
+  /// In en, this message translates to:
+  /// **'The page couldn’t be opened. Try again later.'**
+  String get settingsLinkFailed;
+
+  /// Link to the app's legal notice on its site.
+  ///
+  /// In en, this message translates to:
+  /// **'Legal notice'**
+  String get settingsLegalNotice;
+
+  /// Link to the app's privacy policy on its site.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy policy'**
+  String get settingsPrivacyPolicy;
+
+  /// Link to the app's terms of use on its site.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of use'**
+  String get settingsTerms;
 }
 
 class _KitLocalizationsDelegate

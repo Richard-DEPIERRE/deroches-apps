@@ -274,4 +274,33 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get settingsBusy => 'In progress';
+
+  @override
+  String get settingsRate => 'Rate the app';
+
+  @override
+  String get settingsSupport => 'Contact support';
+
+  @override
+  String settingsSupportBody(String version, String system, String language) {
+    return '\n\n—\nApp: $version\nSystem: $system\nLanguage: $language';
+  }
+
+  @override
+  String settingsSupportNoMailApp(String email) {
+    return 'No email app found. Write to $email.';
+  }
+
+  @override
+  String get settingsLinkFailed =>
+      'The page couldn’t be opened. Try again later.';
+
+  @override
+  String get settingsLegalNotice => 'Legal notice';
+
+  @override
+  String get settingsPrivacyPolicy => 'Privacy policy';
+
+  @override
+  String get settingsTerms => 'Terms of use';
 }

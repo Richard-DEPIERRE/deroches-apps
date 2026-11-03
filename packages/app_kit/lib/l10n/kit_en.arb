@@ -292,5 +292,57 @@
   "settingsBusy": "In progress",
   "@settingsBusy": {
     "description": "Screen-reader label of the spinner on a settings item while its work runs."
+  },
+  "settingsRate": "Rate the app",
+  "@settingsRate": {
+    "description": "Opens the app's page in the App Store or Google Play, to leave a rating."
+  },
+  "settingsSupport": "Contact support",
+  "@settingsSupport": {
+    "description": "Opens an email to the app's support address."
+  },
+  "settingsSupportBody": "\n\n—\nApp: {version}\nSystem: {system}\nLanguage: {language}",
+  "@settingsSupportBody": {
+    "description": "Bottom of the support email, under the space the user writes in. Only these three facts: never an identifier.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.2.0 (34)"
+      },
+      "system": {
+        "type": "String",
+        "example": "ios Version 18.1"
+      },
+      "language": {
+        "type": "String",
+        "example": "en"
+      }
+    }
+  },
+  "settingsSupportNoMailApp": "No email app found. Write to {email}.",
+  "@settingsSupportNoMailApp": {
+    "description": "Shown when no email app opens for Contact support.",
+    "placeholders": {
+      "email": {
+        "type": "String",
+        "example": "support@example.com"
+      }
+    }
+  },
+  "settingsLinkFailed": "The page couldn’t be opened. Try again later.",
+  "@settingsLinkFailed": {
+    "description": "Shown when a page from settings (store page, legal page) doesn't open."
+  },
+  "settingsLegalNotice": "Legal notice",
+  "@settingsLegalNotice": {
+    "description": "Link to the app's legal notice on its site."
+  },
+  "settingsPrivacyPolicy": "Privacy policy",
+  "@settingsPrivacyPolicy": {
+    "description": "Link to the app's privacy policy on its site."
+  },
+  "settingsTerms": "Terms of use",
+  "@settingsTerms": {
+    "description": "Link to the app's terms of use on its site."
   }
 }

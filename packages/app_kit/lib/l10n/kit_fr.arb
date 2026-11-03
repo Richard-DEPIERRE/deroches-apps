@@ -57,5 +57,13 @@
   "settingsBackupRestoreDetail": "Remplace les données de ce téléphone par celles de la sauvegarde.",
   "settingsBackupExported": "Sauvegarde enregistrée.",
   "settingsBackupRestored": "Sauvegarde restaurée.",
-  "settingsBusy": "En cours"
+  "settingsBusy": "En cours",
+  "settingsRate": "Noter l’application",
+  "settingsSupport": "Contacter l’assistance",
+  "settingsSupportBody": "\n\n—\nApplication : {version}\nSystème : {system}\nLangue : {language}",
+  "settingsSupportNoMailApp": "Aucune application de messagerie. Écrivez à {email}.",
+  "settingsLinkFailed": "La page n’a pas pu s’ouvrir. Réessayez plus tard.",
+  "settingsLegalNotice": "Mentions légales",
+  "settingsPrivacyPolicy": "Politique de confidentialité",
+  "settingsTerms": "Conditions d’utilisation"
 }

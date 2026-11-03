@@ -35,6 +35,7 @@ class AppConfig {
     this.postHogKey,
     this.revenueCatAppleKey,
     this.revenueCatGoogleKey,
+    this.appStoreId,
   });
 
   /// The store wrapper's slug: lowercase letters, digits and hyphens.
@@ -66,7 +67,12 @@ class AppConfig {
   final String? revenueCatAppleKey;
   final String? revenueCatGoogleKey;
 
+  /// The app's Apple ID in App Store Connect (digits), for "Rate the app" on
+  /// iOS; `null` hides that item there until the app has one.
+  final String? appStoreId;
+
   static final _slug = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
+  static final _digits = RegExp(r'^[0-9]+$');
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[a-z]{2,}$');
 
   /// Everything wrong with this config, in plain words; empty when valid.
@@ -79,6 +85,7 @@ class AppConfig {
     if (postHogKey != null && !postHogKey!.startsWith('phc_')) 'PostHog key is not a public project key (phc_…)',
     if (revenueCatAppleKey?.startsWith('appl_') == false) 'RevenueCat Apple key is not a public SDK key (appl_…)',
     if (revenueCatGoogleKey?.startsWith('goog_') == false) 'RevenueCat Google key is not a public SDK key (goog_…)',
+    if (appStoreId != null && !_digits.hasMatch(appStoreId!)) 'App Store id "$appStoreId" is not digits',
     for (final lang in kitLanguages) ...[
       if ((names[lang] ?? '').trim().isEmpty) 'no app name in "$lang"',
       if (legal[lang] == null)
