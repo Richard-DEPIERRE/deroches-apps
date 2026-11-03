@@ -2,6 +2,8 @@
 /// document, made-up content only, never shipped.
 library;
 
+import 'dart:io';
+
 import 'package:app_kit/app_kit.dart';
 import 'package:flutter/foundation.dart';
 
@@ -28,6 +30,27 @@ Map<String, Object?> notesSchema2(Map<String, Object?> data) => {
 
 /// The notes document is at schema `notesMigrations.length + 1` = 2.
 const List<Migration> notesMigrations = [notesSchema2];
+
+/// The app's data, made once at start-up in `getApplicationSupportDirectory()`.
+/// The controllers and the [backup] share these [DataStore] instances: after a
+/// restore, a store refuses to save until it is opened again, so stale
+/// in-memory notes can't overwrite the restored ones. A second instance of the
+/// same document wouldn't know about the restore.
+class ExampleData {
+  ExampleData(Directory directory, {BackupFiles files = const SystemBackupFiles()})
+    : notes = DataStore(
+        directory: directory,
+        appId: notesAppId,
+        name: notesDocument,
+        migrations: notesMigrations,
+        initial: () => {'notes': <Object?>[]},
+      ) {
+    backup = BackupService(appId: notesAppId, stores: [notes], files: files);
+  }
+
+  final DataStore notes;
+  late final BackupService backup;
+}
 
 @immutable
 class Note {

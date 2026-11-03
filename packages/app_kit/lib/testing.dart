@@ -111,7 +111,8 @@ class FakeBackupFiles implements BackupFiles {
   }
 
   @override
-  Future<Uint8List?> pick() async => switch (picked) {
+  Future<Uint8List?> pick({required int maxBytes}) async => switch (picked) {
+    final bytes? when bytes.length > maxBytes => throw BackupTooLarge(bytes.length),
     final bytes? => Uint8List.fromList(bytes),
     null => null,
   };
@@ -184,6 +185,10 @@ Future<void> pumpOnSmallPhone(
 /// [decode] into a list of items, and must equal `expected[<file name>]`
 /// item for item, with the same count: nothing silently dropped. It is then
 /// opened a second time, from the upgraded file, and must read back the same.
+///
+/// Likewise every `*.json` file in [backups] is a backup file a released
+/// version exported: it is restored through [BackupService] and document
+/// [name] must hold `expectedBackups[<file name>]`.
 void dataUpgradeTests<T>({
   required String fixtures,
   required String appId,
@@ -191,12 +196,12 @@ void dataUpgradeTests<T>({
   required List<Migration> migrations,
   required List<T> Function(Map<String, Object?> data) decode,
   required Map<String, List<T>> expected,
+  String? backups,
+  Map<String, List<T>> expectedBackups = const {},
 }) {
-  final files = Directory(fixtures)
-      .listSync()
-      .whereType<File>()
-      .where((f) => f.path.endsWith('.json'))
-      .toList();
+  List<File> jsonFiles(String dir) =>
+      Directory(dir).listSync().whereType<File>().where((f) => f.path.endsWith('.json')).toList();
+  final files = jsonFiles(fixtures);
   String fileName(File f) => f.uri.pathSegments.last;
 
   test('every fixture has its expected items, and every expectation a fixture', () {
@@ -225,6 +230,26 @@ void dataUpgradeTests<T>({
         expect(items.length, want.length, reason: '${fileName(fixture)}, $pass: item count');
         expect(items, want, reason: '${fileName(fixture)}, $pass');
       }
+    });
+  }
+
+  if (backups == null) return;
+  final backupFiles = jsonFiles(backups);
+  test('every backup fixture has its expected items, and every expectation a fixture', () {
+    expect(backupFiles, isNotEmpty, reason: 'no backup fixture in $backups');
+    expect(backupFiles.map(fileName).toSet(), expectedBackups.keys.toSet());
+  });
+  for (final backup in backupFiles) {
+    test('${fileName(backup)} restores to schema ${migrations.length + 1} with nothing lost', () async {
+      final dir = Directory.systemTemp.createTempSync('backup_upgrade_');
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final store = DataStore(directory: dir, appId: appId, name: name, migrations: migrations, initial: () => {});
+      final files = FakeBackupFiles()..picked = backup.readAsBytesSync();
+      final result = await BackupService(appId: appId, stores: [store], files: files).restore();
+      expect(result, isA<BackupDone>(), reason: '$result');
+      final items = decode(await store.open());
+      expect(items.length, expectedBackups[fileName(backup)]?.length, reason: '${fileName(backup)}: item count');
+      expect(items, expectedBackups[fileName(backup)], reason: fileName(backup));
     });
   }
 }
