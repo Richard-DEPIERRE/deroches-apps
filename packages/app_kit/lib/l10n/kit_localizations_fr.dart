@@ -32,25 +32,25 @@ class KitLocalizationsFr extends KitLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count jours',
+      other: '$count jours',
       one: 'jour',
     );
     String _temp1 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count semaines',
+      other: '$count semaines',
       one: 'semaine',
     );
     String _temp2 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count mois',
+      other: '$count mois',
       one: 'mois',
     );
     String _temp3 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count ans',
+      other: '$count ans',
       one: 'an',
     );
     String _temp4 = intl.Intl.selectLogic(unit, {
@@ -63,13 +63,48 @@ class KitLocalizationsFr extends KitLocalizations {
   }
 
   @override
-  String paywallPricePerPeriod(String price, String period) {
-    return '$price / $period';
+  String paywallEvery(String unit, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tous les $count jours',
+      one: 'chaque jour',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'toutes les $count semaines',
+      one: 'chaque semaine',
+    );
+    String _temp2 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tous les $count mois',
+      one: 'chaque mois',
+    );
+    String _temp3 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'tous les $count ans',
+      one: 'chaque année',
+    );
+    String _temp4 = intl.Intl.selectLogic(unit, {
+      'day': '$_temp0',
+      'week': '$_temp1',
+      'month': '$_temp2',
+      'other': '$_temp3',
+    });
+    return '$_temp4';
   }
 
   @override
-  String paywallRenews(String price, String period) {
-    return 'Se renouvelle automatiquement à $price / $period, à la fin de chaque période, jusqu’à résiliation.';
+  String paywallPricePerPeriod(String price, String period) {
+    return '$price par $period';
+  }
+
+  @override
+  String paywallRenews(String every, String price) {
+    return 'Se renouvelle automatiquement $every à $price, jusqu’à résiliation.';
   }
 
   @override
@@ -77,15 +112,15 @@ class KitLocalizationsFr extends KitLocalizations {
 
   @override
   String get paywallCancelAppStore =>
-      'Résiliez à tout moment, au moins 24 heures avant le renouvellement, dans Réglages › votre nom › Abonnements.';
+      'Résiliez à tout moment dans Réglages › votre nom › Abonnements, au moins 24 heures avant le renouvellement.';
 
   @override
   String get paywallCancelGooglePlay =>
-      'Résiliez à tout moment dans Google Play › Paiements et abonnements › Abonnements.';
+      'Résiliez à tout moment dans Google Play › Paiements et abonnements › Abonnements.';
 
   @override
   String paywallSubscribe(String price, String period) {
-    return 'S’abonner pour $price / $period';
+    return 'S’abonner pour $price par $period';
   }
 
   @override
@@ -97,10 +132,10 @@ class KitLocalizationsFr extends KitLocalizations {
   String get paywallRestore => 'Restaurer les achats';
 
   @override
-  String get paywallTerms => 'Conditions d’utilisation';
+  String get paywallTerms => 'Conditions';
 
   @override
-  String get paywallPrivacy => 'Politique de confidentialité';
+  String get paywallPrivacy => 'Confidentialité';
 
   @override
   String get paywallLoading => 'Chargement des prix';

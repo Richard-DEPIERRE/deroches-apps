@@ -24,7 +24,7 @@
   "@paywallPlanLifetime": {
     "description": "Name of the lifetime plan (a one-time purchase)."
   },
-  "paywallPeriod": "{unit, select, day{{count, plural, =1{day} other{{count} days}}} week{{count, plural, =1{week} other{{count} weeks}}} month{{count, plural, =1{month} other{{count} months}}} other{{count, plural, =1{year} other{{count} years}}}}",
+  "paywallPeriod": "{unit, select, day{{count, plural, =1{day} other{{count} days}}} week{{count, plural, =1{week} other{{count} weeks}}} month{{count, plural, =1{month} other{{count} months}}} other{{count, plural, =1{year} other{{count} years}}}}",
   "@paywallPeriod": {
     "description": "A subscription's billing period as the store gives it (unit: day, week, month or year).",
     "placeholders": {
@@ -36,7 +36,19 @@
       }
     }
   },
-  "paywallPricePerPeriod": "{price} / {period}",
+  "paywallEvery": "{unit, select, day{{count, plural, =1{every day} other{every {count} days}}} week{{count, plural, =1{every week} other{every {count} weeks}}} month{{count, plural, =1{every month} other{every {count} months}}} other{{count, plural, =1{every year} other{every {count} years}}}}",
+  "@paywallEvery": {
+    "description": "How often a subscription renews (unit: day, week, month or year).",
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "paywallPricePerPeriod": "{price} per {period}",
   "@paywallPricePerPeriod": {
     "description": "A subscription's price as the store formats it, and its period.",
     "placeholders": {
@@ -48,14 +60,14 @@
       }
     }
   },
-  "paywallRenews": "Renews automatically at {price} / {period}, at the end of each period, until you cancel.",
+  "paywallRenews": "Renews automatically {every} at {price} until you cancel.",
   "@paywallRenews": {
     "description": "When a subscription renews and at what price.",
     "placeholders": {
-      "price": {
+      "every": {
         "type": "String"
       },
-      "period": {
+      "price": {
         "type": "String"
       }
     }
@@ -64,15 +76,15 @@
   "@paywallOneTime": {
     "description": "Under the lifetime plan."
   },
-  "paywallCancelAppStore": "Cancel anytime, at least 24 hours before renewal, in Settings › your name › Subscriptions.",
+  "paywallCancelAppStore": "Cancel anytime in Settings › your name › Subscriptions, at least 24 hours before renewal.",
   "@paywallCancelAppStore": {
     "description": "How to cancel on iPhone: the path to the App Store subscriptions in Settings."
   },
-  "paywallCancelGooglePlay": "Cancel anytime in Google Play › Payments & subscriptions › Subscriptions.",
+  "paywallCancelGooglePlay": "Cancel anytime in Google Play › Payments & subscriptions › Subscriptions.",
   "@paywallCancelGooglePlay": {
     "description": "How to cancel on Android: the path to the Google Play subscriptions."
   },
-  "paywallSubscribe": "Subscribe for {price} / {period}",
+  "paywallSubscribe": "Subscribe for {price} per {period}",
   "@paywallSubscribe": {
     "description": "Buy button for a subscription; the price is the store's.",
     "placeholders": {
@@ -97,13 +109,13 @@
   "@paywallRestore": {
     "description": "Restores the store account's purchases."
   },
-  "paywallTerms": "Terms of use",
+  "paywallTerms": "Terms",
   "@paywallTerms": {
-    "description": "Link to the app's terms."
+    "description": "Link to the app's terms, in the paywall's footer (short: the page has the full title)."
   },
-  "paywallPrivacy": "Privacy policy",
+  "paywallPrivacy": "Privacy",
   "@paywallPrivacy": {
-    "description": "Link to the app's privacy policy."
+    "description": "Link to the app's privacy policy, in the paywall's footer (short)."
   },
   "paywallLoading": "Loading prices",
   "@paywallLoading": {

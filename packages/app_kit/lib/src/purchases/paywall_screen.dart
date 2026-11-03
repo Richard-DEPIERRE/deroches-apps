@@ -77,7 +77,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Future<List<PlanOffer>> _load() async {
     // A subscription whose period can't be put in words is never sold.
-    final offers = [for (final o in await _purchases.offers()) if (!o.renews || _isoPeriod.hasMatch(o.period!)) o];
+    final offers = [
+      for (final o in await _purchases.offers())
+        if (!o.renews || _isoPeriod.hasMatch(o.period!)) o,
+    ];
     if (offers.isEmpty) throw StateError('no plan to offer');
     _picked = offers.any((o) => o.plan == Plan.yearly) ? Plan.yearly : offers.first.plan;
     return offers;
@@ -133,62 +136,104 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
   Widget _plans(BuildContext context, KitLocalizations l10n, List<PlanOffer> offers) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final picked = offers.firstWhere((o) => o.plan == _picked);
     final ios = theme.platform == TargetPlatform.iOS || theme.platform == TargetPlatform.macOS;
-    final small = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
+    String perPeriod(PlanOffer o) => l10n.paywallPeriod(_period(o).unit, _period(o).count);
+    return LayoutBuilder(
+      builder: (context, box) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
-          const SizedBox(height: 16),
-          for (final offer in offers)
-            Card(
-              child: ListTile(
-                selected: offer.plan == _picked,
-                onTap: _busy ? null : () => setState(() => _picked = offer.plan),
-                leading: Icon(offer.plan == _picked ? Icons.check_circle : Icons.circle_outlined),
-                title: Text(switch (offer.plan) {
-                  Plan.weekly => l10n.paywallPlanWeekly,
-                  Plan.yearly => l10n.paywallPlanYearly,
-                  Plan.lifetime => l10n.paywallPlanLifetime,
-                }),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      offer.renews ? l10n.paywallPricePerPeriod(offer.price, _period(offer, l10n)) : offer.price,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      offer.renews ? l10n.paywallRenews(offer.price, _period(offer, l10n)) : l10n.paywallOneTime,
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
+                  for (final offer in offers) ...[
+                    const SizedBox(height: 12),
+                    _PlanCard(
+                      selected: offer.plan == _picked,
+                      onTap: _busy ? null : () => setState(() => _picked = offer.plan),
+                      name: switch (offer.plan) {
+                        Plan.weekly => l10n.paywallPlanWeekly,
+                        Plan.yearly => l10n.paywallPlanYearly,
+                        Plan.lifetime => l10n.paywallPlanLifetime,
+                      },
+                      price: offer.renews ? l10n.paywallPricePerPeriod(offer.price, perPeriod(offer)) : offer.price,
+                      terms: offer.renews
+                          ? l10n.paywallRenews(
+                              l10n.paywallEvery(_period(offer).unit, _period(offer).count),
+                              offer.price,
+                            )
+                          : l10n.paywallOneTime,
                     ),
                   ],
-                ),
+                ],
               ),
             ),
-          if (offers.any((o) => o.renews)) ...[
-            const SizedBox(height: 8),
-            Text(ios ? l10n.paywallCancelAppStore : l10n.paywallCancelGooglePlay, style: small),
-          ],
-          const SizedBox(height: 8),
-          Wrap(
-            alignment: WrapAlignment.center,
-            children: [
-              TextButton(onPressed: _busy ? null : () => _restore(), child: Text(l10n.paywallRestore)),
-              TextButton(onPressed: () => widget.openLink(widget.legal.terms), child: Text(l10n.paywallTerms)),
-              TextButton(onPressed: () => widget.openLink(widget.legal.privacy), child: Text(l10n.paywallPrivacy)),
-            ],
           ),
-          const SizedBox(height: 8),
-          FilledButton(
-            onPressed: _busy ? null : () => _buy(picked),
-            child: Text(
-              picked.renews
-                  ? l10n.paywallSubscribe(picked.price, _period(picked, l10n))
-                  : l10n.paywallBuyOnce(picked.price),
-              textAlign: TextAlign.center,
+          // Pinned, so the button and what it does stay on screen. On a small phone
+          // at a large text size, the lines above the button scroll within half
+          // the screen instead of pushing it off.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              color: colors.surface,
+              border: Border(top: BorderSide(color: colors.outlineVariant)),
+            ),
+            child: SafeArea(
+              top: false,
+              minimum: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: box.maxHeight / 2),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            !picked.renews
+                                ? l10n.paywallOneTime
+                                : ios
+                                ? l10n.paywallCancelAppStore
+                                : l10n.paywallCancelGooglePlay,
+                            style: theme.textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+                            textAlign: TextAlign.center,
+                          ),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            children: [
+                              TextButton(onPressed: _busy ? null : _restore, child: Text(l10n.paywallRestore)),
+                              TextButton(
+                                onPressed: () => widget.openLink(widget.legal.terms),
+                                child: Text(l10n.paywallTerms),
+                              ),
+                              TextButton(
+                                onPressed: () => widget.openLink(widget.legal.privacy),
+                                child: Text(l10n.paywallPrivacy),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  FilledButton(
+                    style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                    onPressed: _busy ? null : () => _buy(picked),
+                    child: Text(
+                      picked.renews
+                          ? l10n.paywallSubscribe(picked.price, perPeriod(picked))
+                          : l10n.paywallBuyOnce(picked.price),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -197,13 +242,70 @@ class _PaywallScreenState extends State<PaywallScreen> {
   }
 }
 
+/// One plan: a radio choice, shown by its border and icon; the text keeps its colours.
+class _PlanCard extends StatelessWidget {
+  const _PlanCard({
+    required this.selected,
+    required this.onTap,
+    required this.name,
+    required this.price,
+    required this.terms,
+  });
+
+  final bool selected;
+  final VoidCallback? onTap;
+  final String name;
+  final String price;
+
+  /// When it renews and at what price, or that it never does.
+  final String terms;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(12),
+      side: BorderSide(width: 2, color: selected ? colors.primary : colors.outlineVariant),
+    );
+    return Semantics(
+      inMutuallyExclusiveGroup: true,
+      checked: selected,
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: 0,
+        shape: shape,
+        clipBehavior: Clip.antiAlias,
+        child: ListTile(
+          shape: shape,
+          onTap: onTap,
+          leading: Icon(
+            selected ? Icons.check_circle : Icons.circle_outlined,
+            color: selected ? colors.primary : colors.onSurfaceVariant,
+          ),
+          title: Text(name, style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurface)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                price,
+                style: theme.textTheme.titleMedium?.copyWith(color: colors.onSurface, fontWeight: FontWeight.bold),
+              ),
+              Text(terms, style: theme.textTheme.bodyMedium?.copyWith(color: colors.onSurfaceVariant)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// The store's ISO 8601 periods we can put in words: `P1W`, `P3M`, `P1Y`.
 final _isoPeriod = RegExp(r'^P(\d+)([DWMY])$');
 
-/// A subscription's period in words.
-String _period(PlanOffer offer, KitLocalizations l10n) {
+/// A subscription's period, as the unit and count the messages take.
+({String unit, int count}) _period(PlanOffer offer) {
   final match = _isoPeriod.firstMatch(offer.period!)!;
   final unit = const {'D': 'day', 'W': 'week', 'M': 'month', 'Y': 'year'}[match[2]]!;
-  return l10n.paywallPeriod(unit, int.parse(match[1]!));
+  return (unit: unit, count: int.parse(match[1]!));
 }
-

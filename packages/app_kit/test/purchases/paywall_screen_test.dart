@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,35 +10,40 @@ import 'package:flutter_test/flutter_test.dart';
 /// [FakePurchasesBackend]'s prices.
 const expected = {
   'en': (
-    plans: ['Weekly', '0,99 € / week', 'Yearly', '9,99 € / year', 'Lifetime', '24,99 €'],
+    plans: ['Weekly', '0,99 €\u00a0per\u00a0week', 'Yearly', '9,99 €\u00a0per\u00a0year', 'Lifetime', '24,99 €'],
     renewals: [
-      'Renews automatically at 0,99 € / week, at the end of each period, until you cancel.',
-      'Renews automatically at 9,99 € / year, at the end of each period, until you cancel.',
+      'Renews automatically every week at 0,99 € until you cancel.',
+      'Renews automatically every year at 9,99 € until you cancel.',
     ],
     oneTime: 'One-time purchase, never renews.',
-    cancelPlay: 'Cancel anytime in Google Play › Payments & subscriptions › Subscriptions.',
-    cancelAppStore: 'Cancel anytime, at least 24 hours before renewal, in Settings › your name › Subscriptions.',
+    cancelPlay: 'Cancel anytime in Google Play\u00a0› Payments & subscriptions\u00a0› Subscriptions.',
+    cancelAppStore:
+        'Cancel anytime in Settings\u00a0› your name\u00a0› Subscriptions, at least 24\u00a0hours before renewal.',
     restore: 'Restore purchases',
-    terms: 'Terms of use',
-    privacy: 'Privacy policy',
+    terms: 'Terms',
+    privacy: 'Privacy',
     close: 'Close',
-    buttons: ['Subscribe for 0,99 € / week', 'Subscribe for 9,99 € / year', 'Buy for 24,99 €'],
+    buttons: ['Subscribe for 0,99 €\u00a0per\u00a0week', 'Subscribe for 9,99 €\u00a0per\u00a0year', 'Buy for 24,99 €'],
   ),
   'fr': (
-    plans: ['Hebdomadaire', '0,99 € / semaine', 'Annuel', '9,99 € / an', 'À vie', '24,99 €'],
+    plans: ['Hebdomadaire', '0,99 €\u00a0par\u00a0semaine', 'Annuel', '9,99 €\u00a0par\u00a0an', 'À vie', '24,99 €'],
     renewals: [
-      'Se renouvelle automatiquement à 0,99 € / semaine, à la fin de chaque période, jusqu’à résiliation.',
-      'Se renouvelle automatiquement à 9,99 € / an, à la fin de chaque période, jusqu’à résiliation.',
+      'Se renouvelle automatiquement chaque semaine à 0,99 €, jusqu’à résiliation.',
+      'Se renouvelle automatiquement chaque année à 9,99 €, jusqu’à résiliation.',
     ],
     oneTime: 'Achat unique, sans renouvellement.',
-    cancelPlay: 'Résiliez à tout moment dans Google Play › Paiements et abonnements › Abonnements.',
+    cancelPlay: 'Résiliez à tout moment dans Google Play\u00a0› Paiements et abonnements\u00a0› Abonnements.',
     cancelAppStore:
-        'Résiliez à tout moment, au moins 24 heures avant le renouvellement, dans Réglages › votre nom › Abonnements.',
+        'Résiliez à tout moment dans Réglages\u00a0› votre nom\u00a0› Abonnements, au moins 24\u00a0heures avant le renouvellement.',
     restore: 'Restaurer les achats',
-    terms: 'Conditions d’utilisation',
-    privacy: 'Politique de confidentialité',
+    terms: 'Conditions',
+    privacy: 'Confidentialité',
     close: 'Fermer',
-    buttons: ['S’abonner pour 0,99 € / semaine', 'S’abonner pour 9,99 € / an', 'Acheter pour 24,99 €'],
+    buttons: [
+      'S’abonner pour 0,99 €\u00a0par\u00a0semaine',
+      'S’abonner pour 9,99 €\u00a0par\u00a0an',
+      'Acheter pour 24,99 €',
+    ],
   ),
 };
 
@@ -91,14 +95,14 @@ void main() {
   }
 
   /// The paywall alone, as the screen of the app.
-  Future<void> pumpPaywall(WidgetTester tester, String lang) => pumpOnSmallPhone(
+  Future<void> pumpPaywall(WidgetTester tester, String lang, {String header = 'Unlimited exports'}) => pumpOnSmallPhone(
     tester,
     Locale(lang),
     PaywallScreen(
       placement: 'export',
       purchases: purchases,
       legal: legal[lang]!,
-      header: const Text('Unlimited exports'),
+      header: Text(header),
       openLink: (uri) async {
         opened.add(uri);
         return true;
@@ -161,12 +165,44 @@ void main() {
         }
       });
 
-      testWidgets('on iPhone, how to cancel points to the App Store subscriptions', (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      testWidgets('the footer says what the button does, for the picked plan', (tester) async {
         await pumpPaywall(tester, lang);
-        expect(find.text(want.cancelAppStore), findsOneWidget);
-        debugDefaultTargetPlatformOverride = null;
+        await tester.ensureVisible(find.text(want.plans[4]));
+        await tester.tap(find.text(want.plans[4]));
+        await tester.pump();
+
+        expect(find.text(want.cancelPlay), findsNothing);
+        expect(find.text(want.oneTime), findsNWidgets(2)); // the lifetime card and the footer
       });
+
+      testWidgets('on a small phone at large text, the button and what it does stay on screen', (tester) async {
+        await pumpPaywall(tester, lang, header: 'Unlimited exports, backups to your own cloud and every report');
+        final screen = Offset.zero & tester.view.physicalSize / tester.view.devicePixelRatio;
+
+        final button = tester.getRect(find.byType(FilledButton));
+        expect(screen.contains(button.topLeft) && screen.contains(button.bottomRight - const Offset(1, 1)), isTrue);
+        expect(screen.contains(tester.getRect(find.text(want.cancelPlay)).topLeft), isTrue, reason: 'disclosure');
+      });
+
+      testWidgets('the plans are one choice for screen readers, the picked one checked', (tester) async {
+        await pumpPaywall(tester, lang);
+        bool choice(Widget w, {bool? checked}) =>
+            w is Semantics &&
+            w.properties.inMutuallyExclusiveGroup == true &&
+            (checked == null || w.properties.checked == checked);
+
+        expect(find.byWidgetPredicate(choice), findsNWidgets(3));
+        expect(find.byWidgetPredicate((w) => choice(w, checked: true)), findsOneWidget);
+      });
+
+      testWidgets(
+        'on iPhone, how to cancel points to the App Store subscriptions',
+        (tester) async {
+          await pumpPaywall(tester, lang);
+          expect(find.text(want.cancelAppStore), findsOneWidget);
+        },
+        variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+      );
 
       testWidgets("the terms and privacy links open the app's pages in the user's language", (tester) async {
         await pumpPaywall(tester, lang);
@@ -207,7 +243,6 @@ void main() {
         expect(purchases.entitled.value, isTrue);
         expect(await events(tester), ['paywall.view.export', 'paywall.tap.restore']);
       });
-
     });
   }
 
@@ -225,6 +260,14 @@ void main() {
     expect(find.byType(PaywallScreen), findsNothing);
     expect(result.value, isTrue);
     expect(await events(tester), ['paywall.view.export', 'paywall.tap.yearly', 'purchase.complete.yearly']);
+  });
+
+  testWidgets('a period of several units is said in words', (tester) async {
+    store.storePackages[0] = const StorePackage(id: r'$rc_weekly', price: '2,99 €', period: 'P3M');
+    await pumpPaywall(tester, 'en');
+
+    expect(find.text('2,99 €\u00a0per\u00a03\u00a0months'), findsOneWidget);
+    expect(find.text('Renews automatically every 3\u00a0months at 2,99 € until you cancel.'), findsOneWidget);
   });
 
   testWidgets("the gate's soft-paywall rule decides: no paywall before the first useful moment", (tester) async {
