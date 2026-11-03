@@ -137,7 +137,11 @@ class DataStore {
 
 /// Runs [migrations] on [data], from schema [from] to the latest. Shared by
 /// [DataStore.open], backup restore and the data-upgrade tests.
-Map<String, Object?> upgrade(Map<String, Object?> data, {required int from, required List<Migration> migrations}) {
+Map<String, Object?> upgrade(
+  Map<String, Object?> data, {
+  required int from,
+  required List<Migration> migrations,
+}) {
   final latest = migrations.length + 1;
   if (from > latest) {
     throw DataException(DataProblem.newerSchema, 'schema $from is newer than $latest');

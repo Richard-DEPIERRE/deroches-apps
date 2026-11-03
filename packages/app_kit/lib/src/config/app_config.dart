@@ -6,7 +6,11 @@ const kitLanguages = ['fr', 'en'];
 
 /// The app's legal pages on its own site, in one language.
 class LegalLinks {
-  const LegalLinks({required this.legalNotice, required this.privacy, required this.terms});
+  const LegalLinks({
+    required this.legalNotice,
+    required this.privacy,
+    required this.terms,
+  });
 
   final Uri legalNotice;
   final Uri privacy;
@@ -56,7 +60,6 @@ class AppConfig {
 
   /// The studio's PostHog project key, public by design (ADR 0001, section 5); `null` sends no analytics.
   final String? postHogKey;
-
   /// RevenueCat's public SDK keys for the App Store (`appl_…`) and Google
   /// Play (`goog_…`); `null` sells nothing on that platform. Never the secret
   /// API key (ADR 0001, section 13).

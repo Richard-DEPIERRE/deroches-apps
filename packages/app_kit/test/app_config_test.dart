@@ -42,8 +42,14 @@ void main() {
   });
 
   test('both languages need a name and legal links', () {
-    final config = _config(names: const {'fr': 'Carnet'}, legal: {'fr': _links('fr')});
-    expect(config.problems, ['no app name in "en"', 'no legal links in "en"']);
+    final config = _config(
+      names: const {'fr': 'Carnet'},
+      legal: {'fr': _links('fr')},
+    );
+    expect(config.problems, [
+      'no app name in "en"',
+      'no legal links in "en"',
+    ]);
   });
 
   test('legal links must be https', () {
@@ -74,9 +80,7 @@ void main() {
 
   test('a PostHog key, when given, is a public project key', () {
     expect(_config(postHogKey: 'phc_aBc123').problems, isEmpty);
-    expect(_config(postHogKey: 'phx_personalApiKey').problems, [
-      contains('PostHog'),
-    ], reason: 'a personal API key is a secret');
+    expect(_config(postHogKey: 'phx_personalApiKey').problems, [contains('PostHog')], reason: 'a personal API key is a secret');
     expect(_config(postHogKey: '').problems, [contains('PostHog')]);
   });
 
