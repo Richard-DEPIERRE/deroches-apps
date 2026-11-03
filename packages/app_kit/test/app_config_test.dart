@@ -14,8 +14,6 @@ AppConfig _config({
   Map<String, LegalLinks>? legal,
   Set<Plan> plans = const {Plan.yearly, Plan.lifetime},
   String? sentryDsn,
-  String? revenueCatAppleKey,
-  String? revenueCatGoogleKey,
 }) => AppConfig(
   slug: slug,
   names: names,
@@ -23,8 +21,6 @@ AppConfig _config({
   legal: legal ?? {'fr': _links('fr'), 'en': _links('en')},
   plans: plans,
   sentryDsn: sentryDsn,
-  revenueCatAppleKey: revenueCatAppleKey,
-  revenueCatGoogleKey: revenueCatGoogleKey,
 );
 
 void main() {
@@ -74,12 +70,5 @@ void main() {
     expect(_config(sentryDsn: 'https://public@o0.ingest.de.sentry.io/0').problems, isEmpty);
     expect(_config(sentryDsn: 'http://public@o0.ingest.de.sentry.io/0').problems, [contains('DSN')]);
     expect(_config(sentryDsn: '').problems, [contains('DSN')]);
-  });
-
-  test('RevenueCat keys, when given, are its public SDK keys, never a secret one', () {
-    expect(_config(revenueCatAppleKey: 'appl_abc', revenueCatGoogleKey: 'goog_abc').problems, isEmpty);
-    expect(_config(revenueCatAppleKey: 'sk_abc').problems, [contains('Apple')]);
-    expect(_config(revenueCatGoogleKey: 'sk_abc').problems, [contains('Google')]);
-    expect(_config(revenueCatGoogleKey: 'appl_abc').problems, [contains('Google')]);
   });
 }

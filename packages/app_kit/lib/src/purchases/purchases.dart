@@ -89,7 +89,7 @@ final class PurchaseFailed extends PurchaseResult {
 
 enum RestoreResult { restored, nothingToRestore, failed }
 
-/// The store, through RevenueCat in an app (`RevenueCatPurchases`) and
+/// The store: RevenueCat in an app (its backend is the next kit issue) and
 /// `FakePurchasesBackend` from `package:app_kit/testing.dart` in tests.
 abstract interface class PurchasesBackend {
   /// The `default` offering's packages. Throws when the store can't be reached.
