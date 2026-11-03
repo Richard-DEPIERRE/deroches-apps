@@ -299,7 +299,12 @@ void main() {
       linksOpen = false;
       await tapAndWait(tester, t.support);
       expect(find.text(t.noMailApp), findsOneWidget);
-      expectMessage(tester, failure: true);
+      // It stays until the user copies or closes it: the address is the content.
+      final bar = tester.widget<SnackBar>(find.byType(SnackBar));
+      expect((bar.persist, bar.showCloseIcon), (true, true));
+      await tester.pump(const Duration(seconds: 9));
+      await tester.pumpAndSettle();
+      expect(find.text(t.noMailApp), findsOneWidget, reason: 'still there after 9 s');
 
       // Pressed, not tapped: the test font's square glyphs push the action below a
       // 320 pt screen at twice the text size, which Roboto doesn't (design review shots).
@@ -473,6 +478,21 @@ void main() {
     expect(describeSystem('android', 'Linux 5.10.43-android12-9 #1 SMP PREEMPT', androidRelease: '14'), 'Android 14');
     expect(describeSystem('android', 'Linux 5.10.43 #1 SMP PREEMPT'), 'Android', reason: 'release unknown: no kernel');
     expect(describeSystem('macos', 'Version 15.1 (Build 24B83)'), 'macos Version 15.1 (Build 24B83)');
+  });
+
+  test('a copy is confirmed except on Android 13 and later, which confirms it itself', () {
+    expect(confirmsCopy(android: false), isTrue, reason: 'iPhone');
+    expect(confirmsCopy(android: true, sdk: 32), isTrue, reason: 'Android 12L');
+    expect(confirmsCopy(android: true, sdk: 33), isFalse, reason: 'Android 13');
+    expect(confirmsCopy(android: true, sdk: 35), isFalse);
+    expect(confirmsCopy(android: true), isTrue, reason: 'level unknown: two confirmations beat none');
+  });
+
+  testWidgets('a message without an action still leaves on its own', (tester) async {
+    await launch(tester, const Locale('en'));
+    linksOpen = false;
+    await tapAndWait(tester, 'Terms of use');
+    expect(tester.widget<SnackBar>(find.byType(SnackBar)).persist, isFalse);
   });
 
   testWidgets('the legal links follow the language chosen in settings', (tester) async {

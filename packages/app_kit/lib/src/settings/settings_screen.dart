@@ -62,7 +62,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Runs [action]'s [work], then, if the screen is still open, says what
   /// [message] makes of it. A failure stays 8 seconds with a close button: it
-  /// says what to do next. Anything that must happen anyway belongs in [work].
+  /// says what to do next; one with an action stays until the user acts or
+  /// closes it. Anything that must happen anyway belongs in [work].
   Future<void> _run<T>(_Action action, Future<T> Function() work, _Said? Function(KitLocalizations, T) message) async {
     setState(() => _running = action);
     final T result;
@@ -85,6 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         duration: said.failure ? const Duration(seconds: 8) : const Duration(seconds: 4),
         showCloseIcon: said.failure,
         action: said.action,
+        persist: said.action != null,
       ),
     );
 
@@ -134,20 +136,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// The system for the support email. Dart gives a build string on iOS and the
   /// kernel's on Android, so Android's release comes from its build property.
-  static Future<String> _system() async {
-    String? release;
-    if (Platform.isAndroid) {
-      try {
-        release = '${(await Process.run('getprop', ['ro.build.version.release'])).stdout}'.trim();
-      } on Object catch (e) {
-        debugPrint('settings: no Android release: $e');
-      }
+  static Future<String> _system() async => describeSystem(
+    Platform.operatingSystem,
+    Platform.operatingSystemVersion,
+    androidRelease: await _androidProperty('ro.build.version.release'),
+  );
+
+  /// An Android build property, such as `ro.build.version.sdk`; null elsewhere or unreadable.
+  static Future<String?> _androidProperty(String name) async {
+    if (!Platform.isAndroid) return null;
+    try {
+      final value = '${(await Process.run('getprop', [name])).stdout}'.trim();
+      return value.isEmpty ? null : value;
+    } on Object catch (e) {
+      debugPrint('settings: no $name: $e');
+      return null;
     }
-    return describeSystem(
-      Platform.operatingSystem,
-      Platform.operatingSystemVersion,
-      androidRelease: release == null || release.isEmpty ? null : release,
-    );
+  }
+
+  /// Copies the support address, and says so unless the system already does.
+  Future<void> _copy(String email, String copied) async {
+    await Clipboard.setData(ClipboardData(text: email));
+    final sdk = int.tryParse(await _androidProperty('ro.build.version.sdk') ?? '');
+    if (mounted && confirmsCopy(android: Platform.isAndroid, sdk: sdk)) _say(_Said(copied));
   }
 
   // A failed save keeps the choice on screen; it is asked again next launch.
@@ -281,9 +292,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   failure: true,
                   action: SnackBarAction(
                     label: l10n.settingsSupportCopy,
-                    onPressed: () => Clipboard.setData(ClipboardData(text: config.supportEmail)).then((_) {
-                      if (mounted) _say(_Said(l10n.settingsSupportCopied));
-                    }),
+                    onPressed: () => _copy(config.supportEmail, l10n.settingsSupportCopied),
                   ),
                 ),
               ),
@@ -317,6 +326,11 @@ String describeSystem(String os, String version, {String? androidRelease}) => sw
   'android' => 'Android ${androidRelease ?? ''}'.trim(),
   _ => '$os $version',
 };
+
+/// Whether the app confirms a copy: Android 13 (API 33) and later show their
+/// own confirmation, and a second one is noise. An unknown level confirms.
+@visibleForTesting
+bool confirmsCopy({required bool android, int? sdk}) => !android || sdk == null || sdk < 33;
 
 /// What a message says, whether it is a failure, and what it offers to do.
 class _Said {
