@@ -29,4 +29,16 @@ class ExampleLocalizationsFr extends ExampleLocalizations {
 
   @override
   String get exampleGoodMoment => 'Quelque chose s’est bien passé';
+
+  @override
+  String get examplePaywallHeader => 'Notes et exports illimités';
+
+  @override
+  String get exampleShotOnboarding => 'Un court accueil, puis vos notes';
+
+  @override
+  String get exampleShotPaywall => 'Des prix clairs, sans engagement';
+
+  @override
+  String get exampleShotSettings => 'Votre langue, vos choix';
 }

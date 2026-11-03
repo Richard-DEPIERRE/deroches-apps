@@ -21,7 +21,9 @@ final exampleConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
+/// The sample app. [screen], for screenshots, replaces its home (onboarding first).
 Widget buildApp({
+  WidgetBuilder? screen,
   CrashReporter crashReporter = const NoopCrashReporter(),
   required KitStateController kitState,
   required Analytics analytics,
@@ -37,6 +39,7 @@ Widget buildApp({
     seedColor: Colors.indigo,
     localizationsDelegates: const [ExampleLocalizations.delegate],
     home: (context) {
+      if (screen != null) return screen(context);
       final l10n = ExampleLocalizations.of(context);
       return OnboardingFlow(
         kitState: kitState,
