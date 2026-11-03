@@ -26,7 +26,13 @@ void main() {
   Future<KitStateController> launch(WidgetTester tester, {Locale locale = const Locale('en')}) async {
     final kit = KitStateController(directory: dir, appId: 'kit-test');
     await tester.runAsync(kit.load);
-    final analytics = Analytics(backend: backend, kitState: kit, appId: 'kit-test', appVersion: '1', locale: () => 'en');
+    final analytics = Analytics(
+      backend: backend,
+      kitState: kit,
+      appId: 'kit-test',
+      appVersion: '1',
+      locale: () => 'en',
+    );
     await pumpOnSmallPhone(
       tester,
       locale,
@@ -64,6 +70,7 @@ void main() {
     await tapAndSave(tester, 'Next');
     expect(find.text('Two'), findsOneWidget);
     await tapAndSave(tester, 'Next');
+    expect(find.text('Skip').hitTestable(), findsNothing, reason: 'no Skip on the last page');
     await tapAndSave(tester, 'Get started');
     expect(find.text('Home'), findsOneWidget);
     expect(sent(), contains('onboarding.complete.finished'));

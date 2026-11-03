@@ -75,7 +75,15 @@ class _Art extends StatelessWidget {
   final IconData icon;
 
   @override
-  Widget build(BuildContext context) => Icon(icon, size: 96, color: Theme.of(context).colorScheme.primary);
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      width: 160,
+      height: 160,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: colors.primaryContainer),
+      child: Icon(icon, size: 96, color: colors.onPrimaryContainer),
+    );
+  }
 }
 
 /// Shows the wiring works: the app's name from its config, its own strings.

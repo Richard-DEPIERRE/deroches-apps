@@ -67,8 +67,9 @@ class _PagesState extends State<_Pages> {
 
   bool get _last => _page == widget.pages.length - 1;
 
-  void _go(int page) =>
-      _controller.animateToPage(page, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
+  void _go(int page) => MediaQuery.disableAnimationsOf(context)
+      ? _controller.jumpToPage(page)
+      : _controller.animateToPage(page, duration: const Duration(milliseconds: 300), curve: Curves.easeOutCubic);
 
   @override
   void dispose() {
@@ -87,65 +88,94 @@ class _PagesState extends State<_Pages> {
       },
       child: Scaffold(
         body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: PageView(
-                  controller: _controller,
-                  onPageChanged: (page) => setState(() => _page = page),
-                  children: [
-                    for (final page in widget.pages)
-                      SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 200, child: Center(child: ExcludeSemantics(child: page.illustration))),
-                            const SizedBox(height: 24),
-                            Semantics(header: true, child: Text(page.title, style: theme.textTheme.headlineSmall)),
-                            const SizedBox(height: 12),
-                            Text(page.body, style: theme.textTheme.bodyLarge),
-                          ],
-                        ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 480),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: AlignmentDirectional.topEnd,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(top: 8, end: 8),
+                      child: Visibility(
+                        visible: !_last,
+                        maintainSize: true,
+                        maintainAnimation: true,
+                        maintainState: true,
+                        child: TextButton(onPressed: () => widget.onDone(true), child: Text(l10n.kitOnboardingSkip)),
                       ),
-                  ],
-                ),
-              ),
-              Semantics(
-                label: l10n.kitOnboardingPage(_page + 1, widget.pages.length),
-                child: ExcludeSemantics(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var i = 0; i < widget.pages.length; i++)
-                        Container(
-                          width: 8,
-                          height: 8,
-                          margin: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: i == _page ? theme.colorScheme.primary : theme.colorScheme.outlineVariant,
-                          ),
-                        ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: OverflowBar(
-                  alignment: _last ? MainAxisAlignment.end : MainAxisAlignment.spaceBetween,
-                  overflowAlignment: OverflowBarAlignment.center,
-                  children: [
-                    if (!_last) TextButton(onPressed: () => widget.onDone(true), child: Text(l10n.kitOnboardingSkip)),
-                    FilledButton(
+                  Expanded(
+                    child: PageView(
+                      controller: _controller,
+                      onPageChanged: (page) => setState(() => _page = page),
+                      children: [
+                        for (final page in widget.pages)
+                          LayoutBuilder(
+                            builder: (context, constraints) => SingleChildScrollView(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 200,
+                                      child: Center(child: ExcludeSemantics(child: page.illustration)),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Semantics(
+                                      header: true,
+                                      child: Text(
+                                        page.title,
+                                        style: theme.textTheme.headlineSmall,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(page.body, style: theme.textTheme.bodyLarge, textAlign: TextAlign.center),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Semantics(
+                    label: l10n.kitOnboardingPage(_page + 1, widget.pages.length),
+                    child: ExcludeSemantics(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var i = 0; i < widget.pages.length; i++)
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeOutCubic,
+                              width: i == _page ? 24 : 8,
+                              height: 8,
+                              margin: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                                color: i == _page ? theme.colorScheme.primary : theme.colorScheme.outline,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                       onPressed: _last ? () => widget.onDone(false) : () => _go(_page + 1),
                       child: Text(_last ? l10n.kitOnboardingDone : l10n.kitOnboardingNext),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
