@@ -33,6 +33,8 @@ class AppConfig {
     this.entitlementId = 'pro',
     this.sentryDsn,
     this.postHogKey,
+    this.revenueCatAppleKey,
+    this.revenueCatGoogleKey,
   });
 
   /// The store wrapper's slug: lowercase letters, digits and hyphens.
@@ -58,6 +60,11 @@ class AppConfig {
 
   /// The studio's PostHog project key, public by design (ADR 0001, section 5); `null` sends no analytics.
   final String? postHogKey;
+  /// RevenueCat's public SDK keys for the App Store (`appl_…`) and Google
+  /// Play (`goog_…`); `null` sells nothing on that platform. Never the secret
+  /// API key (ADR 0001, section 13).
+  final String? revenueCatAppleKey;
+  final String? revenueCatGoogleKey;
 
   static final _slug = RegExp(r'^[a-z0-9]+(-[a-z0-9]+)*$');
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[a-z]{2,}$');
@@ -70,6 +77,8 @@ class AppConfig {
     if (entitlementId.isEmpty) 'no entitlement id',
     if (sentryDsn != null && Uri.tryParse(sentryDsn!)?.scheme != 'https') 'Sentry DSN "$sentryDsn" is not an https URL',
     if (postHogKey != null && !postHogKey!.startsWith('phc_')) 'PostHog key is not a public project key (phc_…)',
+    if (revenueCatAppleKey?.startsWith('appl_') == false) 'RevenueCat Apple key is not a public SDK key (appl_…)',
+    if (revenueCatGoogleKey?.startsWith('goog_') == false) 'RevenueCat Google key is not a public SDK key (goog_…)',
     for (final lang in kitLanguages) ...[
       if ((names[lang] ?? '').trim().isEmpty) 'no app name in "$lang"',
       if (legal[lang] == null)

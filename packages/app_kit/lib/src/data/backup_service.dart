@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 
+import '../../l10n/kit_localizations.dart';
 import 'data_store.dart';
 
 /// The system save dialog and file picker, where the user picks iCloud Drive,
@@ -12,8 +13,19 @@ abstract interface class BackupFiles {
   /// Offers [bytes] as [fileName] in the save dialog; false if the user cancelled.
   Future<bool> save(String fileName, Uint8List bytes);
 
-  /// The picked file's bytes, or null if the user cancelled.
-  Future<Uint8List?> pick();
+  /// The picked file's bytes, or null if the user cancelled. Throws
+  /// [BackupTooLarge], without reading past [maxBytes], if the file is over it.
+  Future<Uint8List?> pick({required int maxBytes});
+}
+
+/// The picked file is over the size limit.
+class BackupTooLarge implements Exception {
+  const BackupTooLarge(this.bytes);
+
+  final int bytes;
+
+  @override
+  String toString() => 'BackupTooLarge: $bytes bytes';
 }
 
 class SystemBackupFiles implements BackupFiles {
@@ -24,7 +36,19 @@ class SystemBackupFiles implements BackupFiles {
       await FilePicker.saveFile(fileName: fileName, bytes: bytes, mimeType: 'application/json') != null;
 
   @override
-  Future<Uint8List?> pick() async => (await FilePicker.pickFile())?.readAsBytes();
+  Future<Uint8List?> pick({required int maxBytes}) async {
+    final file = await FilePicker.pickFile();
+    if (file == null) return null;
+    final length = await file.length();
+    if (length != null && length > maxBytes) throw BackupTooLarge(length);
+    // Read in chunks and stop past the limit, in case the size was unknown.
+    final bytes = BytesBuilder(copy: false);
+    await for (final chunk in file.readAsByteStream()) {
+      bytes.add(chunk);
+      if (bytes.length > maxBytes) throw BackupTooLarge(bytes.length);
+    }
+    return bytes.takeBytes();
+  }
 }
 
 /// Why a backup was not made or not restored. The name is the analytics
@@ -44,6 +68,21 @@ enum BackupFailure {
 
   /// A file couldn't be read or written.
   fileError,
+
+  /// The picked file is over [BackupService.maxBytes]: not one of this app's backups.
+  tooLarge,
+}
+
+extension BackupFailureMessage on BackupFailure {
+  /// What the user is told: why, and that their data hasn't changed.
+  String message(KitLocalizations l) => switch (this) {
+    BackupFailure.unreadable => l.backupFailedUnreadable,
+    BackupFailure.otherApp => l.backupFailedOtherApp,
+    BackupFailure.newerSchema => l.backupFailedNewerSchema,
+    BackupFailure.migrationFailed => l.backupFailedMigration,
+    BackupFailure.fileError => l.backupFailedFile,
+    BackupFailure.tooLarge => l.backupFailedTooLarge,
+  };
 }
 
 /// What the settings screen tells the user.
@@ -87,6 +126,10 @@ class BackupService {
   final BackupFiles files;
   final DateTime Function() _now;
 
+  /// A picked file over this size is refused before it is read. A backup of
+  /// years of an app's data is a few hundred KB.
+  static const maxBytes = 5 * 1024 * 1024;
+
   Future<BackupResult> export() => _guard(() async {
     final now = _now().toUtc();
     final backup = {
@@ -107,7 +150,7 @@ class BackupService {
   /// keeps a copy of each document as `<name>.json.before-restore` and
   /// replaces it. If a write fails, every document is put back as it was.
   Future<BackupResult> restore() => _guard(() async {
-    final bytes = await files.pick();
+    final bytes = await files.pick(maxBytes: maxBytes);
     if (bytes == null) return const BackupCancelled();
     final restored = _decode(bytes);
 
@@ -173,6 +216,8 @@ class BackupService {
 Future<BackupResult> _guard(Future<BackupResult> Function() run) async {
   try {
     return await run();
+  } on BackupTooLarge catch (e) {
+    return BackupFailed(BackupFailure.tooLarge, '$e');
   } on _Refused catch (e) {
     return BackupFailed(e.reason, e.detail);
   } on DataException catch (e) {

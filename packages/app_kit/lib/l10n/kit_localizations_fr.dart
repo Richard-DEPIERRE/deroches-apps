@@ -28,4 +28,28 @@ class KitLocalizationsFr extends KitLocalizations {
   String kitOnboardingPage(int current, int total) {
     return 'Page $current sur $total';
   }
+
+  @override
+  String get backupFailedUnreadable =>
+      'Ces données n’ont pas pu être lues : elles sont abîmées, ou ne viennent pas de cette application. Vos données n’ont pas changé.';
+
+  @override
+  String get backupFailedOtherApp =>
+      'Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.';
+
+  @override
+  String get backupFailedNewerSchema =>
+      'Cette sauvegarde vient d’une version plus récente de l’application. Vos données n’ont pas changé. Mettez‑la à jour, puis réessayez.';
+
+  @override
+  String get backupFailedMigration =>
+      'Impossible d’ouvrir cette sauvegarde. Vos données n’ont pas changé. Écrivez‑nous depuis les réglages.';
+
+  @override
+  String get backupFailedFile =>
+      'Le fichier n’a pas pu être lu ou écrit. Vos données n’ont pas changé. Réessayez.';
+
+  @override
+  String get backupFailedTooLarge =>
+      'Ce fichier est trop volumineux pour être une sauvegarde de cette application. Vos données n’ont pas changé.';
 }

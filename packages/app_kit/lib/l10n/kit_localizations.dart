@@ -133,6 +133,42 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'Page {current} of {total}'**
   String kitOnboardingPage(int current, int total);
+
+  /// Shown when a backup export or restore fails because the data can't be read: a picked file that isn't this app's backup, or a damaged backup or document. Must not say it is the picked file: an export fails this way too.
+  ///
+  /// In en, this message translates to:
+  /// **'This data couldn’t be read: it’s damaged, or it isn’t from this app. Your data hasn’t changed.'**
+  String get backupFailedUnreadable;
+
+  /// Shown when a backup export or restore fails because the file is another app's backup.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup comes from another app. Your data hasn’t changed.'**
+  String get backupFailedOtherApp;
+
+  /// Shown when a backup export or restore fails because the backup was made by a newer version of the app.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup comes from a newer version of the app. Your data hasn’t changed. Update the app, then try again.'**
+  String get backupFailedNewerSchema;
+
+  /// Shown when a backup export or restore fails because the app's migrations couldn't upgrade the backup's data.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup couldn’t be opened. Your data hasn’t changed. Write to us from Settings.'**
+  String get backupFailedMigration;
+
+  /// Shown when a backup export or restore fails because a file couldn't be read or written.
+  ///
+  /// In en, this message translates to:
+  /// **'The file couldn’t be read or written. Your data hasn’t changed. Try again.'**
+  String get backupFailedFile;
+
+  /// Shown when a restore fails because the picked file is over the size limit (a few MB).
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too large to be a backup of this app. Your data hasn’t changed.'**
+  String get backupFailedTooLarge;
 }
 
 class _KitLocalizationsDelegate

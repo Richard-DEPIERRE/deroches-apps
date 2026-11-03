@@ -5,5 +5,11 @@
   "kitOnboardingSkip": "Passer",
   "kitOnboardingNext": "Suivant",
   "kitOnboardingDone": "Commencer",
-  "kitOnboardingPage": "Page {current} sur {total}"
+  "kitOnboardingPage": "Page {current} sur {total}",
+  "backupFailedUnreadable": "Ces données n’ont pas pu être lues : elles sont abîmées, ou ne viennent pas de cette application. Vos données n’ont pas changé.",
+  "backupFailedOtherApp": "Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.",
+  "backupFailedNewerSchema": "Cette sauvegarde vient d’une version plus récente de l’application. Vos données n’ont pas changé. Mettez‑la à jour, puis réessayez.",
+  "backupFailedMigration": "Impossible d’ouvrir cette sauvegarde. Vos données n’ont pas changé. Écrivez‑nous depuis les réglages.",
+  "backupFailedFile": "Le fichier n’a pas pu être lu ou écrit. Vos données n’ont pas changé. Réessayez.",
+  "backupFailedTooLarge": "Ce fichier est trop volumineux pour être une sauvegarde de cette application. Vos données n’ont pas changé."
 }

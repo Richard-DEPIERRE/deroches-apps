@@ -15,6 +15,8 @@ AppConfig _config({
   Set<Plan> plans = const {Plan.yearly, Plan.lifetime},
   String? sentryDsn,
   String? postHogKey,
+  String? revenueCatAppleKey,
+  String? revenueCatGoogleKey,
 }) => AppConfig(
   slug: slug,
   names: names,
@@ -23,6 +25,8 @@ AppConfig _config({
   plans: plans,
   sentryDsn: sentryDsn,
   postHogKey: postHogKey,
+  revenueCatAppleKey: revenueCatAppleKey,
+  revenueCatGoogleKey: revenueCatGoogleKey,
 );
 
 void main() {
@@ -78,5 +82,12 @@ void main() {
     expect(_config(postHogKey: 'phc_aBc123').problems, isEmpty);
     expect(_config(postHogKey: 'phx_personalApiKey').problems, [contains('PostHog')], reason: 'a personal API key is a secret');
     expect(_config(postHogKey: '').problems, [contains('PostHog')]);
+  });
+
+  test('RevenueCat keys, when given, are its public SDK keys, never a secret one', () {
+    expect(_config(revenueCatAppleKey: 'appl_abc', revenueCatGoogleKey: 'goog_abc').problems, isEmpty);
+    expect(_config(revenueCatAppleKey: 'sk_abc').problems, [contains('Apple')]);
+    expect(_config(revenueCatGoogleKey: 'sk_abc').problems, [contains('Google')]);
+    expect(_config(revenueCatGoogleKey: 'appl_abc').problems, [contains('Google')]);
   });
 }

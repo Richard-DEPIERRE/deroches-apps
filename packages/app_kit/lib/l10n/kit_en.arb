@@ -31,5 +31,29 @@
         "type": "int"
       }
     }
+  },
+  "backupFailedUnreadable": "This data couldn’t be read: it’s damaged, or it isn’t from this app. Your data hasn’t changed.",
+  "@backupFailedUnreadable": {
+    "description": "Shown when a backup export or restore fails because the data can't be read: a picked file that isn't this app's backup, or a damaged backup or document. Must not say it is the picked file: an export fails this way too."
+  },
+  "backupFailedOtherApp": "This backup comes from another app. Your data hasn’t changed.",
+  "@backupFailedOtherApp": {
+    "description": "Shown when a backup export or restore fails because the file is another app's backup."
+  },
+  "backupFailedNewerSchema": "This backup comes from a newer version of the app. Your data hasn’t changed. Update the app, then try again.",
+  "@backupFailedNewerSchema": {
+    "description": "Shown when a backup export or restore fails because the backup was made by a newer version of the app."
+  },
+  "backupFailedMigration": "This backup couldn’t be opened. Your data hasn’t changed. Write to us from Settings.",
+  "@backupFailedMigration": {
+    "description": "Shown when a backup export or restore fails because the app's migrations couldn't upgrade the backup's data."
+  },
+  "backupFailedFile": "The file couldn’t be read or written. Your data hasn’t changed. Try again.",
+  "@backupFailedFile": {
+    "description": "Shown when a backup export or restore fails because a file couldn't be read or written."
+  },
+  "backupFailedTooLarge": "This file is too large to be a backup of this app. Your data hasn’t changed.",
+  "@backupFailedTooLarge": {
+    "description": "Shown when a restore fails because the picked file is over the size limit (a few MB)."
   }
 }
