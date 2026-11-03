@@ -128,6 +128,9 @@ class FakeBackupFiles implements BackupFiles {
   /// The user cancels the save dialog.
   bool cancelSave = false;
 
+  /// While set and not complete, [pick] waits for it: the user is still picking.
+  Completer<void>? holdPick;
+
   /// File name → bytes.
   final saved = <String, Uint8List>{};
 
@@ -138,11 +141,14 @@ class FakeBackupFiles implements BackupFiles {
   }
 
   @override
-  Future<Uint8List?> pick({required int maxBytes}) async => switch (picked) {
-    final bytes? when bytes.length > maxBytes => throw BackupTooLarge(bytes.length),
-    final bytes? => Uint8List.fromList(bytes),
-    null => null,
-  };
+  Future<Uint8List?> pick({required int maxBytes}) async {
+    await holdPick?.future;
+    return switch (picked) {
+      final bytes? when bytes.length > maxBytes => throw BackupTooLarge(bytes.length),
+      final bytes? => Uint8List.fromList(bytes),
+      null => null,
+    };
+  }
 }
 
 /// Keeps what Sentry would send, instead of sending it.

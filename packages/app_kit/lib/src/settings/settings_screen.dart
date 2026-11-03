@@ -44,8 +44,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// The item whose work is running: it spins, the others wait.
   _Action? _running;
 
-  /// Runs [action]'s [work], then says what [message] makes of it. A failure
-  /// stays 8 seconds with a close button: it says what to do next.
+  /// Runs [action]'s [work], then, if the screen is still open, says what
+  /// [message] makes of it. A failure stays 8 seconds with a close button: it
+  /// says what to do next. Anything that must happen anyway belongs in [work].
   Future<void> _run<T>(_Action action, Future<T> Function() work, _Said? Function(KitLocalizations, T) message) async {
     setState(() => _running = action);
     final T result;
@@ -69,20 +70,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
   }
 
-  _Said? _backupMessage(KitLocalizations l10n, BackupResult result, {required bool restore}) {
+  /// Exports or restores, then sends its event and, after a restore, reopens
+  /// the app's stores: even if the user has left the screen meanwhile, or the
+  /// stores would refuse every save until the next launch.
+  Future<BackupResult> _backup({required bool restore}) async {
+    final result = await (restore ? widget.backup.restore() : widget.backup.export());
     switch (result) {
       case BackupDone():
         widget.analytics.track('backup.complete.${restore ? 'restore' : 'export'}');
         if (restore) widget.onBackupRestored();
-        return (text: restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported, failure: false);
       case BackupFailed(:final reason):
         final detail = reason.name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
         widget.analytics.track('backup.fail.$detail');
-        return (text: reason.message(l10n), failure: true);
-      case BackupCancelled(): // the user's choice: nothing to say
-        return null;
+      case BackupCancelled():
     }
+    return result;
   }
+
+  _Said? _backupMessage(KitLocalizations l10n, BackupResult result, {required bool restore}) => switch (result) {
+    BackupDone() => (text: restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported, failure: false),
+    BackupFailed(:final reason) => (text: reason.message(l10n), failure: true),
+    BackupCancelled() => null, // the user's choice: nothing to say
+  };
 
   // A failed save keeps the choice on screen; it is asked again next launch.
   void _update(KitState Function(KitState) change) =>
@@ -175,14 +184,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               item(
                 _Action.exportBackup,
                 l10n.settingsBackupExport,
-                widget.backup.export,
+                () => _backup(restore: false),
                 (l10n, r) => _backupMessage(l10n, r, restore: false),
                 subtitle: l10n.settingsBackupExportDetail,
               ),
               item(
                 _Action.restoreBackup,
                 l10n.settingsBackupRestore,
-                widget.backup.restore,
+                () => _backup(restore: true),
                 (l10n, r) => _backupMessage(l10n, r, restore: true),
                 subtitle: l10n.settingsBackupRestoreDetail,
               ),

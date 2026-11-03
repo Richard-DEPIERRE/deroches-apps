@@ -281,6 +281,26 @@ void main() {
       expect(events(), containsAllInOrder(['backup.complete.export', 'backup.complete.restore']));
     });
 
+    testWidgets('$lang: a restore that ends after the screen closed still reopens the data', (tester) async {
+      await launch(tester, device);
+      await tapAndWait(tester, t.export);
+      files
+        ..picked = files.saved.values.single
+        ..holdPick = Completer();
+      await tester.scrollUntilVisible(find.text(t.restore), 100, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.restore));
+      await tester.pump();
+
+      await tester.pumpWidget(const SizedBox()); // the user leaves settings
+      files.holdPick!.complete();
+      for (var i = 0; i < 50 && restores == 0; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+      }
+      expect(restores, 1, reason: 'otherwise the stores stay closed and every save fails');
+      expect(events(), contains('backup.complete.restore'));
+    });
+
     testWidgets('$lang: a cancelled save dialog says nothing and sends nothing', (tester) async {
       await launch(tester, device);
       files.cancelSave = true;
