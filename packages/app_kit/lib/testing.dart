@@ -3,6 +3,7 @@ library;
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,6 +25,30 @@ class FakeCrashReporter implements CrashReporter {
 
   @override
   void addBreadcrumb(String message) => breadcrumbs.add(message);
+}
+
+/// Plays the system save dialog and file picker: keeps what was saved, and
+/// hands back [picked] (null: the user cancels the picker).
+class FakeBackupFiles implements BackupFiles {
+  List<int>? picked;
+
+  /// The user cancels the save dialog.
+  bool cancelSave = false;
+
+  /// File name → bytes.
+  final saved = <String, Uint8List>{};
+
+  @override
+  Future<bool> save(String fileName, Uint8List bytes) async {
+    if (!cancelSave) saved[fileName] = bytes;
+    return !cancelSave;
+  }
+
+  @override
+  Future<Uint8List?> pick() async => switch (picked) {
+    final bytes? => Uint8List.fromList(bytes),
+    null => null,
+  };
 }
 
 /// Keeps what Sentry would send, instead of sending it.
