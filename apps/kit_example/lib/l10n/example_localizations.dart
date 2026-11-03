@@ -136,6 +136,30 @@ abstract class ExampleLocalizations {
   /// In en, this message translates to:
   /// **'Something went well'**
   String get exampleGoodMoment;
+
+  /// Sample app paywall header: what the plans unlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited notes and exports'**
+  String get examplePaywallHeader;
+
+  /// Store screenshot caption over the onboarding screen.
+  ///
+  /// In en, this message translates to:
+  /// **'A short welcome, then your notes'**
+  String get exampleShotOnboarding;
+
+  /// Store screenshot caption over the paywall.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear prices, no commitment'**
+  String get exampleShotPaywall;
+
+  /// Store screenshot caption over the settings screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Your language, your choices'**
+  String get exampleShotSettings;
 }
 
 class _ExampleLocalizationsDelegate

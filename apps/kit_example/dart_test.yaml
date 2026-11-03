@@ -1,0 +1,3 @@
+tags:
+  # Store screenshots (ADR 0001, section 11): tool/screenshots.sh runs them.
+  screenshots:
