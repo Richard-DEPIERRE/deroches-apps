@@ -271,4 +271,7 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get settingsBackupRestored => 'Backup restored.';
+
+  @override
+  String get settingsBusy => 'In progress';
 }

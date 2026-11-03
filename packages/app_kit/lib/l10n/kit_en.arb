@@ -288,5 +288,9 @@
   "settingsBackupRestored": "Backup restored.",
   "@settingsBackupRestored": {
     "description": "Shown after a backup was restored."
+  },
+  "settingsBusy": "In progress",
+  "@settingsBusy": {
+    "description": "Screen-reader label of the spinner on a settings item while its work runs."
   }
 }

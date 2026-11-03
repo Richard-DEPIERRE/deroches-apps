@@ -64,6 +64,9 @@ class FakePurchasesBackend implements PurchasesBackend {
   /// [restore] can't reach the store.
   bool failRestore = false;
 
+  /// While set and not complete, [restore] waits for it: the store is slow.
+  Completer<void>? holdRestore;
+
   /// [packages] can't reach the store.
   bool failPackages = false;
 
@@ -95,6 +98,7 @@ class FakePurchasesBackend implements PurchasesBackend {
 
   @override
   Future<void> restore() async {
+    await holdRestore?.future;
     if (failRestore) throw StateError('store unreachable');
     entitled.value = ownedOnStore;
   }

@@ -56,5 +56,6 @@
   "settingsBackupRestore": "Restaurer une sauvegarde",
   "settingsBackupRestoreDetail": "Remplace les données de ce téléphone par celles de la sauvegarde.",
   "settingsBackupExported": "Sauvegarde enregistrée.",
-  "settingsBackupRestored": "Sauvegarde restaurée."
+  "settingsBackupRestored": "Sauvegarde restaurée.",
+  "settingsBusy": "En cours"
 }

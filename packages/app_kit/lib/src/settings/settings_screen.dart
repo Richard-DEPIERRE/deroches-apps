@@ -40,35 +40,45 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final _info = PackageInfo.fromPlatform();
-  bool _busy = false;
 
-  /// Runs [work] with the buttons off, then says what [message] makes of it.
-  Future<void> _run<T>(Future<T> Function() work, String? Function(KitLocalizations, T) message) async {
-    setState(() => _busy = true);
+  /// The item whose work is running: it spins, the others wait.
+  _Action? _running;
+
+  /// Runs [action]'s [work], then says what [message] makes of it. A failure
+  /// stays 8 seconds with a close button: it says what to do next.
+  Future<void> _run<T>(_Action action, Future<T> Function() work, _Said? Function(KitLocalizations, T) message) async {
+    setState(() => _running = action);
     final T result;
     try {
       result = await work();
     } finally {
-      if (mounted) setState(() => _busy = false);
+      if (mounted) setState(() => _running = null);
     }
     if (!mounted) return;
-    final text = message(KitLocalizations.of(context), result);
-    if (text == null) return;
+    final said = message(KitLocalizations.of(context), result);
+    if (said == null) return;
     ScaffoldMessenger.of(context)
       ..removeCurrentSnackBar()
-      ..showSnackBar(SnackBar(behavior: SnackBarBehavior.floating, content: Text(text)));
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(said.text),
+          duration: said.failure ? const Duration(seconds: 8) : const Duration(seconds: 4),
+          showCloseIcon: said.failure,
+        ),
+      );
   }
 
-  String? _backupMessage(KitLocalizations l10n, BackupResult result, {required bool restore}) {
+  _Said? _backupMessage(KitLocalizations l10n, BackupResult result, {required bool restore}) {
     switch (result) {
       case BackupDone():
         widget.analytics.track('backup.complete.${restore ? 'restore' : 'export'}');
         if (restore) widget.onBackupRestored();
-        return restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported;
+        return (text: restore ? l10n.settingsBackupRestored : l10n.settingsBackupExported, failure: false);
       case BackupFailed(:final reason):
         final detail = reason.name.replaceAllMapped(RegExp('[A-Z]'), (m) => '_${m[0]!.toLowerCase()}');
         widget.analytics.track('backup.fail.$detail');
-        return reason.message(l10n);
+        return (text: reason.message(l10n), failure: true);
       case BackupCancelled(): // the user's choice: nothing to say
         return null;
     }
@@ -83,6 +93,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final l10n = KitLocalizations.of(context);
     final theme = Theme.of(context);
     final purchases = widget.purchases;
+    Widget item<T>(
+      _Action action,
+      String title,
+      Future<T> Function() work,
+      _Said? Function(KitLocalizations, T) message, {
+      String? subtitle,
+    }) => ListTile(
+      title: Text(title),
+      subtitle: subtitle == null ? null : Text(subtitle),
+      enabled: _running == null,
+      trailing: _running != action
+          ? null
+          : SizedBox.square(
+              dimension: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: theme.colorScheme.primary,
+                semanticsLabel: l10n.settingsBusy,
+              ),
+            ),
+      onTap: () => _run(action, work, message),
+    );
     Widget header(String text) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Semantics(
@@ -128,31 +160,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               if (purchases != null) ...[
                 header(l10n.settingsPurchases),
-                ListTile(
-                  title: Text(l10n.paywallRestore),
-                  enabled: !_busy,
-                  onTap: () => _run(
-                    purchases.restore,
-                    (l10n, result) => switch (result) {
-                      RestoreResult.restored => l10n.paywallRestored,
-                      RestoreResult.nothingToRestore => l10n.paywallNothingToRestore,
-                      RestoreResult.failed => l10n.paywallRestoreFailed,
-                    },
-                  ),
+                item(
+                  _Action.restorePurchases,
+                  l10n.paywallRestore,
+                  purchases.restore,
+                  (l10n, result) => switch (result) {
+                    RestoreResult.restored => (text: l10n.paywallRestored, failure: false),
+                    RestoreResult.nothingToRestore => (text: l10n.paywallNothingToRestore, failure: false),
+                    RestoreResult.failed => (text: l10n.paywallRestoreFailed, failure: true),
+                  },
                 ),
               ],
               header(l10n.settingsBackup),
-              ListTile(
-                title: Text(l10n.settingsBackupExport),
-                subtitle: Text(l10n.settingsBackupExportDetail),
-                enabled: !_busy,
-                onTap: () => _run(widget.backup.export, (l10n, r) => _backupMessage(l10n, r, restore: false)),
+              item(
+                _Action.exportBackup,
+                l10n.settingsBackupExport,
+                widget.backup.export,
+                (l10n, r) => _backupMessage(l10n, r, restore: false),
+                subtitle: l10n.settingsBackupExportDetail,
               ),
-              ListTile(
-                title: Text(l10n.settingsBackupRestore),
-                subtitle: Text(l10n.settingsBackupRestoreDetail),
-                enabled: !_busy,
-                onTap: () => _run(widget.backup.restore, (l10n, r) => _backupMessage(l10n, r, restore: true)),
+              item(
+                _Action.restoreBackup,
+                l10n.settingsBackupRestore,
+                widget.backup.restore,
+                (l10n, r) => _backupMessage(l10n, r, restore: true),
+                subtitle: l10n.settingsBackupRestoreDetail,
               ),
               header(l10n.settingsAbout),
               FutureBuilder(
@@ -171,3 +203,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
+
+enum _Action { restorePurchases, exportBackup, restoreBackup }
+
+/// What a message says, and whether it is a failure.
+typedef _Said = ({String text, bool failure});

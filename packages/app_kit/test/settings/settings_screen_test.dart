@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -41,6 +42,7 @@ const texts = {
     restoreDetail: 'Remplace les données de ce téléphone par celles de la sauvegarde.',
     backupRestored: 'Sauvegarde restaurée.',
     otherApp: 'Cette sauvegarde vient d’une autre application. Vos données n’ont pas changé.',
+    busy: 'En cours',
     version: 'Version 1.2.0 (34)',
   ),
   'en': (
@@ -60,6 +62,7 @@ const texts = {
     restoreDetail: 'Replaces the data on this phone with the backup’s.',
     backupRestored: 'Backup restored.',
     otherApp: 'This backup comes from another app. Your data hasn’t changed.',
+    busy: 'In progress',
     version: 'Version 1.2.0 (34)',
   ),
 };
@@ -138,10 +141,20 @@ void main() {
     await tester.ensureVisible(find.text(label));
     await tester.pumpAndSettle();
     await tester.tap(find.text(label));
-    for (var i = 0; i < 10; i++) {
+    // A spinner turns until the work is done: only then can the screen settle.
+    final spinning = find.byType(CircularProgressIndicator);
+    for (var i = 0; i < 100 && (i < 10 || spinning.evaluate().isNotEmpty); i++) {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
-      await tester.pumpAndSettle();
+      await tester.pump();
     }
+    await tester.pumpAndSettle();
+  }
+
+  /// A failure stays 8 seconds with a close button; anything else, the default 4 without.
+  void expectMessage(WidgetTester tester, {required bool failure}) {
+    final bar = tester.widget<SnackBar>(find.byType(SnackBar));
+    expect(bar.duration, failure ? const Duration(seconds: 8) : const Duration(seconds: 4));
+    expect(bar.showCloseIcon, failure);
   }
 
   List<String> events() => [for (final e in sent.events) e.name];
@@ -212,21 +225,53 @@ void main() {
       store.failRestore = true;
       await tapAndWait(tester, t.restorePurchases);
       expect(find.text(t.storeDown), findsOneWidget);
+      expectMessage(tester, failure: true);
 
       store.failRestore = false;
       await tapAndWait(tester, t.restorePurchases);
       expect(find.text(t.nothing), findsOneWidget);
+      expectMessage(tester, failure: false);
 
       store.ownedOnStore = true;
       await tapAndWait(tester, t.restorePurchases);
       expect(find.text(t.restored), findsOneWidget);
+      expectMessage(tester, failure: false);
       expect(store.entitled.value, isTrue);
+    });
+
+    testWidgets('$lang: the running item spins, named for screen readers, the others wait', (tester) async {
+      final semantics = tester.ensureSemantics();
+      await launch(tester, device);
+      // A tall phone: every item is built, no scrolling while the spinner turns.
+      tester.view.physicalSize = const Size(640, 4000);
+      await tester.pumpAndSettle();
+      store.holdRestore = Completer();
+      await tester.scrollUntilVisible(find.text(t.restorePurchases), 100, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.restorePurchases));
+      await tester.pump();
+
+      final tile = find.widgetWithText(ListTile, t.restorePurchases);
+      expect(find.descendant(of: tile, matching: find.byType(CircularProgressIndicator)), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget, reason: 'only on the item that runs');
+      // The tile reads its title, then the spinner's label.
+      expect(tester.getSemantics(find.byType(CircularProgressIndicator)).label, '${t.restorePurchases}\n${t.busy}');
+      for (final other in [t.restorePurchases, t.export, t.restore]) {
+        expect(tester.widget<ListTile>(find.widgetWithText(ListTile, other)).enabled, isFalse, reason: other);
+      }
+
+      store.holdRestore!.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.widget<ListTile>(find.widgetWithText(ListTile, t.export)).enabled, isTrue);
+      semantics.dispose();
     });
 
     testWidgets('$lang: a backup is exported, then restored', (tester) async {
       await launch(tester, device);
       await tapAndWait(tester, t.export);
       expect(find.text(t.exported), findsOneWidget);
+      expectMessage(tester, failure: false);
       expect(files.saved, hasLength(1));
 
       files.picked = files.saved.values.single;
@@ -251,6 +296,7 @@ void main() {
       );
       await tapAndWait(tester, t.restore);
       expect(find.text(t.otherApp), findsOneWidget);
+      expectMessage(tester, failure: true);
       expect(restores, 0);
       expect(events(), contains('backup.fail.other_app'));
     });

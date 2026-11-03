@@ -439,6 +439,12 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'Backup restored.'**
   String get settingsBackupRestored;
+
+  /// Screen-reader label of the spinner on a settings item while its work runs.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get settingsBusy;
 }
 
 class _KitLocalizationsDelegate
