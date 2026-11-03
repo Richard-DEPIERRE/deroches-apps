@@ -185,7 +185,7 @@ abstract class KitLocalizations {
   /// A subscription's price as the store formats it, and its period.
   ///
   /// In en, this message translates to:
-  /// **'{price} per {period}'**
+  /// **'{price} per {period}'**
   String paywallPricePerPeriod(String price, String period);
 
   /// When a subscription renews and at what price.
@@ -215,7 +215,7 @@ abstract class KitLocalizations {
   /// Buy button for a subscription; the price is the store's.
   ///
   /// In en, this message translates to:
-  /// **'Subscribe for {price} per {period}'**
+  /// **'Subscribe for {price} per {period}'**
   String paywallSubscribe(String price, String period);
 
   /// Buy button for the lifetime plan; the price is the store's.

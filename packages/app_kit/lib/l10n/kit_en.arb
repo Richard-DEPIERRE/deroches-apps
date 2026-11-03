@@ -72,7 +72,7 @@
       }
     }
   },
-  "paywallPricePerPeriod": "{price} per {period}",
+  "paywallPricePerPeriod": "{price} per {period}",
   "@paywallPricePerPeriod": {
     "description": "A subscription's price as the store formats it, and its period.",
     "placeholders": {
@@ -108,7 +108,7 @@
   "@paywallCancelGooglePlay": {
     "description": "How to cancel on Android: the path to the Google Play subscriptions."
   },
-  "paywallSubscribe": "Subscribe for {price} per {period}",
+  "paywallSubscribe": "Subscribe for {price} per {period}",
   "@paywallSubscribe": {
     "description": "Buy button for a subscription; the price is the store's.",
     "placeholders": {

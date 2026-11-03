@@ -123,7 +123,7 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String paywallPricePerPeriod(String price, String period) {
-    return '$price per $period';
+    return '$price per $period';
   }
 
   @override
@@ -144,7 +144,7 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String paywallSubscribe(String price, String period) {
-    return 'Subscribe for $price per $period';
+    return 'Subscribe for $price per $period';
   }
 
   @override
