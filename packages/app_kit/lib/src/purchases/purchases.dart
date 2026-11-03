@@ -30,7 +30,8 @@ class PlanOffer {
   final Plan plan;
   final StorePackage package;
 
-  String get price => package.price;
+  /// The store's price, with no-break spaces so it never breaks across lines.
+  String get price => package.price.replaceAll(' ', '\u00a0');
   String? get period => package.period;
 
   /// A subscription renews at [price] every [period] until cancelled in the store.

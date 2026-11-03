@@ -11,10 +11,17 @@ import 'package:flutter_test/flutter_test.dart';
 /// [FakePurchasesBackend]'s prices.
 const expected = {
   'en': (
-    plans: ['Weekly', '0,99 €\u00a0per\u00a0week', 'Yearly', '9,99 €\u00a0per\u00a0year', 'Lifetime', '24,99 €'],
+    plans: [
+      'Weekly',
+      '0,99\u00a0€\u00a0per\u00a0week',
+      'Yearly',
+      '9,99\u00a0€\u00a0per\u00a0year',
+      'Lifetime',
+      '24,99\u00a0€',
+    ],
     renewals: [
-      'Renews automatically every week at 0,99 € until you cancel.',
-      'Renews automatically every year at 9,99 € until you cancel.',
+      'Renews automatically every week at 0,99\u00a0€ until you cancel.',
+      'Renews automatically every year at 9,99\u00a0€ until you cancel.',
     ],
     oneTime: 'One-time purchase, never renews.',
     cancelPlay: 'Cancel anytime in Google Play\u00a0› Payments & subscriptions\u00a0› Subscriptions.',
@@ -24,7 +31,11 @@ const expected = {
     terms: 'Terms',
     privacy: 'Privacy',
     close: 'Close',
-    buttons: ['Subscribe for 0,99 €\u00a0per\u00a0week', 'Subscribe for 9,99 €\u00a0per\u00a0year', 'Buy for 24,99 €'],
+    buttons: [
+      'Subscribe for 0,99\u00a0€\u00a0per\u00a0week',
+      'Subscribe for 9,99\u00a0€\u00a0per\u00a0year',
+      'Buy for 24,99\u00a0€',
+    ],
     error: 'Prices couldn’t load. Check your connection, then try again.',
     retry: 'Try again',
     entitled: 'You already have full access.',
@@ -37,10 +48,17 @@ const expected = {
     restoreFailed: 'Purchases couldn’t be restored. Check your connection, then try again.',
   ),
   'fr': (
-    plans: ['Hebdomadaire', '0,99 €\u00a0par\u00a0semaine', 'Annuel', '9,99 €\u00a0par\u00a0an', 'À vie', '24,99 €'],
+    plans: [
+      'Hebdomadaire',
+      '0,99\u00a0€\u00a0par\u00a0semaine',
+      'Annuel',
+      '9,99\u00a0€\u00a0par\u00a0an',
+      'À vie',
+      '24,99\u00a0€',
+    ],
     renewals: [
-      'Se renouvelle automatiquement chaque semaine à 0,99 €, jusqu’à résiliation.',
-      'Se renouvelle automatiquement chaque année à 9,99 €, jusqu’à résiliation.',
+      'Se renouvelle automatiquement chaque semaine à 0,99\u00a0€, jusqu’à résiliation.',
+      'Se renouvelle automatiquement chaque année à 9,99\u00a0€, jusqu’à résiliation.',
     ],
     oneTime: 'Achat unique, sans renouvellement.',
     cancelPlay: 'Résiliez à tout moment dans Google Play\u00a0› Paiements et abonnements\u00a0› Abonnements.',
@@ -51,9 +69,9 @@ const expected = {
     privacy: 'Confidentialité',
     close: 'Fermer',
     buttons: [
-      'S’abonner pour 0,99 €\u00a0par\u00a0semaine',
-      'S’abonner pour 9,99 €\u00a0par\u00a0an',
-      'Acheter pour 24,99 €',
+      'S’abonner pour 0,99\u00a0€\u00a0par\u00a0semaine',
+      'S’abonner pour 9,99\u00a0€\u00a0par\u00a0an',
+      'Acheter pour 24,99\u00a0€',
     ],
     error: 'Les prix n’ont pas pu se charger. Vérifiez votre connexion, puis réessayez.',
     retry: 'Réessayer',
@@ -215,6 +233,11 @@ void main() {
 
         final button = tester.getRect(find.byType(FilledButton));
         expect(screen.contains(button.topLeft) && screen.contains(button.bottomRight - const Offset(1, 1)), isTrue);
+        final footer = find.ancestor(of: find.text(want.cancelPlay), matching: find.byType(SingleChildScrollView));
+        expect(button.top - tester.getRect(footer).bottom, 8, reason: 'a gap, so the cut-off line reads as more below');
+        // Titles grow less than body text: the header stops at 1.5×, the plans keep 2×.
+        expect(MediaQuery.of(tester.element(find.textContaining('Unlimited exports'))).textScaler.scale(10), 15);
+        expect(MediaQuery.of(tester.element(find.text(want.plans[2]))).textScaler.scale(10), 20);
         expect(screen.contains(tester.getRect(find.text(want.cancelPlay)).topLeft), isTrue, reason: 'disclosure');
       });
 
@@ -488,12 +511,12 @@ void main() {
     expect(privacy.center.dy, terms.center.dy, reason: 'Confidentialité alone on its line');
   });
 
-  testWidgets('a period of several units is said in words', (tester) async {
+  testWidgets('a period of several units is said in words, and a price never breaks at its space', (tester) async {
     store.storePackages[0] = const StorePackage(id: r'$rc_weekly', price: '2,99 €', period: 'P3M');
     await pumpPaywall(tester, 'en');
 
-    expect(find.text('2,99 €\u00a0per\u00a03\u00a0months'), findsOneWidget);
-    expect(find.text('Renews automatically every 3\u00a0months at 2,99 € until you cancel.'), findsOneWidget);
+    expect(find.text('2,99\u00a0€\u00a0per\u00a03\u00a0months'), findsOneWidget);
+    expect(find.text('Renews automatically every 3\u00a0months at 2,99\u00a0€ until you cancel.'), findsOneWidget);
   });
 
   testWidgets("the gate's soft-paywall rule decides: no paywall before the first useful moment", (tester) async {

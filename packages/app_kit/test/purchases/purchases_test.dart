@@ -32,9 +32,16 @@ void main() {
 
     expect([for (final o in offers) o.plan], Plan.values);
     expect([for (final o in offers) o.package.id], [r'$rc_weekly', r'$rc_annual', r'$rc_lifetime']);
-    expect([for (final o in offers) o.price], ['0,99 €', '9,99 €', '24,99 €']);
+    expect([for (final o in offers) o.price], ['0,99\u00a0€', '9,99\u00a0€', '24,99\u00a0€']);
     expect([for (final o in offers) o.period], ['P1W', 'P1Y', null]);
     expect([for (final o in offers) o.renews], [true, true, false]);
+  });
+
+  test('a plain space in the store price becomes a no-break space, so the price never breaks', () async {
+    final p = await purchases({Plan.lifetime});
+    store.storePackages[2] = const StorePackage(id: r'$rc_lifetime', price: '1 234,99 €');
+
+    expect((await p.offers()).single.price, '1\u00a0234,99\u00a0€');
   });
 
   test("a plan the app doesn't sell is hidden, and so is one the store doesn't have", () async {

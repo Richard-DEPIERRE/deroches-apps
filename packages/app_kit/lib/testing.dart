@@ -50,9 +50,9 @@ class FakeAnalyticsBackend implements AnalyticsBackend {
 /// Plays the store: the `default` offering's three packages, at made-up prices.
 class FakePurchasesBackend implements PurchasesBackend {
   final storePackages = [
-    const StorePackage(id: r'$rc_weekly', price: '0,99 €', period: 'P1W'),
-    const StorePackage(id: r'$rc_annual', price: '9,99 €', period: 'P1Y'),
-    const StorePackage(id: r'$rc_lifetime', price: '24,99 €'),
+    const StorePackage(id: r'$rc_weekly', price: '0,99\u00a0€', period: 'P1W'),
+    const StorePackage(id: r'$rc_annual', price: '9,99\u00a0€', period: 'P1Y'),
+    const StorePackage(id: r'$rc_lifetime', price: '24,99\u00a0€'),
   ];
 
   /// What the next [buy] returns; a [Purchased] turns the entitlement on.

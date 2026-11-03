@@ -194,7 +194,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
+          // A title grows less than body text, so at the largest sizes the plans still show.
+          MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.5,
+            child: DefaultTextStyle.merge(style: theme.textTheme.titleLarge, child: widget.header),
+          ),
           for (final offer in offers) ...[
             const SizedBox(height: 12),
             _PlanCard(
@@ -277,6 +281,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 8),
             FilledButton(
               // While buying it keeps its colours, so it reads as in progress, not unavailable.
               style: FilledButton.styleFrom(
