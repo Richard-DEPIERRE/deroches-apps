@@ -1,5 +1,9 @@
 {
   "@@locale": "fr",
   "kitErrorTitle": "Un problème est survenu",
-  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages."
+  "kitErrorBody": "Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.",
+  "kitOnboardingSkip": "Passer",
+  "kitOnboardingNext": "Suivant",
+  "kitOnboardingDone": "Commencer",
+  "kitOnboardingPage": "Page {current} sur {total}"
 }

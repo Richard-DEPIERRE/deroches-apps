@@ -11,4 +11,19 @@ class ExampleLocalizationsFr extends ExampleLocalizations {
   @override
   String get exampleHomeBody =>
       'Ceci est l’application d’exemple du kit. Ses écrans ne sont jamais publiés.';
+
+  @override
+  String get exampleOnboarding1Title => 'Bienvenue';
+
+  @override
+  String get exampleOnboarding1Body =>
+      'Cette page montre comment une application se présente au premier lancement.';
+
+  @override
+  String get exampleOnboarding2Title =>
+      'Vos données restent sur votre téléphone';
+
+  @override
+  String get exampleOnboarding2Body =>
+      'Rien de ce que vous écrivez ne quitte l’appareil. Vous pouvez passer ces pages à tout moment.';
 }

@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:app_kit/app_kit.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'l10n/example_localizations.dart';
+import 'notes.dart';
 
 /// The kit's sample app (ADR 0001, section 2). Its screens never ship.
 final exampleConfig = AppConfig(
@@ -19,17 +23,59 @@ final exampleConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter()}) => KitApp(
-  config: exampleConfig,
-  crashReporter: crashReporter,
-  seedColor: Colors.indigo,
-  localizationsDelegates: const [ExampleLocalizations.delegate],
-  home: (_) => const PlaceholderHome(),
-);
+Widget buildApp({CrashReporter crashReporter = const NoopCrashReporter(), required KitStateController kitState}) {
+  // No backend: the sample app has no PostHog key, so it sends nothing.
+  final analytics = Analytics(
+    kitState: kitState,
+    appId: exampleConfig.slug,
+    appVersion: '0.1.0',
+    locale: () => resolveKitLocale(WidgetsBinding.instance.platformDispatcher.locales).languageCode,
+    appEvents: notesEvents,
+  );
+  return KitApp(
+    config: exampleConfig,
+    crashReporter: crashReporter,
+    seedColor: Colors.indigo,
+    localizationsDelegates: const [ExampleLocalizations.delegate],
+    home: (context) {
+      final l10n = ExampleLocalizations.of(context);
+      return OnboardingFlow(
+        kitState: kitState,
+        analytics: analytics,
+        pages: [
+          OnboardingPage(
+            title: l10n.exampleOnboarding1Title,
+            body: l10n.exampleOnboarding1Body,
+            illustration: const _Art(Icons.waving_hand),
+          ),
+          OnboardingPage(
+            title: l10n.exampleOnboarding2Title,
+            body: l10n.exampleOnboarding2Body,
+            illustration: const _Art(Icons.lock),
+          ),
+        ],
+        child: const PlaceholderHome(),
+      );
+    },
+  );
+}
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   // Sends nothing here: the sample app has no Sentry DSN, and debug builds never send.
-  runApp(buildApp(crashReporter: await startCrashReporting(exampleConfig)));
+  final crashReporter = await startCrashReporting(exampleConfig);
+  final kitState = KitStateController(directory: await getApplicationSupportDirectory(), appId: exampleConfig.slug);
+  unawaited(kitState.load());
+  runApp(buildApp(crashReporter: crashReporter, kitState: kitState));
+}
+
+class _Art extends StatelessWidget {
+  const _Art(this.icon);
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Icon(icon, size: 96, color: Theme.of(context).colorScheme.primary);
 }
 
 /// Shows the wiring works: the app's name from its config, its own strings.

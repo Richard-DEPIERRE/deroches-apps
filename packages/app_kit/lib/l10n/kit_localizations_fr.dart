@@ -14,4 +14,18 @@ class KitLocalizationsFr extends KitLocalizations {
   @override
   String get kitErrorBody =>
       'Cette partie de l’application n’a pas pu s’afficher. Fermez l’application, puis rouvrez‑la. Si le problème persiste, écrivez‑nous depuis les réglages.';
+
+  @override
+  String get kitOnboardingSkip => 'Passer';
+
+  @override
+  String get kitOnboardingNext => 'Suivant';
+
+  @override
+  String get kitOnboardingDone => 'Commencer';
+
+  @override
+  String kitOnboardingPage(int current, int total) {
+    return 'Page $current sur $total';
+  }
 }
