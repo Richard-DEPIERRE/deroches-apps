@@ -28,6 +28,7 @@ Widget buildApp({
   CrashReporter crashReporter = const NoopCrashReporter(),
   required KitStateController kitState,
   required Analytics analytics,
+  required ExampleData data,
   Purchases? purchases,
   StoreReview review = const InAppStoreReview(),
 }) {
@@ -62,7 +63,13 @@ Widget buildApp({
           gate: gate,
           kitState: kitState,
           purchases: purchases,
-          settings: (_) => SettingsScreen(kitState: kitState),
+          settings: (_) => SettingsScreen(
+            kitState: kitState,
+            analytics: analytics,
+            backup: data.backup,
+            purchases: purchases,
+            onBackupRestored: () => data.notes.open().ignore(),
+          ),
         ),
       );
     },
@@ -87,7 +94,15 @@ Future<void> main() async {
   // Null here: the sample app has no RevenueCat key, so it sells nothing.
   final store = await RevenueCatPurchases.start(exampleConfig);
   final purchases = store == null ? null : Purchases(backend: store, analytics: analytics, plans: exampleConfig.plans);
-  runApp(buildApp(crashReporter: crashReporter, kitState: kitState, analytics: analytics, purchases: purchases));
+  runApp(
+    buildApp(
+      crashReporter: crashReporter,
+      kitState: kitState,
+      analytics: analytics,
+      data: ExampleData(directory),
+      purchases: purchases,
+    ),
+  );
 }
 
 class _Art extends StatelessWidget {

@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kit_example/l10n/example_localizations.dart';
 import 'package:kit_example/main.dart';
+import 'package:kit_example/notes.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 /// The store set (ADR 0001, section 11), made by `tool/screenshots.sh apps/kit_example`: onboarding, the paywall
@@ -24,12 +25,14 @@ const captionStyle = TextStyle(fontFamily: 'Roboto', fontSize: 34, height: 1.2, 
 
 void main() {
   late KitStateController kitState;
+  late ExampleData data;
 
   setUp(() async {
     final dir = Directory.systemTemp.createTempSync('example_shots_');
     addTearDown(() => dir.deleteSync(recursive: true));
     kitState = KitStateController(directory: dir, appId: exampleConfig.slug);
     await kitState.load();
+    data = ExampleData(dir, files: FakeBackupFiles());
     PackageInfo.setMockInitialValues(
       appName: 'Kit example',
       packageName: 'fr.example.kit',
@@ -54,7 +57,7 @@ void main() {
           final light = brightness == Brightness.light;
           await takeScreenshot(
             tester,
-            buildApp(screen: screen, kitState: kitState, analytics: analytics, review: FakeStoreReview()),
+            buildApp(screen: screen, kitState: kitState, analytics: analytics, data: data, review: FakeStoreReview()),
             device: device,
             locale: locale,
             name: name,
@@ -94,7 +97,20 @@ void main() {
     });
   });
 
-  testWidgets('settings', (tester) => shoot(tester, shots[2], (_) => SettingsScreen(kitState: kitState)));
+  testWidgets('settings', (tester) {
+    final analytics = Analytics(kitState: kitState, appId: exampleConfig.slug, appVersion: '1.0.0', locale: () => 'fr');
+    return shoot(
+      tester,
+      shots[2],
+      (_) => SettingsScreen(
+        kitState: kitState,
+        analytics: analytics,
+        purchases: Purchases(backend: FakePurchasesBackend(), plans: exampleConfig.plans, analytics: analytics),
+        backup: data.backup,
+        onBackupRestored: () {},
+      ),
+    );
+  });
 
   test('the store set is complete, in both languages, at the store sizes', () {
     for (final device in devices) {

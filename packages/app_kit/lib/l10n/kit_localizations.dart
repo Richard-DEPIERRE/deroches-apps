@@ -391,6 +391,60 @@ abstract class KitLocalizations {
   /// In en, this message translates to:
   /// **'English'**
   String get settingsLanguageEnglish;
+
+  /// Header of the purchases section in settings (Restore purchases).
+  ///
+  /// In en, this message translates to:
+  /// **'Purchases'**
+  String get settingsPurchases;
+
+  /// Header of the backup section in settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get settingsBackup;
+
+  /// Saves a backup file through the system save dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Export a backup'**
+  String get settingsBackupExport;
+
+  /// Under Export a backup: where the file can go.
+  ///
+  /// In en, this message translates to:
+  /// **'Save it to iCloud Drive, Google Drive or anywhere you like.'**
+  String get settingsBackupExportDetail;
+
+  /// Picks a backup file and replaces the app's data with it.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore a backup'**
+  String get settingsBackupRestore;
+
+  /// Under Restore a backup: what it does.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces the data on this phone with the backup’s.'**
+  String get settingsBackupRestoreDetail;
+
+  /// Shown after a backup was exported.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved.'**
+  String get settingsBackupExported;
+
+  /// Shown after a backup was restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored.'**
+  String get settingsBackupRestored;
+
+  /// Screen-reader label of the spinner on a settings item while its work runs.
+  ///
+  /// In en, this message translates to:
+  /// **'In progress'**
+  String get settingsBusy;
 }
 
 class _KitLocalizationsDelegate

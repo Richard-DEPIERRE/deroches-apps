@@ -245,4 +245,33 @@ class KitLocalizationsEn extends KitLocalizations {
 
   @override
   String get settingsLanguageEnglish => 'English';
+
+  @override
+  String get settingsPurchases => 'Purchases';
+
+  @override
+  String get settingsBackup => 'Backup';
+
+  @override
+  String get settingsBackupExport => 'Export a backup';
+
+  @override
+  String get settingsBackupExportDetail =>
+      'Save it to iCloud Drive, Google Drive or anywhere you like.';
+
+  @override
+  String get settingsBackupRestore => 'Restore a backup';
+
+  @override
+  String get settingsBackupRestoreDetail =>
+      'Replaces the data on this phone with the backup’s.';
+
+  @override
+  String get settingsBackupExported => 'Backup saved.';
+
+  @override
+  String get settingsBackupRestored => 'Backup restored.';
+
+  @override
+  String get settingsBusy => 'In progress';
 }
