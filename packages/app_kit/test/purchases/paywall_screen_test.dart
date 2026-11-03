@@ -510,6 +510,18 @@ void main() {
     expect(privacy.center.dy, terms.center.dy, reason: 'Confidentialité alone on its line');
   });
 
+  testWidgets('on a phone with a home indicator, the button sits 16 above it, as in onboarding', (tester) async {
+    await pumpPaywall(tester, 'en', snackBars: true);
+    const inset = 34.0; // an iPhone's home indicator
+    tester.view
+      ..padding = const FakeViewPadding(bottom: inset * 2)
+      ..viewPadding = const FakeViewPadding(bottom: inset * 2);
+    await tester.pumpAndSettle();
+
+    final screenBottom = tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    expect(tester.getRect(find.byType(FilledButton)).bottom, screenBottom - inset - 16);
+  });
+
   testWidgets('a period of several units is said in words, and a price never breaks at its space', (tester) async {
     store.storePackages[0] = const StorePackage(id: r'$rc_weekly', price: '2,99 €', period: 'P3M');
     await pumpPaywall(tester, 'en');
