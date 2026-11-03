@@ -45,7 +45,7 @@ class KitState {
     firstValueReached: firstValueReached ?? this.firstValueReached,
     languageOverride: clearLanguageOverride ? null : languageOverride ?? this.languageOverride,
     analyticsEnabled: analyticsEnabled ?? this.analyticsEnabled,
-    ratingPrompts: ratingPrompts ?? this.ratingPrompts,
+    ratingPrompts: ratingPrompts == null ? this.ratingPrompts : List.unmodifiable(ratingPrompts),
   );
 
   Map<String, Object?> toJson() => {
@@ -63,9 +63,9 @@ class KitState {
     firstValueReached: json['first_value_reached']! as bool,
     languageOverride: json['language_override'] as String?,
     analyticsEnabled: json['analytics_enabled']! as bool,
-    ratingPrompts: [
+    ratingPrompts: List.unmodifiable([
       for (final d in json['rating_prompts']! as List) DateTime.parse(d as String),
-    ],
+    ]),
   );
 
   @override
@@ -111,6 +111,7 @@ class KitStateController extends ChangeNotifier {
   bool get loading => state == null && error == null;
 
   Future<void> load() async {
+    error = null;
     try {
       final data = await _store.open();
       if (data.isEmpty) {
@@ -126,13 +127,14 @@ class KitStateController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Applies [change] and saves the result.
+  /// Applies [change] at once and saves the result. Updates may run without
+  /// an await: each builds on the last, and [DataStore] writes them in order.
   Future<void> update(KitState Function(KitState) change) async {
     final current = state;
     if (current == null) throw StateError('the kit state is not loaded');
     final next = change(current);
-    await _store.save(next.toJson());
     state = next;
     notifyListeners();
+    await _store.save(next.toJson());
   }
 }

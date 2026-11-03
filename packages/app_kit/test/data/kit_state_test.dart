@@ -65,4 +65,40 @@ void main() {
     await expectLater(kit.update((s) => s), throwsStateError);
     expect(file.readAsStringSync(), 'not json');
   });
+
+  test('two updates without an await both stay, in memory and on disk', () async {
+    final kit = controller();
+    await kit.load();
+    final first = kit.update((s) => s.copyWith(analyticsEnabled: false));
+    final second = kit.update((s) => s.copyWith(ratingPrompts: [...s.ratingPrompts, today]));
+    await Future.wait([first, second]);
+
+    final expected = kit.state!;
+    expect(expected.analyticsEnabled, isFalse);
+    expect(expected.ratingPrompts, [today]);
+    final next = controller();
+    await next.load();
+    expect(next.state, expected);
+  });
+
+  test('the rating prompt history cannot be changed in place', () async {
+    final kit = controller();
+    await kit.load();
+    final copied = kit.state!.copyWith(ratingPrompts: [today]);
+    expect(() => copied.ratingPrompts.add(today), throwsUnsupportedError);
+    final read = KitState.fromJson(copied.toJson());
+    expect(() => read.ratingPrompts.add(today), throwsUnsupportedError);
+  });
+
+  test('a successful reload clears an earlier error', () async {
+    final file = File('${dir.path}/kit.json')..writeAsStringSync('not json');
+    final kit = controller();
+    await kit.load();
+    expect(kit.error, isNotNull);
+
+    file.deleteSync();
+    await kit.load();
+    expect(kit.state, isNotNull);
+    expect(kit.error, isNull);
+  });
 }
