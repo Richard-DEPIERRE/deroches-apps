@@ -129,6 +129,84 @@ void main() {
     );
   });
 
+  Future<File> withSubline(WidgetTester tester, String text, String subline, {TextStyle? sublineStyle}) =>
+      takeScreenshot(
+        tester,
+        app(),
+        device: ScreenshotDevice.iPhone,
+        locale: const Locale('fr', 'FR'),
+        name: 'subline',
+        caption: StoreCaption(text, subline: subline, background: band, style: style, sublineStyle: sublineStyle),
+        dir: dir.path,
+      );
+
+  // The band is the caption's only ancestor with a fixed height.
+  double bandHeight(WidgetTester tester, String text) => tester
+      .getSize(
+        find.ancestor(of: find.text(text), matching: find.byWidgetPredicate((w) => w is SizedBox && w.height != null)),
+      )
+      .height;
+
+  testWidgets('without a sub-line, the band keeps its height: 88 + two caption lines', (tester) async {
+    await captioned(tester, 'Court');
+    expect(bandHeight(tester, 'Court'), moreOrLessEquals(88 + 2 * 34 * 1.2));
+  });
+
+  testWidgets('with a sub-line, the band has one fixed height, whatever the line counts', (tester) async {
+    await withSubline(tester, 'Court', 'Sans compte');
+    expect(bandHeight(tester, 'Court'), moreOrLessEquals(221.6));
+    final screen = tester.getRect(find.byType(Scaffold));
+    await withSubline(
+      tester,
+      'Une légende sur deux lignes, pas plus',
+      'Sans compte · Sans GPS · Trajets illimités · Pro sans abonnement obligatoire',
+    );
+    expect(bandHeight(tester, 'Une légende sur deux lignes, pas plus'), moreOrLessEquals(221.6));
+    expect(tester.getRect(find.byType(Scaffold)), screen);
+  });
+
+  testWidgets('the sub-line sits under the caption, at weight 500, size 20, height 1.3, in the caption’s colour', (
+    tester,
+  ) async {
+    await withSubline(tester, 'Court', 'Sans compte');
+    expect(tester.getTopLeft(find.text('Sans compte')).dy, greaterThan(tester.getBottomLeft(find.text('Court')).dy));
+    final sub = tester.widget<Text>(find.text('Sans compte')).style!;
+    expect(
+      (sub.fontWeight, sub.fontSize, sub.height, sub.color, sub.fontFamily),
+      (FontWeight.w500, 20, 1.3, Colors.white, 'Roboto'),
+    );
+  });
+
+  testWidgets('a sub-line longer than two lines fails the test', (tester) async {
+    await expectLater(
+      withSubline(
+        tester,
+        'Court',
+        'Sans compte · Sans GPS · Trajets illimités · Pro sans abonnement obligatoire · Export PDF et CSV · Barème officiel',
+      ),
+      throwsA(isA<TestFailure>().having((e) => e.message, 'message', contains('takes 3 lines'))),
+    );
+  });
+
+  testWidgets('a sub-line without enough contrast fails the test', (tester) async {
+    await expectLater(
+      withSubline(tester, 'Court', 'Gris', sublineStyle: const TextStyle(color: Color(0xFF555555))),
+      throwsA(isA<TestFailure>().having((e) => e.message, 'message', contains('"Gris" contrast'))),
+    );
+  });
+
+  testWidgets('a sub-line breaks only at normal spaces, never at a non-breaking one', (tester) async {
+    const sub =
+        'Sans\u00A0compte · Sans\u00A0GPS · Trajets\u00A0illimités · Pro\u00A0sans\u00A0abonnement\u00A0obligatoire';
+    await withSubline(tester, 'Court', sub);
+    final paragraph = tester.renderObject<RenderParagraph>(find.text(sub));
+    double top(int i) => paragraph.getBoxesForSelection(TextSelection(baseOffset: i, extentOffset: i + 1)).first.top;
+    expect(top(sub.length - 1), greaterThan(top(0)), reason: 'two lines');
+    for (var i = sub.indexOf('\u00A0'); i >= 0; i = sub.indexOf('\u00A0', i + 1)) {
+      expect(top(i + 1), top(i - 1), reason: 'no break at the non-breaking space $i');
+    }
+  });
+
   testWidgets('a light band outlines the light screen; a dark one does not', (tester) async {
     bool outlined() => tester
         .widgetList<DecoratedBox>(find.byType(DecoratedBox))
