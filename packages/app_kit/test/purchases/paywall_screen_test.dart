@@ -109,6 +109,7 @@ void main() {
   late FakeAnalyticsBackend sent;
   late Purchases purchases;
   late List<Uri> opened;
+  late AppConfig app;
 
   setUp(() async {
     final dir = Directory.systemTemp.createTempSync('paywall_');
@@ -124,6 +125,7 @@ void main() {
       analytics: Analytics(backend: sent, kitState: kit, appId: config.slug, appVersion: '1.0.0', locale: () => 'fr'),
     );
     opened = [];
+    app = config;
   });
 
   /// The events sent so far. The analytics queue was made outside the test's
@@ -168,7 +170,7 @@ void main() {
     tester,
     Locale(lang),
     KitScope(
-      config: config,
+      config: app,
       crashReporter: FakeCrashReporter(),
       child: Builder(
         builder: (context) => Scaffold(
@@ -541,6 +543,43 @@ void main() {
     expect(find.byType(PaywallScreen), findsNothing);
     expect(result.value, isFalse);
     expect(await events(tester), isEmpty);
+  });
+
+  /// Opens the paywall from the app, through [showPaywall].
+  Future<void> openPaywall(WidgetTester tester) async {
+    await pumpApp(tester, 'en', ValueNotifier(null));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+  }
+
+  AppConfig preselecting(Plan plan) => AppConfig(
+    slug: config.slug,
+    names: config.names,
+    supportEmail: config.supportEmail,
+    legal: legal,
+    plans: config.plans,
+    preselectedPlan: plan,
+  );
+
+  testWidgets('by default the paywall picks the yearly plan at first', (tester) async {
+    await openPaywall(tester);
+    expect(find.widgetWithText(FilledButton, expected['en']!.buttons[1]), findsOneWidget);
+  });
+
+  testWidgets("an app's config can have the paywall pick another plan at first, such as lifetime", (tester) async {
+    app = preselecting(Plan.lifetime);
+    await openPaywall(tester);
+    expect(find.widgetWithText(FilledButton, expected['en']!.buttons[2]), findsOneWidget);
+    // Nothing else moves: the plans keep the offering's order.
+    final tops = [for (final plan in ['Weekly', 'Yearly', 'Lifetime']) tester.getTopLeft(find.text(plan)).dy];
+    expect(tops, [...tops]..sort());
+  });
+
+  testWidgets('when the preselected plan is not on sale, the paywall falls back to yearly, as before', (tester) async {
+    store.storePackages.removeLast(); // lifetime
+    app = preselecting(Plan.lifetime);
+    await openPaywall(tester);
+    expect(find.widgetWithText(FilledButton, expected['en']!.buttons[1]), findsOneWidget);
   });
 }
 
