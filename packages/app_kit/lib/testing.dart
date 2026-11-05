@@ -437,6 +437,7 @@ Future<File> takeScreenshot(
               child: subline == null
                   ? Center(child: title)
                   : OverflowBox(
+                      minHeight: 0,
                       maxHeight: double.infinity,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

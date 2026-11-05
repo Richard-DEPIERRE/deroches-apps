@@ -165,6 +165,19 @@ void main() {
     expect(tester.getRect(find.byType(Scaffold)), screen);
   });
 
+  testWidgets('a group shorter than its slot is centred in it', (tester) async {
+    await withSubline(tester, 'The right rate for each vehicle', 'IRS or HMRC rate');
+    final band = tester.getRect(
+      find.ancestor(
+        of: find.text('IRS or HMRC rate'),
+        matching: find.byWidgetPredicate((w) => w is SizedBox && w.height != null),
+      ),
+    );
+    final above = tester.getTopLeft(find.text('The right rate for each vehicle')).dy - (band.top + 48);
+    final below = band.bottom - 28 - tester.getBottomLeft(find.text('IRS or HMRC rate')).dy;
+    expect(above, moreOrLessEquals(below, epsilon: 1));
+  });
+
   testWidgets('the sub-line sits under the caption, at weight 500, size 20, height 1.3, in the caption’s colour', (
     tester,
   ) async {
