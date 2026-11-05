@@ -329,12 +329,18 @@ class ScreenshotDevice {
 /// [background] colour, in the app's own heading [style] (family, weight,
 /// size, height), so no two apps share a store look. Without a colour in
 /// [style], the text is white or black, whichever contrasts more.
+///
+/// An optional [subline] goes under the caption, in [sublineStyle]: by
+/// default [style] at weight 500, size 20 and height 1.3, in the caption's
+/// colour. Non-breaking spaces (U+00A0) in either text are kept.
 class StoreCaption {
-  const StoreCaption(this.text, {required this.background, required this.style});
+  const StoreCaption(this.text, {this.subline, required this.background, required this.style, this.sublineStyle});
 
   final String text;
+  final String? subline;
   final Color background;
   final TextStyle style;
+  final TextStyle? sublineStyle;
 }
 
 /// Renders [app] (a whole app, such as the app's `KitApp`) on [device], with
@@ -345,9 +351,10 @@ class StoreCaption {
 /// data only.
 ///
 /// With [caption], the store image: the caption in a band of fixed height (two
-/// lines, balanced), and the screen below it, smaller, at the same place in
-/// every shot. The test fails when a caption needs more than two lines or has
-/// less than 4.5:1 contrast. Tag the test `screenshots`;
+/// lines, balanced; with a sub-line, two more sub-line lines), and the screen
+/// below it, smaller, at the same place in every shot. The test fails when a
+/// caption or sub-line needs more than two lines or has less than 4.5:1
+/// contrast. Tag the test `screenshots`;
 /// `tool/screenshots.sh <app-dir>` runs them.
 Future<File> takeScreenshot(
   WidgetTester tester,
@@ -382,44 +389,61 @@ Future<File> takeScreenshot(
           caption.style.color ??
           (_contrast(Colors.white, band) >= _contrast(Colors.black, band) ? Colors.white : Colors.black),
     );
-    expect(_contrast(style.color!, band), greaterThanOrEqualTo(4.5), reason: 'caption contrast');
-    int linesAt(double width) {
-      final painter = TextPainter(
-        text: TextSpan(text: caption.text, style: style),
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr,
-      )..layout(maxWidth: width);
-      final lines = painter.computeLineMetrics().length;
-      painter.dispose();
-      return lines;
+    // The narrowest width that keeps the line count balances the lines.
+    Widget balanced(String text, TextStyle style) {
+      expect(_contrast(style.color!, band), greaterThanOrEqualTo(4.5), reason: '"$text" contrast');
+      int linesAt(double width) {
+        final painter = TextPainter(
+          text: TextSpan(text: text, style: style),
+          textAlign: TextAlign.center,
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: width);
+        final lines = painter.computeLineMetrics().length;
+        painter.dispose();
+        return lines;
+      }
+
+      var width = device.size.width - 64;
+      final lines = linesAt(width);
+      expect(lines, lessThanOrEqualTo(2), reason: '"$text" takes $lines lines');
+      while (width > 40 && linesAt(width - 2) == lines) {
+        width -= 2;
+      }
+      return SizedBox(
+        width: width,
+        child: Text(text, textAlign: TextAlign.center, textDirection: TextDirection.ltr, style: style),
+      );
     }
 
-    // The narrowest width that keeps the line count balances the lines.
-    var width = device.size.width - 64;
-    final lines = linesAt(width);
-    expect(lines, lessThanOrEqualTo(2), reason: '"${caption.text}" takes $lines lines');
-    while (width > 40 && linesAt(width - 2) == lines) {
-      width -= 2;
-    }
+    double twoLines(TextStyle style) => 2 * (style.fontSize ?? 14) * (style.height ?? 1.2);
+    final subline = caption.subline;
+    final subStyle = style
+        .copyWith(fontWeight: FontWeight.w500, fontSize: 20, height: 1.3)
+        .merge(caption.sublineStyle)
+        .copyWith(color: caption.sublineStyle?.color ?? style.color);
+    final title = balanced(caption.text, style);
     frame = (outline) => ColoredBox(
       color: band,
       child: Column(
         children: [
           SizedBox(
-            height: 88 + 2 * (style.fontSize ?? 14) * (style.height ?? 1.2),
+            // With a sub-line: 48 top, the caption, 12 gap, the sub-line, 28 bottom.
+            height: 88 + twoLines(style) + (subline == null ? 0 : twoLines(subStyle)),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 56, 32, 32),
-              child: Center(
-                child: SizedBox(
-                  width: width,
-                  child: Text(
-                    caption.text,
-                    textAlign: TextAlign.center,
-                    textDirection: TextDirection.ltr,
-                    style: style,
-                  ),
-                ),
-              ),
+              padding: subline == null
+                  ? const EdgeInsets.fromLTRB(32, 56, 32, 32)
+                  : const EdgeInsets.fromLTRB(32, 48, 32, 28),
+              // Text heights round up to whole pixels: the group may pass its slot by under a pixel.
+              child: subline == null
+                  ? Center(child: title)
+                  : OverflowBox(
+                      minHeight: 0,
+                      maxHeight: double.infinity,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [title, const SizedBox(height: 12), balanced(subline, subStyle)],
+                      ),
+                    ),
             ),
           ),
           Expanded(
