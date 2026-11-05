@@ -37,7 +37,7 @@ class BaremeSource {
 
 /// One formula, `km × rate + fixed`, for distances up to [upToKm] (inclusive; null = no limit).
 class Bracket {
-  const Bracket({required this.upToKm, required this.ratePerKmMilli, this.fixedEuros = 0});
+  const Bracket(this.upToKm, this.ratePerKmMilli, [this.fixedEuros = 0]);
 
   final int? upToKm;
 
@@ -48,7 +48,7 @@ class Bracket {
 
 /// The brackets for fiscal horsepower from [minCv] to [maxCv] (inclusive; null = and above).
 class HorsepowerBand {
-  const HorsepowerBand({required this.minCv, this.maxCv, required this.brackets});
+  const HorsepowerBand(this.minCv, this.maxCv, this.brackets);
 
   final int minCv;
   final int? maxCv;
@@ -56,13 +56,16 @@ class HorsepowerBand {
 }
 
 class FrenchBareme {
-  const FrenchBareme({required this.year, required this.source, required this.bands});
+  const FrenchBareme({required this.year, required this.source, required this.bands, required this.electricBands});
 
   final int year;
   final BaremeSource source;
 
   /// For each vehicle type, its bands in ascending horsepower. Mopeds have one band from 1 CV up.
   final Map<VehicleType, List<HorsepowerBand>> bands;
+
+  /// The tables the tax office publishes for 100% electric vehicles: [bands] plus 20%, as it rounds them.
+  final Map<VehicleType, List<HorsepowerBand>> electricBands;
 }
 
 sealed class BaremeResult {
@@ -85,7 +88,7 @@ class Allowance extends BaremeResult {
     required this.bracket,
     required this.bracketFromKm,
     required this.electricBonus,
-    required this.euros,
+    required this.milliEuros,
   });
 
   final int year;
@@ -97,11 +100,14 @@ class Allowance extends BaremeResult {
   final Bracket bracket;
   final int bracketFromKm;
 
-  /// Whether the +20% for electric vehicles was applied.
+  /// Whether the electric table (the barème plus 20%) was used.
   final bool electricBonus;
 
-  /// The allowance rounded to the nearest euro (half up), as declared to the tax office.
-  final int euros;
+  /// The exact allowance in thousandths of a euro. No official text rounds it.
+  final int milliEuros;
+
+  /// The allowance to the cent (half up), for display.
+  int get cents => (milliEuros + 5) ~/ 10;
 }
 
 /// The allowance for one vehicle over one year. [km] is that vehicle's whole distance for the year: the bracket
@@ -115,7 +121,8 @@ BaremeResult frenchAllowance(Vehicle vehicle, {required int year, required int k
   if (cv == null || cv < 1) {
     throw ArgumentError.value(cv, 'fiscalHorsepower', 'a ${vehicle.type.name} needs its fiscal horsepower');
   }
-  final band = bareme.bands[vehicle.type]!.firstWhere((b) => cv >= b.minCv && (b.maxCv == null || cv <= b.maxCv!));
+  final bands = (vehicle.electric ? bareme.electricBands : bareme.bands)[vehicle.type]!;
+  final band = bands.firstWhere((b) => cv >= b.minCv && (b.maxCv == null || cv <= b.maxCv!));
 
   var fromKm = 0;
   var bracket = band.brackets.first;
@@ -125,9 +132,6 @@ BaremeResult frenchAllowance(Vehicle vehicle, {required int year, required int k
     fromKm = b.upToKm! + 1;
   }
 
-  // Thousandths of a euro, then × 6/5 for electric vehicles; rounded once, at the end.
-  final milli = km * bracket.ratePerKmMilli + bracket.fixedEuros * 1000;
-  final (numerator, denominator) = vehicle.electric ? (milli * 6, 5000) : (milli, 1000);
   return Allowance(
     year: year,
     source: bareme.source,
@@ -136,6 +140,6 @@ BaremeResult frenchAllowance(Vehicle vehicle, {required int year, required int k
     bracket: bracket,
     bracketFromKm: fromKm,
     electricBonus: vehicle.electric,
-    euros: (2 * numerator + denominator) ~/ (2 * denominator),
+    milliEuros: km * bracket.ratePerKmMilli + bracket.fixedEuros * 1000,
   );
 }
