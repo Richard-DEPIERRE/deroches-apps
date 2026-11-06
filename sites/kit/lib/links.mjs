@@ -3,11 +3,14 @@ import { join, resolve } from 'node:path';
 
 /** Raw HTML a page's Markdown may never carry: the sites run no third-party code, embed nothing and have no forms. */
 const BANNED_TAGS = /<(form|iframe|script|object|embed|style)\b/gi;
+/** An opening tag, quoted values included, so text such as `&lt;a href="x"&gt;` in code is never read as a link. */
+const TAG = /<[a-z][a-z0-9-]*(?:\s+[^\s"'>/=]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?)*\s*\/?>/gi;
 const ATTRIBUTE = /\s(href|src|srcset)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi;
 
-/** Every href, src and srcset URL in some HTML, as [attribute, url] pairs (srcset split into its URLs). */
+/** Every href, src and srcset URL in the tags of some HTML, as [attribute, url] pairs (srcset split into its URLs). */
 function urls(html) {
-  return [...html.matchAll(ATTRIBUTE)].flatMap(([, name, ...values]) => {
+  const attributes = [...html.matchAll(TAG)].flatMap(([tag]) => [...tag.matchAll(ATTRIBUTE)]);
+  return attributes.flatMap(([, name, ...values]) => {
     const value = values.find((v) => v !== undefined).replaceAll('&amp;', '&');
     const list =
       name.toLowerCase() === 'srcset' ? value.split(',').map((s) => s.trim().split(/\s+/)[0]) : [value];

@@ -42,8 +42,13 @@ export function checkGuide(page) {
       problems.push(`sources[${i}].read: YYYY-MM-DD, the day it was read`);
   });
   page.related = data.related ?? [];
-  if (!Array.isArray(page.related) || page.related.length > 3 || !page.related.every((k) => SLUG.test(k)))
-    problems.push('related: up to 3 translation keys of guides in the same language');
+  if (
+    !Array.isArray(page.related) ||
+    page.related.length > 3 ||
+    !page.related.every((k) => SLUG.test(k)) ||
+    new Set(page.related).size < page.related.length
+  )
+    problems.push('related: up to 3 different translation keys of guides in the same language');
   if (data.download !== undefined && !text(data.download))
     problems.push('download: one line on what the app does for this reader');
   page.download = data.download;
@@ -124,7 +129,7 @@ function cta(site, lang, path) {
 
 /**
  * A guide's main column: breadcrumb, H1 from the title, its dates, the body with each `<!-- download -->` line turned
- * into a download block, the app banner, the sources, then the related guides.
+ * into a download block, the app banner, the related guides, then the sources (last: they run long).
  */
 export function guideMain(page, site) {
   const { lang } = page;
@@ -152,6 +157,6 @@ export function guideMain(page, site) {
 <h1>${e(page.title)}</h1>
 <p class="updated">${dates}</p>
 ${body}<aside class="app-banner" aria-label="${e(name)}"><p><strong>${e(name)}</strong> — ${e(tagline)}</p>${cta(site, lang, page.path)}</aside>
-<section class="sources" aria-labelledby="sources"><h2 id="sources">${e(t.sources)}</h2><ol>${sources}</ol></section>
-${related}`;
+${related}<section class="sources" aria-labelledby="sources"><h2 id="sources">${e(t.sources)}</h2><ol>${sources}</ol></section>
+`;
 }

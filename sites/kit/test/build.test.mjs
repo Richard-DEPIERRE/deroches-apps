@@ -598,8 +598,10 @@ describe('a guide', () => {
     assert.doesNotMatch(html, /\/go\/|<!-- download/, 'no store link before launch');
   });
 
-  test('lists its dated sources, then its related guides', async () => {
+  test('lists its related guides, then its dated sources', async () => {
     const html = await read(out, GUIDE);
+    assert.ok(html.indexOf('id="related"') < html.indexOf('id="sources"'), 'related before sources');
+    assert.ok(html.indexOf('class="app-banner"') < html.indexOf('id="related"'), 'banner before related');
     assert.match(
       html,
       /<h2 id="sources">Sources<\/h2><ol><li><a href="https:\/\/www\.service-public\.fr\/particuliers\/vosdroits\/F1">Une page officielle<\/a>, Un service public, <time datetime="2026-01-01">1er janvier 2026<\/time> \(consulté le <time datetime="2026-11-01">1er novembre 2026<\/time>\)/,
@@ -696,6 +698,12 @@ describe('the build refuses a guide', () => {
   test('with its own # heading', () => refuses('guide-h1', guide(VALID, '# Titre'), /its H1 is the title/));
   test('relating to a guide that does not exist', () =>
     refuses('guide-related', guide([...VALID, 'related: [nope]']), /related "nope" is not another guide/));
+  test('relating to the same guide twice', () =>
+    refuses(
+      'guide-related-twice',
+      guide([...VALID, 'related: [deuxieme-guide, deuxieme-guide]']),
+      /related: up to 3 different translation keys/,
+    ));
 });
 
 describe('the build refuses Markdown with', () => {
@@ -724,6 +732,13 @@ describe('the build refuses Markdown with', () => {
       '[Perdu](/guides/perdu/)',
       /Link check failed:\n- \/guides\/test\/: href="\/guides\/perdu\/" goes to no page/,
     ));
+  test('(but HTML shown in code is text, not a link)', async () => {
+    const dir = await variant(
+      'code-link',
+      guide(VALID, 'Écrire `<a href="/perdu/">` ou `<img src="https://x.test/a.png">`.'),
+    );
+    await build(dir, join(dir, 'dist'), { otherDomains: ['autre-appli.fr'] });
+  });
   test("a source on another studio app's site", async () => {
     const source =
       'sources: [{title: S, publisher: P, url: "https://www.autre-appli.fr/x", source_date: 2026, read: 2026-11-04}]';
