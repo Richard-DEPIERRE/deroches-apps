@@ -74,10 +74,12 @@ sources:                         # as the fact-check recorded them (apps-fact-ch
     source_date: 2026-01-01      # the source's own date or version
     read: 2026-11-05             # the day it was read
 download: Calculez vos frais réels kilomètre par kilomètre.   # optional: the download block's words for this reader
+related: [bareme-kilometrique, abattement-10]                 # optional: up to 3 translation keys of guides, same language
 ```
 
 The kit writes the page: a breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own),
-the published date and any later update, the body, the app banner, then the sources with their dates. Wide tables scroll sideways in their own box.
+the published date and any later update, the body, the app banner, the sources with their dates, then "Read next" with
+the related guides. Wide tables scroll sideways in their own box.
 
 - **Download blocks.** A line `<!-- download -->` in a guide's body becomes a download block: the guide's `download`
   words (else the site's `tagline`), then the store buttons. Put it where readers stop reading (`apps-daily-guide`).
@@ -92,6 +94,18 @@ the published date and any later update, the body, the app banner, then the sour
   `content/<lang>/guides/index.md` (`translation: guides`); the kit adds the list under its text.
 - **Structured data.** An `Article` (headline, description, `datePublished`, `dateModified`, `inLanguage`, published by
   the app's site, no author person) and a `BreadcrumbList` (home, guides, the guide).
+
+## Link check, and what Markdown may carry
+
+The build checks every page before it writes anything, and stops on:
+- a link (`href`, `src`, `srcset`) on our domain that goes to no page or file the build writes (`/go/ios` and
+  `/go/android` are the store redirects);
+- a link to another studio app's domain (the `domain` of every other `sites/*/site.json`, and its subdomains): sites
+  don't promote each other;
+- raw `<form>`, `<iframe>`, `<script>`, `<object>`, `<embed>` or `<style>` in any Markdown, and anything loaded (`src`,
+  `srcset`) from another origin;
+- in a site's own Markdown (`content/`), a link to another origin, store pages included: a guide's outbound links are
+  its `sources`, and store links are the kit's buttons. Only `mailto:` links leave the site from the text.
 
 ## Legal pages
 
@@ -233,5 +247,4 @@ node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compa
 
 ## Still to come (child issues of DAPP-6)
 
-The related-guides block, the build's link check and its refusal of raw HTML and outside links in Markdown; the
-daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { LANGS, loadSite } from './lib/config.mjs';
 import { loadPages } from './lib/content.mjs';
 import { fillKitPages, IDENTITY_FILE, loadIdentity } from './lib/legal.mjs';
+import { linkProblems, studioDomains } from './lib/links.mjs';
 import { notFoundPage, renderPage } from './lib/render.mjs';
 import { headers, robots, sitemap } from './lib/seo.mjs';
 
@@ -76,9 +77,10 @@ async function emit(outDir, path, content) {
 /**
  * Builds the site in `siteDir` into `outDir` and returns what it wrote. A `production` build (a deploy) refuses a
  * missing or incomplete identity file; a review build shows a visible placeholder and keeps the legal notice noindex.
+ * `otherDomains` replaces the other sites' domains read from `sites/*\/site.json` (for tests).
  */
 export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {}) {
-  const { production = false, identityFile = IDENTITY_FILE } = options;
+  const { production = false, identityFile = IDENTITY_FILE, otherDomains } = options;
   siteDir = resolve(siteDir);
   outDir = resolve(outDir);
   checkOutDir(siteDir, outDir);
@@ -86,23 +88,29 @@ export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {
   const pages = await loadPages(siteDir, site);
   const identity = await loadIdentity(identityFile, production);
   fillKitPages(pages, site, identity);
-  await rm(outDir, { recursive: true, force: true });
 
   const css = (await readFile(join(KIT, 'assets', 'site.css'), 'utf8')) + accentCss(site.accent);
   const stylesheet = fingerprint('site', 'css', css);
-  await emit(outDir, stylesheet, css);
   const js = await readFile(join(KIT, 'assets', 'a.js'), 'utf8');
   const script = fingerprint('a', 'js', js);
-  await emit(outDir, script, js);
-
   const ctx = { site, pages, stylesheet, script };
-  for (const page of pages) await emit(outDir, `${page.path}index.html`, renderPage(page, ctx));
+  const files = new Map([
+    [stylesheet, css],
+    [script, js],
+  ]);
+  for (const page of pages) files.set(`${page.path}index.html`, renderPage(page, ctx));
   for (const lang of LANGS) {
     const page = notFoundPage(lang, site);
-    await emit(outDir, page.path, renderPage(page, ctx));
+    files.set(page.path, renderPage(page, ctx));
   }
-  await emit(outDir, 'sitemap.xml', sitemap(pages));
-  await emit(outDir, 'robots.txt', robots(site));
+  files.set('/sitemap.xml', sitemap(pages));
+  files.set('/robots.txt', robots(site));
+  // Nothing is written while a link is broken or goes to another studio app's site.
+  const problems = linkProblems(files, site, otherDomains ?? (await studioDomains(SITES, siteDir, site)));
+  if (problems.length) throw new Error(`Link check failed:\n- ${problems.join('\n- ')}`);
+
+  await rm(outDir, { recursive: true, force: true });
+  for (const [path, content] of files) await emit(outDir, path, content);
   await emit(outDir, '_headers', headers());
   await emit(outDir, '_worker/index.mjs', await workerEntry(outDir, site, pages));
   await emit(outDir, '.assetsignore', '_worker\n');
