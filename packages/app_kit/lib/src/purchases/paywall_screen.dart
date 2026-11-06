@@ -20,12 +20,19 @@ Future<bool> showPaywall(
   required Widget header,
 }) async {
   if (!gate.canShow(placement)) return false;
-  final legal = KitScope.of(context).config.legal[Localizations.localeOf(context).languageCode]!;
+  final config = KitScope.of(context).config;
+  final legal = config.legal[Localizations.localeOf(context).languageCode]!;
   final thanks = KitLocalizations.of(context).paywallPurchased;
   final bought = await Navigator.of(context).push(
     MaterialPageRoute<bool>(
       fullscreenDialog: true,
-      builder: (_) => PaywallScreen(placement: placement, purchases: purchases, legal: legal, header: header),
+      builder: (_) => PaywallScreen(
+        placement: placement,
+        purchases: purchases,
+        legal: legal,
+        header: header,
+        preselected: config.preselectedPlan,
+      ),
     ),
   );
   if (bought == true && context.mounted) ScaffoldMessenger.maybeOf(context)?.showSnackBar(_snackBar(thanks));
@@ -46,6 +53,7 @@ class PaywallScreen extends StatefulWidget {
     required this.purchases,
     required this.legal,
     required this.header,
+    this.preselected = Plan.yearly,
     this.openLink = _launch,
   });
 
@@ -55,6 +63,9 @@ class PaywallScreen extends StatefulWidget {
   /// The app's legal pages in the user's language.
   final LegalLinks legal;
   final Widget header;
+
+  /// The plan picked at first ([AppConfig.preselectedPlan]).
+  final Plan preselected;
   final Future<bool> Function(Uri) openLink;
 
   static Future<bool> _launch(Uri uri) => launchUrl(uri);
@@ -85,7 +96,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
         if (!o.renews || _isoPeriod.hasMatch(o.period!)) o,
     ];
     if (offers.isEmpty) throw StateError('no plan to offer');
-    _picked = offers.any((o) => o.plan == Plan.yearly) ? Plan.yearly : offers.first.plan;
+    final sold = {for (final o in offers) o.plan};
+    _picked = [widget.preselected, Plan.yearly].firstWhere(sold.contains, orElse: () => offers.first.plan);
     return offers;
   }
 

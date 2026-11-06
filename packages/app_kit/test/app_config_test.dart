@@ -37,6 +37,10 @@ void main() {
     expect(_config().check, returnsNormally);
   });
 
+  test('the paywall preselects the yearly plan unless the app says otherwise', () {
+    expect(_config().preselectedPlan, Plan.yearly);
+  });
+
   test('the App Store id is digits, when there is one', () {
     expect(_config(appStoreId: '6478123456').problems, isEmpty);
     for (final bad in ['', 'id6478123456', '6478 123', 'fr.example.carnet']) {

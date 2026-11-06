@@ -30,6 +30,7 @@ class AppConfig {
     required this.supportEmail,
     required this.legal,
     required this.plans,
+    this.preselectedPlan = Plan.yearly,
     this.entitlementId = 'pro',
     this.sentryDsn,
     this.postHogKey,
@@ -52,6 +53,10 @@ class AppConfig {
 
   /// The plans this app sells; at least one.
   final Set<Plan> plans;
+
+  /// The plan the paywall picks at first; when it isn't on sale, the paywall
+  /// picks yearly, else the first plan.
+  final Plan preselectedPlan;
 
   /// The RevenueCat entitlement the plans unlock.
   final String entitlementId;

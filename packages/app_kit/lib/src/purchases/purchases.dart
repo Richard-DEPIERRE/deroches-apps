@@ -126,13 +126,13 @@ class Purchases {
   /// See [PurchasesBackend.manageUrl].
   Uri? get manageUrl => backend.manageUrl;
 
-  /// The plans the app sells and the store has, in [Plan] order. Throws when
-  /// the store can't be reached.
+  /// The plans the app sells and the store has, in the offering's order.
+  /// Throws when the store can't be reached.
   Future<List<PlanOffer>> offers() async {
-    final byId = {for (final p in await backend.packages()) p.id: p};
+    final byPackage = {for (final e in planPackages.entries) e.value: e.key};
     return [
-      for (final plan in Plan.values)
-        if (plans.contains(plan) && byId[planPackages[plan]] != null) PlanOffer(plan, byId[planPackages[plan]]!),
+      for (final package in await backend.packages())
+        if (byPackage[package.id] case final plan? when plans.contains(plan)) PlanOffer(plan, package),
     ];
   }
 

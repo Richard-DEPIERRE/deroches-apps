@@ -37,6 +37,13 @@ void main() {
     expect([for (final o in offers) o.renews], [true, true, false]);
   });
 
+  test("the plans come in the offering's order, not the kit's", () async {
+    final p = await purchases(Plan.values.toSet());
+    store.storePackages.setAll(0, store.storePackages.reversed.toList());
+
+    expect([for (final o in await p.offers()) o.plan], [Plan.lifetime, Plan.yearly, Plan.weekly]);
+  });
+
   test('a plain space in the store price becomes a no-break space, so the price never breaks', () async {
     final p = await purchases({Plan.lifetime});
     store.storePackages[2] = const StorePackage(id: r'$rc_lifetime', price: '1 234,99 €');
