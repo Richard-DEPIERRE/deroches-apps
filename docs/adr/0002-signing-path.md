@@ -1,6 +1,7 @@
 # ADR 0002: Signing path for release builds
 
-- Status: accepted (the studio's choice; the wrapper, guard and sandbox changes it needs are Richard's to merge)
+- Status: accepted (the studio's choice; the wrapper, guard and sandbox changes it needs are Richard's to merge); its iOS archive step is amended by
+  [ADR 0003](0003-ios-asset-and-storyboard-compilers.md): the sandbox can't compile storyboards or asset catalogs
 - Date: 2026-11-01
 - Deciders: Mobile Tech Lead; Richard decides and merges the shared-file changes
 - Issue: DAPP-14

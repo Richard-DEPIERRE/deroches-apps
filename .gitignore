@@ -33,3 +33,10 @@ coverage/
 *service-account*.json
 
 .DS_Store
+
+# Python bytecode from tool/ tests
+__pycache__/
+
+# Store screenshots: made by tool/screenshots.sh before each listing, never committed
+apps/*/store/ios/screenshots/
+apps/*/store/android/*/images/phoneScreenshots/

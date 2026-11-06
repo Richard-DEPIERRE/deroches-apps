@@ -1,0 +1,89 @@
+/// The worked example of versioned data (ADR 0001, section 8): a notes
+/// document, made-up content only, never shipped.
+library;
+
+import 'dart:io';
+
+import 'package:app_kit/app_kit.dart';
+import 'package:flutter/foundation.dart';
+
+const notesAppId = 'kit-example';
+const notesDocument = 'notes';
+
+/// The sample app's own analytics events, added to the kit's list.
+const notesEvents = [AnalyticsEvent('notes.create.note', readBy: 'dashboard: notes made per active user')];
+
+/// Schema 1 → 2: a note's `text` becomes `body`, and notes gain `pinned`.
+/// Written so that running it again on upgraded data changes nothing.
+Map<String, Object?> notesSchema2(Map<String, Object?> data) => {
+  ...data,
+  'notes': [
+    for (final note in (data['notes']! as List).cast<Map<String, Object?>>())
+      {
+        'id': note['id'],
+        'body': note['body'] ?? note['text'],
+        'created': note['created'],
+        'pinned': note['pinned'] ?? false,
+      },
+  ],
+};
+
+/// The notes document is at schema `notesMigrations.length + 1` = 2.
+const List<Migration> notesMigrations = [notesSchema2];
+
+/// The app's data, made once at start-up in `getApplicationSupportDirectory()`.
+/// The controllers and the [backup] share these [DataStore] instances: after a
+/// restore, a store refuses to save until it is opened again, so stale
+/// in-memory notes can't overwrite the restored ones. A second instance of the
+/// same document wouldn't know about the restore.
+class ExampleData {
+  ExampleData(Directory directory, {BackupFiles files = const SystemBackupFiles()})
+    : notes = DataStore(
+        directory: directory,
+        appId: notesAppId,
+        name: notesDocument,
+        migrations: notesMigrations,
+        initial: () => {'notes': <Object?>[]},
+      ) {
+    backup = BackupService(appId: notesAppId, stores: [notes], files: files);
+  }
+
+  final DataStore notes;
+  late final BackupService backup;
+}
+
+@immutable
+class Note {
+  const Note({required this.id, required this.body, required this.created, this.pinned = false});
+
+  final String id;
+  final String body;
+  final DateTime created;
+  final bool pinned;
+
+  factory Note.fromJson(Map<String, Object?> json) => Note(
+    id: json['id']! as String,
+    body: json['body']! as String,
+    created: DateTime.parse(json['created']! as String),
+    pinned: json['pinned']! as bool,
+  );
+
+  /// Decodes the `data` of a schema 2 document.
+  static List<Note> decodeAll(Map<String, Object?> data) => [
+    for (final note in (data['notes']! as List).cast<Map<String, Object?>>()) Note.fromJson(note),
+  ];
+
+  @override
+  bool operator ==(Object other) =>
+      other is Note &&
+      other.id == id &&
+      other.body == body &&
+      other.created == created &&
+      other.pinned == pinned;
+
+  @override
+  int get hashCode => Object.hash(id, body, created, pinned);
+
+  @override
+  String toString() => 'Note($id, "$body", $created, pinned: $pinned)';
+}
