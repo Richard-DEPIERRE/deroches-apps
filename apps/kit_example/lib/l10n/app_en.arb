@@ -1,0 +1,47 @@
+{
+  "@@locale": "en",
+  "exampleHomeBody": "This is the kit's sample app. Its screens never ship.",
+  "@exampleHomeBody": {
+    "description": "Placeholder home screen of the kit's sample app."
+  },
+  "exampleOnboarding1Title": "Welcome",
+  "@exampleOnboarding1Title": {
+    "description": "Sample app onboarding, page 1 title."
+  },
+  "exampleOnboarding1Body": "This page shows how an app introduces itself on first launch.",
+  "@exampleOnboarding1Body": {
+    "description": "Sample app onboarding, page 1 body."
+  },
+  "exampleOnboarding2Title": "Your data stays on your phone",
+  "@exampleOnboarding2Title": {
+    "description": "Sample app onboarding, page 2 title."
+  },
+  "exampleOnboarding2Body": "Nothing you write leaves the device. You can skip these pages at any time.",
+  "@exampleOnboarding2Body": {
+    "description": "Sample app onboarding, page 2 body."
+  },
+  "exampleGoodMoment": "Something went well",
+  "@exampleGoodMoment": {
+    "description": "Sample app button that reports a good moment to the rating prompt."
+  },
+  "exampleSeePlans": "See the plans",
+  "@exampleSeePlans": {
+    "description": "Sample app button that opens the paywall once the soft-paywall gate allows it."
+  },
+  "examplePaywallHeader": "Unlimited notes and exports",
+  "@examplePaywallHeader": {
+    "description": "Sample app paywall header: what the plans unlock."
+  },
+  "exampleShotOnboarding": "A short welcome, then your notes",
+  "@exampleShotOnboarding": {
+    "description": "Store screenshot caption over the onboarding screen."
+  },
+  "exampleShotPaywall": "Clear prices, no commitment",
+  "@exampleShotPaywall": {
+    "description": "Store screenshot caption over the paywall."
+  },
+  "exampleShotSettings": "Your language, your choices",
+  "@exampleShotSettings": {
+    "description": "Store screenshot caption over the settings screen."
+  }
+}

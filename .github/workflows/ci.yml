@@ -1,0 +1,68 @@
+# CI for deroches-apps (DAPP-7): lint, tests and the site build, on every PR and
+# push to main. GitHub-hosted Linux runners: the repo is public, so they cost
+# nothing (Richard's option A on DAPP-48, 2026-11-06). If the repo ever goes
+# private, these minutes count against the $100 cap: check before switching.
+# No secrets in any job.
+#
+# The iOS and Android builds of the apps, the screenshots artifact and the
+# release build are in app-builds.yml (DAPP-49).
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  lint:
+    name: Lint (flutter analyze)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+      - run: flutter --version
+      - run: tool/check.sh analyze
+
+  test:
+    name: Tests (flutter test, data-upgrade tests included)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+      - run: tool/check.sh test
+
+  site:
+    name: Site build (site kit and report page)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      - run: tool/check-sites.sh

@@ -1,4 +1,4 @@
-# ADR 0002: The site kit, static sites in French and English on Workers static assets
+# ADR 0006: The site kit, static sites in French and English on Workers static assets
 
 - Status: accepted
 - Date: 2026-11-01

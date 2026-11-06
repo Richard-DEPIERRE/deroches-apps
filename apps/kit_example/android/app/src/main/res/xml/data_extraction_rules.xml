@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12 and later (ADR 0001, section 9): the app's data documents, in its files folder
+     (path_provider's getApplicationSupportDirectory), go to the user's Google account and to a new phone. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="." />
+    </device-transfer>
+</data-extraction-rules>
