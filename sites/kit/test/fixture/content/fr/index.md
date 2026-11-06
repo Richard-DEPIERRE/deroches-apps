@@ -7,4 +7,4 @@ updated: 2026-11-01
 
 # Exemple
 
-Bientôt sur l'App Store et Google Play. [À propos](/a-propos/).
+Exemple fait une seule chose, bien : servir d'exemple au kit. [À propos](/a-propos/).

@@ -123,3 +123,18 @@ td {
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
+dt {
+  font-weight: 600;
+}
+dd {
+  margin: 0 0 0.75rem;
+}
+/* Review builds only: the legal notice without Richard's identity file must look unfinished. */
+.identity-missing {
+  border: 2px dashed var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+.coming-soon {
+  font-weight: 600;
+}

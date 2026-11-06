@@ -1,0 +1,12 @@
+{
+  "publisher": {
+    "name": "Test Publisher EI",
+    "legalForm": "Test legal form",
+    "address": "Test street\nTest town",
+    "email": "publisher@exemple.test",
+    "phone": "Test phone",
+    "registration": "Test registration"
+  },
+  "publicationDirector": "Test Director",
+  "host": { "name": "Test Host", "address": "Test host address", "phone": "Test host phone" }
+}

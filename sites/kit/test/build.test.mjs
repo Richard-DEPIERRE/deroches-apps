@@ -8,6 +8,8 @@ import { build } from '../build.mjs';
 
 const FIXTURE = fileURLToPath(new URL('./fixture', import.meta.url));
 const SITES = fileURLToPath(new URL('../..', import.meta.url));
+/** A made-up identity: obviously fake text, never a number that looks real. */
+const IDENTITY = fileURLToPath(new URL('./identity.fixture.json', import.meta.url));
 const tmp = await mkdtemp(join(tmpdir(), 'site-kit-'));
 after(() => rm(tmp, { recursive: true, force: true }));
 
@@ -34,7 +36,7 @@ describe('a built site', () => {
   let out;
   before(async () => {
     out = join(tmp, 'dist');
-    await build(FIXTURE, out);
+    await build(FIXTURE, out, { identityFile: IDENTITY });
   });
 
   test('puts French at the root and English under /en/', async () => {
@@ -68,8 +70,13 @@ describe('a built site', () => {
     assert.deepEqual(locs.sort(), [
       'https://exemple.test/',
       'https://exemple.test/a-propos/',
+      'https://exemple.test/conditions/',
+      'https://exemple.test/confidentialite/',
       'https://exemple.test/en/',
       'https://exemple.test/en/about/',
+      'https://exemple.test/en/legal-notice/',
+      'https://exemple.test/en/privacy/',
+      'https://exemple.test/en/terms/',
       'https://exemple.test/guides/seulement-en-francais/',
       'https://exemple.test/mentions-legales/',
     ]);
@@ -103,11 +110,99 @@ describe('a built site', () => {
     assert.equal(blocks[0].inLanguage, 'en');
   });
 
-  test('links legal pages from the footer in their own language only, and has no empty footer', async () => {
-    assert.match(await read(out, 'index.html'), /<a href="\/mentions-legales\/">Mentions légales<\/a>/);
+  test('links the three legal pages from every footer, in its own language and a fixed order', async () => {
+    const footerLinks = (html) => [...html.split('<footer')[1].matchAll(/href="([^"]+)"/g)].map(([, h]) => h);
+    for (const file of ['index.html', 'guides/seulement-en-francais/index.html', '404.html']) {
+      assert.deepEqual(footerLinks(await read(out, file)), [
+        '/mentions-legales/',
+        '/confidentialite/',
+        '/conditions/',
+      ]);
+    }
+    for (const file of ['en/index.html', 'en/about/index.html', 'en/404.html']) {
+      assert.deepEqual(footerLinks(await read(out, file)), [
+        '/en/legal-notice/',
+        '/en/privacy/',
+        '/en/terms/',
+      ]);
+    }
+  });
+
+  test('pairs each legal page with its translation', async () => {
+    assert.deepEqual(links(await read(out, 'en/privacy/index.html'), 'alternate'), [
+      'fr https://exemple.test/confidentialite/',
+      'en https://exemple.test/en/privacy/',
+      'x-default https://exemple.test/confidentialite/',
+    ]);
+    assert.deepEqual(links(await read(out, 'mentions-legales/index.html'), 'alternate'), [
+      'fr https://exemple.test/mentions-legales/',
+      'en https://exemple.test/en/legal-notice/',
+      'x-default https://exemple.test/mentions-legales/',
+    ]);
+  });
+
+  test("prints Richard's identity in the legal notice, with labels in the page language", async () => {
+    const en = await read(out, 'en/legal-notice/index.html');
+    assert.match(
+      en,
+      /<h2>Publisher<\/h2>\n<dl><dt>Name<\/dt><dd>Test Publisher EI<\/dd><dt>Legal form<\/dt>/,
+    );
+    assert.match(en, /<dt>Address<\/dt><dd>Test street<br>Test town<\/dd>/);
+    assert.match(en, /<dt>Publication director<\/dt><dd>Test Director<\/dd>/);
+    assert.match(en, /<h2>Host<\/h2>\n<dl><dt>Name<\/dt><dd>Test Host<\/dd>/);
+    assert.doesNotMatch(en, /Share capital|VAT/, 'optional fields left out are not printed');
+    assert.match(en, /<a href="mailto:support@exemple\.test">support@exemple\.test<\/a>/);
+    assert.match(en, /Last updated: 6 November 2026\./);
+    const fr = await read(out, 'mentions-legales/index.html');
+    assert.match(
+      fr,
+      /<h1>Mentions légales<\/h1>\n\n<h2>Éditeur du site<\/h2>/,
+      "the site's own page, then the identity",
+    );
+    assert.match(fr, /<dt>Directeur de la publication<\/dt><dd>Test Director<\/dd>/);
+    assert.match(fr, /<h2>Hébergeur<\/h2>/);
+  });
+
+  test('says in the privacy policy what is true, with the app section from site.json', async () => {
+    const fr = await read(out, 'confidentialite/index.html');
+    assert.match(fr, /Aucun cookie/);
+    assert.match(fr, /sans adresse IP, sans navigateur \(user agent\) et sans aucun identifiant/);
+    assert.match(fr, /<h2>Dans l’application<\/h2>\n<p>L&#39;application Exemple garde vos données/);
+    assert.match(fr, /Écrivez à <a href="mailto:support@exemple\.test">/);
+    assert.match(fr, /href="https:\/\/www\.cnil\.fr\/fr\/plaintes"/);
+    assert.match(fr, /Dernière mise à jour : 6 novembre 2026\./);
+    const en = await read(out, 'en/privacy/index.html');
+    assert.match(en, /<p>The Example app keeps your data on your phone and sends nothing\.<\/p>/);
+    assert.match(en, /complain to the CNIL/);
+  });
+
+  test('says in the terms that guides are not personal advice and refunds go through the stores', async () => {
+    const fr = await read(out, 'conditions/index.html');
+    assert.match(fr, /ne\s+remplacent pas un conseil personnalisé/);
+    assert.match(fr, /href="https:\/\/reportaproblem\.apple\.com"/);
+    const en = await read(out, 'en/terms/index.html');
+    assert.match(en, /They are not personal\s+advice/);
+    assert.match(en, /governed by the terms of the App Store or Google\s+Play/);
+    assert.match(en, /href="https:\/\/support\.google\.com\/googleplay\/answer\/2479637\?hl=en"/);
+  });
+
+  test('leaves no placeholder in any page', async () => {
+    const files = (await readdir(out, { recursive: true })).filter((f) => f.endsWith('.html'));
+    for (const file of files) assert.doesNotMatch(await read(out, file), /\{\{/, file);
+  });
+
+  test('makes the coming-soon home say what the app does, that it is coming, and link the first guides', async () => {
+    const fr = await read(out, 'index.html');
+    assert.match(fr, /<p>Exemple fait une seule chose, bien/);
+    assert.match(fr, /<p class="coming-soon">Bientôt sur l’App Store et Google Play\.<\/p>/);
+    assert.match(
+      fr,
+      /<h2>Premiers guides<\/h2>\n<ul><li><a href="\/guides\/seulement-en-francais\/">Une page sans traduction<\/a><\/li><\/ul>/,
+    );
+    assert.doesNotMatch(fr, /apps\.apple\.com|play\.google\.com|<form|<input/);
     const en = await read(out, 'en/index.html');
-    assert.doesNotMatch(en, /mentions-legales/);
-    assert.doesNotMatch(en, /<footer/, 'no English legal page in the fixture, so no footer');
+    assert.match(en, /<p class="coming-soon">Coming soon to the App Store and Google Play\.<\/p>/);
+    assert.doesNotMatch(en, /First guides/, 'no English guide yet, so no empty list');
   });
 
   test('labels the language switch in the page language', async () => {
@@ -141,6 +236,67 @@ describe('a built site', () => {
   });
 });
 
+describe("Richard's identity file", () => {
+  const MISSING = join(tmp, 'no-identity.json');
+  const identityWith = async (name, change) => {
+    const data = JSON.parse(await readFile(IDENTITY, 'utf8'));
+    change(data);
+    const file = join(tmp, name);
+    await writeFile(file, JSON.stringify(data));
+    return file;
+  };
+
+  test('missing, a review build shows a visible placeholder and keeps the legal notice out of search', async () => {
+    const out = join(tmp, 'review');
+    await build(FIXTURE, out, { identityFile: MISSING });
+    for (const [file, text] of [
+      ['mentions-legales/index.html', /<p class="identity-missing"><strong>Fichier d’identité manquant/],
+      ['en/legal-notice/index.html', /<p class="identity-missing"><strong>Identity file missing/],
+    ]) {
+      const html = await read(out, file);
+      assert.match(html, text);
+      assert.match(html, /<meta name="robots" content="noindex">/);
+    }
+    const xml = await read(out, 'sitemap.xml');
+    assert.doesNotMatch(xml, /mentions-legales|legal-notice/);
+    assert.match(xml, /confidentialite/, 'the other legal pages stay indexable');
+  });
+
+  test('a production build refuses it missing, or with a required field empty, naming fields only', async () => {
+    const out = join(tmp, 'prod');
+    await assert.rejects(
+      build(FIXTURE, out, { production: true, identityFile: MISSING }),
+      /no-identity\.json is missing/,
+    );
+    const empty = await identityWith('empty.json', (d) => {
+      d.publisher.registration = ' ';
+      delete d.host.phone;
+      d.publisher.vatNumber = '';
+    });
+    await assert.rejects(build(FIXTURE, out, { production: true, identityFile: empty }), (error) => {
+      assert.match(
+        error.message,
+        /missing or empty publisher\.registration, host\.phone, publisher\.vatNumber$/,
+      );
+      assert.doesNotMatch(error.message, /Test/, 'never prints a value');
+      return true;
+    });
+  });
+
+  test('a production build prints the optional fields when present', async () => {
+    const full = await identityWith('full.json', (d) => {
+      d.publisher.shareCapital = 'Test capital';
+      d.publisher.vatNumber = 'Test VAT';
+    });
+    const out = join(tmp, 'prod-full');
+    await build(FIXTURE, out, { production: true, identityFile: full });
+    const html = await read(out, 'mentions-legales/index.html');
+    assert.match(html, /<dt>Capital social<\/dt><dd>Test capital<\/dd>/);
+    assert.match(html, /<dt>Numéro de TVA intracommunautaire<\/dt><dd>Test VAT<\/dd>/);
+    assert.doesNotMatch(html, /noindex/);
+  });
+});
+
 describe('the build refuses', () => {
   test('a site without its English home page', async () => {
     const dir = await variant('no-en-home', (d) => rm(join(d, 'content/en/index.md')));
@@ -169,6 +325,47 @@ describe('the build refuses', () => {
       ),
     );
     await assert.rejects(build(dir, join(dir, 'dist')), /translation "about" is also used by/);
+  });
+
+  test('a coming-soon home page that does not say what the app does', async () => {
+    const dir = await variant('thin-home', (d) =>
+      writeFile(join(d, 'content/en/index.md'), '---\ntitle: Example\ndescription: x\n---\n# Example\n'),
+    );
+    await assert.rejects(
+      build(dir, join(dir, 'dist')),
+      /index\.md: a coming-soon home page says what the app will do/,
+    );
+  });
+
+  test('a page at a legal URL that is not marked as that legal page', async () => {
+    const dir = await variant('bad-legal', (d) =>
+      writeFile(join(d, 'content/en/privacy.md'), '---\ntitle: Privacy\ndescription: x\n---\n'),
+    );
+    await assert.rejects(
+      build(dir, join(dir, 'dist')),
+      /privacy\.md: a legal page needs type: legal and translation: privacy/,
+    );
+  });
+
+  test('a legal page with an unknown placeholder', async () => {
+    const dir = await variant('bad-placeholder', (d) =>
+      writeFile(
+        join(d, 'content/en/terms.md'),
+        '---\ntitle: Terms\ndescription: x\ntype: legal\ntranslation: terms\n---\nAs of {{updated}}.\n',
+      ),
+    );
+    await assert.rejects(
+      build(dir, join(dir, 'dist')),
+      /terms\.md: \{\{updated\}\} is unknown or has no value/,
+    );
+  });
+
+  test('a site without its support address or what its app collects', async () => {
+    const dir = await variant('no-privacy-facts', async (d) => {
+      const { supportEmail, appData, ...site } = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+      await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, appData: { fr: appData.fr } }));
+    });
+    await assert.rejects(build(dir, join(dir, 'dist')), /appData\.en is required[\s\S]*supportEmail:/);
   });
 
   test('a live site without a store URL', async () => {
@@ -229,4 +426,5 @@ test('a live site offers the app in its structured data', async () => {
   assert.equal(app.operatingSystem, 'iOS');
   assert.deepEqual(app.sameAs, ['https://apps.apple.com/app/id0']);
   assert.equal(app.aggregateRating, undefined, 'never a rating we do not have');
+  assert.doesNotMatch(html, /coming-soon|Premiers guides/, "a live home page is the site's own text");
 });
