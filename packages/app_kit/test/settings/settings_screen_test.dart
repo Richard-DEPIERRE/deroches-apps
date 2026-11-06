@@ -98,6 +98,7 @@ void main() {
   late FakeBackupFiles files;
   late DataStore notes;
   late int restores;
+  KitStateController? last;
   late List<Uri> opened;
   late bool linksOpen;
   Completer<void>? holdLink;
@@ -110,6 +111,7 @@ void main() {
     files = FakeBackupFiles();
     notes = DataStore(directory: dir, appId: 'carnet-km', name: 'notes', initial: () => {'notes': <Object?>[]});
     restores = 0;
+    last = null;
     opened = [];
     linksOpen = true;
     holdLink = null;
@@ -132,7 +134,8 @@ void main() {
     bool pushed = false,
     AppConfig? appConfig,
   }) async {
-    final kit = KitStateController(directory: dir, appId: 'carnet-km');
+    if (last case final previous?) await waitForKitSaves(tester, previous);
+    final kit = last = KitStateController(directory: dir, appId: 'carnet-km');
     await tester.runAsync(kit.load);
     final analytics = Analytics(
       backend: sent,
