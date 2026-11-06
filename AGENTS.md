@@ -14,6 +14,8 @@ Read ADR 0001 before your first change.
 - `tool/`: `check.sh` (Flutter) and `check-sites.sh` (site kit), then the screenshot and release-build scripts.
 - `.github/workflows/ci.yml`: CI on GitHub-hosted Linux runners (free while the repo is public; DAPP-48); it runs the
   same two scripts.
+- `.github/workflows/app-builds.yml`: the iOS and Android builds, the `screenshots` artifact and the release build
+  (GitHub-hosted runners, Richard's pick on DAPP-48).
 
 ## Before review
 - Flutter version: `.fvmrc` (3.44.9). Put that SDK's `bin` first on `PATH`.
@@ -33,4 +35,4 @@ Read ADR 0001 before your first change.
 - A paywall before onboarding and the app's first useful moment; any trick to make people pay.
 - A store action from a script: release scripts build and package, the Mobile Tech Lead runs the store wrapper by
   hand.
-- Moving CI to GitHub-hosted runners.
+- A secret in a CI job, or a CI job that signs for a store, exports or uploads to one (the store wrapper does).

@@ -1,0 +1,181 @@
+# App builds for deroches-apps (DAPP-49): the iOS and Android builds of the apps, their store screenshots as an
+# artifact, and, run by hand on main, an app's release build for the store wrapper (ADR 0003, path 1). Lint, Tests
+# (data-upgrade tests and their check included, through tool/check.sh) and the site build are in ci.yml (DAPP-7).
+#
+# GitHub-hosted runners: Richard's pick on DAPP-48 (2026-11-06). The repo is public, so they cost nothing; if it
+# goes private, macOS minutes are billed and count against the $100 cap (ADR 0003).
+# No job holds a secret, signs for a store, exports or uploads to one: the store wrapper does that (ADR 0002).
+# The macOS image and Xcode are pinned: Apple has required Xcode 26 or later for uploads since 2026-04-28
+# (developer.apple.com/news/upcoming-requirements, read 2026-11-06). Change both together, in a PR.
+name: App builds
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "An app's slug (folder under apps/): build its release for the store wrapper. main only."
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-builds-${{ github.ref }}-${{ inputs.release }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  ios:
+    name: iOS build (${{ matrix.app }})
+    if: ${{ !inputs.release }}
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every app with its own ios/ folder.
+        app: [apps/kit_example]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: xcodebuild -version
+      - name: flutter build ios --release --no-codesign
+        working-directory: ${{ matrix.app }}
+        run: flutter build ios --release --no-codesign
+      - name: The build leaves the tree clean (so a release's manifest says dirty false)
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            # The full diff, new files included (intent-to-add), so a change the build made (such as Flutter's
+            # Swift Package Manager migration of the Xcode project) can be read here and committed.
+            git add --intent-to-add --all
+            git --no-pager diff
+            echo "::error::the build changed or added files the repo should hold (commit them) or ignore"
+            exit 1
+          fi
+
+  android:
+    name: Android build (${{ matrix.app }})
+    if: ${{ !inputs.release }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        # Every app with its own android/ folder.
+        app: [apps/kit_example]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: flutter build appbundle --release
+        working-directory: ${{ matrix.app }}
+        run: flutter build appbundle --release
+      - name: The bundle is unsigned (ADR 0002, the wrapper signs it)
+        working-directory: ${{ matrix.app }}
+        run: |
+          if unzip -l build/app/outputs/bundle/release/app-release.aab | grep -E 'META-INF/[^/]+\.(RSA|EC|DSA)$'; then
+            echo "::error::the release bundle is signed; the release build type must have no signing config"
+            exit 1
+          fi
+      - name: The build leaves the tree clean (so a release's manifest says dirty false)
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git status --short
+            # The full diff, new files included (intent-to-add), so a change the build made (such as Flutter's
+            # Swift Package Manager migration of the Xcode project) can be read here and committed.
+            git add --intent-to-add --all
+            git --no-pager diff
+            echo "::error::the build changed or added files the repo should hold (commit them) or ignore"
+            exit 1
+          fi
+
+  screenshots:
+    name: Screenshots
+    if: ${{ !inputs.release }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - name: tool/screenshots.sh, for every app with screenshot tests
+        run: |
+          for app in apps/*/; do
+            if [ -f "$app/test/screenshots_test.dart" ]; then
+              tool/screenshots.sh "${app%/}"
+            fi
+          done
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: screenshots
+          path: |
+            apps/*/store/**/*.png
+            apps/*/build/screenshots-dark/**/*.png
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    # Run by hand on main (Actions → App builds → Run workflow, or `gh workflow run app-builds.yml --ref main -f
+    # release=<slug>`). tool/release/build.sh checks the version, runs tool/check.sh, then builds the unsigned .aab
+    # and the ad-hoc-signed .xcarchive. The Mobile Tech Lead downloads the tar and runs the store wrapper
+    # (tool/release/README.md).
+    name: Release build
+    if: ${{ inputs.release && github.ref == 'refs/heads/main' }}
+    runs-on: macos-26
+    timeout-minutes: 60
+    env:
+      APP: ${{ inputs.release }}
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: The slug names an app
+        run: |
+          [[ "$APP" =~ ^[a-z0-9_-]+$ ]] && [ -f "apps/$APP/pubspec.yaml" ] || { echo "::error::no app at apps/$APP"; exit 1; }
+      - uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: .fvmrc
+          cache: true
+      - run: xcodebuild -version
+      - run: tool/release/build.sh "apps/$APP"
+      # A tar keeps the app binary's file modes, which an artifact's zip drops.
+      - run: tar -C build/release -cf "release-$APP.tar" --exclude DerivedData "$APP"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-${{ inputs.release }}
+          path: release-${{ inputs.release }}.tar
+          if-no-files-found: error
+          retention-days: 1

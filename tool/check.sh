@@ -27,6 +27,9 @@ if [ "$step" != test ]; then
 fi
 
 if [ "$step" != analyze ]; then
+  echo "== every app that saves data has a data-upgrade test"
+  python3 tool/data_upgrade/check.py
+
   members=$(sed -n '/^workspace:/,/^[^ ]/s/^  - //p' pubspec.yaml)
   for member in $members; do
     if [ -d "$member/test" ]; then
@@ -38,4 +41,5 @@ if [ "$step" != analyze ]; then
   echo "== python tests in tool/"
   python3 -m unittest discover -s tool/release_watch -p '*_test.py'
   python3 -m unittest discover -s tool/release -p '*_test.py'
+  python3 -m unittest discover -s tool/data_upgrade -p '*_test.py'
 fi
