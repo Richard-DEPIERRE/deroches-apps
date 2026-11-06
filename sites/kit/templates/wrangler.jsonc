@@ -1,0 +1,37 @@
+// Written by `node kit/wrangler.mjs {{slug}}` from kit/templates/wrangler.jsonc: change the template, not this file.
+// Deploy from main only, from this folder: `npx wrangler deploy` (sites/README.md, "Deploy and roll back").
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "site-{{slug}}",
+  "main": "dist/_worker/index.mjs",
+  "compatibility_date": "2026-11-01",
+  // The deploy build: refuses to run without Richard's complete legal/identity.json.
+  "build": { "command": "node ../kit/build.mjs . --production" },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+    // Only the store-click redirects and the beacon reach the Worker; pages and assets are served directly (free).
+    "run_worker_first": ["/go/*", "/a"]
+  },
+  // Counts only: no IP address, user agent or identifier (the privacy policy says so).
+  "analytics_engine_datasets": [{ "binding": "EVENTS", "dataset": "site_events" }],
+  "routes": [{ "pattern": "{{domain}}", "custom_domain": true }],
+  // No Workers Logs or Logpush: they would keep request IPs and headers, which the privacy policy says we don't.
+  "observability": { "enabled": false },
+  "logpush": false,
+  "workers_dev": false,
+  "preview_urls": false,
+  "env": {
+    // www.{{domain}}: every request reaches the Worker, which redirects it to {{domain}} (301). Deployed once, when
+    // the site is set up: `npx wrangler deploy --env www`.
+    "www": {
+      "name": "site-{{slug}}-www",
+      "assets": { "directory": "./dist", "binding": "ASSETS", "run_worker_first": true },
+      "routes": [{ "pattern": "www.{{domain}}", "custom_domain": true }],
+      // Bindings aren't inherited: the redirect records nothing.
+      "analytics_engine_datasets": []
+    }
+  }
+}

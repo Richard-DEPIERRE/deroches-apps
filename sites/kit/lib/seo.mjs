@@ -62,8 +62,9 @@ ${urls.join('\n')}
 `;
 }
 
+/** The store-click redirects and the beacon are kept out of crawls, so bots don't count as readers. */
 export function robots(site) {
-  return `User-agent: *\nAllow: /\n\nSitemap: ${site.origin}/sitemap.xml\n`;
+  return `User-agent: *\nAllow: /\nDisallow: /go/\nDisallow: /a$\n\nSitemap: ${site.origin}/sitemap.xml\n`;
 }
 
 /**

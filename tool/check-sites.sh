@@ -37,4 +37,5 @@ for config in */site.json; do
   site="${config%/site.json}"
   echo "== build $site"
   node kit/build.mjs "$site" "$out/$site"
+  node kit/wrangler.mjs "$site" --check
 done
