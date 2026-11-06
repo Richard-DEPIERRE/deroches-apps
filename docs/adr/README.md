@@ -11,6 +11,7 @@ which one it replaces, and the old one's status becomes "replaced by NNNN".
 | [0004](0004-private-report-page.md) | Richard's private report page: snapshot at publish, pages bundled in a Worker, Access in front | proposed |
 | [0005](0005-crash-reporting-and-the-rollout-watcher.md) | Crash reporting with Sentry (EU), and what the Release watch reads | accepted |
 | [0006](0006-site-kit.md) | The site kit: static FR/EN sites built by a small Node builder, on Workers static assets | accepted |
+| [0007](0007-site-analytics-and-deploy.md) | Cookie-free site analytics on Workers Analytics Engine, and one deploy config per site | proposed |
 
 ## Template
 

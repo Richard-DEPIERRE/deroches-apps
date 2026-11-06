@@ -2,7 +2,7 @@
 // Builds one app's site: node kit/build.mjs <site dir> [out dir] [--production]   (out dir defaults to <site dir>/dist)
 // --production, for a deploy, fails without Richard's complete identity file (sites/legal/identity.json).
 import { createHash } from 'node:crypto';
-import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGS, loadSite } from './lib/config.mjs';
@@ -44,6 +44,29 @@ function accentCss(accent) {
   );
 }
 
+/** `/assets/<name>.<hash>.<ext>`: a fingerprinted asset path, cached for a year by `_headers`. */
+const fingerprint = (name, ext, content) =>
+  `/assets/${name}.${createHash('sha256').update(content).digest('hex').slice(0, 10)}.${ext}`;
+
+/**
+ * The Worker entry (wrangler.jsonc `main`), with this site's store URLs and page paths embedded. It lives in the out
+ * dir, which wrangler uploads as assets, so `.assetsignore` keeps it out of them.
+ */
+async function workerEntry(outDir, site, pages) {
+  // Real paths: Node resolves the import from the entry's real location (macOS's /tmp is a symlink).
+  const from = join(await realpath(outDir), '_worker');
+  let kit = relative(from, join(await realpath(KIT), 'worker', 'worker.mjs'))
+    .split(sep)
+    .join('/');
+  if (!kit.startsWith('.')) kit = `./${kit}`;
+  const config = { slug: site.slug, stores: site.stores ?? {}, paths: pages.map((p) => p.path).sort() };
+  return `// Written by kit/build.mjs from site.json: the Worker in front of this site's assets.
+import { createWorker } from '${kit}';
+
+export default createWorker(${JSON.stringify(config)});
+`;
+}
+
 async function emit(outDir, path, content) {
   const file = join(outDir, path);
   await mkdir(dirname(file), { recursive: true });
@@ -66,10 +89,13 @@ export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {
   await rm(outDir, { recursive: true, force: true });
 
   const css = (await readFile(join(KIT, 'assets', 'site.css'), 'utf8')) + accentCss(site.accent);
-  const stylesheet = `/assets/site.${createHash('sha256').update(css).digest('hex').slice(0, 10)}.css`;
+  const stylesheet = fingerprint('site', 'css', css);
   await emit(outDir, stylesheet, css);
+  const js = await readFile(join(KIT, 'assets', 'a.js'), 'utf8');
+  const script = fingerprint('a', 'js', js);
+  await emit(outDir, script, js);
 
-  const ctx = { site, pages, stylesheet };
+  const ctx = { site, pages, stylesheet, script };
   for (const page of pages) await emit(outDir, `${page.path}index.html`, renderPage(page, ctx));
   for (const lang of LANGS) {
     const page = notFoundPage(lang, site);
@@ -78,6 +104,8 @@ export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {
   await emit(outDir, 'sitemap.xml', sitemap(pages));
   await emit(outDir, 'robots.txt', robots(site));
   await emit(outDir, '_headers', headers());
+  await emit(outDir, '_worker/index.mjs', await workerEntry(outDir, site, pages));
+  await emit(outDir, '.assetsignore', '_worker\n');
   return { site, pages, outDir, identityProblem: identity.problem };
 }
 

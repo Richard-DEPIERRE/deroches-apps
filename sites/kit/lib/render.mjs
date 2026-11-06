@@ -47,7 +47,7 @@ ${guides.length ? `<h2>${e(t.firstGuides)}</h2>\n<ul class="guides">${guides.joi
  * translations; `ctx` holds the site, every page (for the footer) and the stylesheet's hashed path.
  */
 export function renderPage(page, ctx) {
-  const { site, pages, stylesheet } = ctx;
+  const { site, pages, stylesheet, script } = ctx;
   const t = STRINGS[page.lang];
   const appName = site.name[page.lang];
   const title = page.type === 'home' ? page.title : `${page.title} | ${appName}`;
@@ -71,6 +71,7 @@ export function renderPage(page, ctx) {
         `<meta name="theme-color" media="(prefers-color-scheme: ${scheme})" content="${e(site.accent[scheme])}">`,
     ),
     `<link rel="stylesheet" href="${e(stylesheet)}">`,
+    page.notFound ? '' : `<script src="${e(script)}" defer></script>`,
     ...structuredData(page, site).map(
       (data) => `<script type="application/ld+json">${jsonForScript(data)}</script>`,
     ),
@@ -106,6 +107,7 @@ export function notFoundPage(lang, site) {
     description: t.notFoundText,
     type: 'page',
     noindex: true,
+    notFound: true,
     translations: {},
     html: `<h1>${e(t.notFoundTitle)}</h1>\n<p>${e(t.notFoundText)}</p>\n<p><a href="${langPrefix(lang)}/">${e(t.backHome)}</a></p>`,
   };

@@ -10,12 +10,16 @@ The sites set no cookies, load nothing from another origin and have no forms: no
 sites/
   kit/              the builder (Node, no framework) and its tests
     build.mjs       node kit/build.mjs <site dir> [out dir]
+    wrangler.mjs    node kit/wrangler.mjs <site dir>: writes the site's wrangler.jsonc from the template
     lib/            config, content, render, seo, i18n
-    assets/         the shared stylesheet (fingerprinted on build)
+    worker/         the Worker in front of every site: store-click redirects and the analytics beacon
+    assets/         the shared stylesheet and the analytics script (fingerprinted on build)
+    templates/      the legal pages and wrangler.jsonc
     test/fixture/   a test site, also the reference for a new site
   legal/            Richard's legal-identity file, included by the legal notice (not written by agents)
   <slug>/           one folder per app, named after its slug
     site.json
+    wrangler.jsonc  the deploy config, from the kit template (never edited by hand)
     content/fr/     French pages (served at /)
     content/en/     English pages (served at /en/)
 ```
@@ -94,6 +98,91 @@ newest guides. No store link, no form, no email capture, no countdown.
   Never a rating or a review we don't have.
 - `sitemap.xml` with `lastmod` and the French and English alternates of each page; `robots.txt` pointing to it.
 - `404.html` and `en/404.html`; `_headers` with a strict Content-Security-Policy (no other origin, no forms).
+- `assets/a.<hash>.js`, the analytics script, on every page but the 404 pages.
+- `_worker/index.mjs`, the Worker entry with the site's slug, store URLs and page paths embedded (kept out of the
+  uploaded assets by `.assetsignore`).
+
+## Analytics (ADR 0007)
+
+No cookie, no identifier, nothing about the visitor. The Worker writes one data point per event to the Analytics
+Engine dataset `site_events` (binding `EVENTS`), indexed by the site's slug:
+
+| Column | Holds |
+|---|---|
+| `index1` | the site's slug |
+| `blob1` | `page_view`, `store_click` or `read_depth` |
+| `blob2` | the page path (`/guides/x/`), or empty when a click came from a page that isn't ours |
+| `blob3` | `fr` or `en` |
+| `blob4` | `ios` or `android` for a store click, else empty |
+| `double1` | for `read_depth`: 25, 50, 75 or 100 (% of the page's main text reached; one event per step) |
+
+- `GET /go/ios|android?from=<path>` counts a click and redirects (302) to the store URL in `site.json`; an unknown
+  store, or one without a URL, goes to the home page.
+- `POST /a` takes the script's beacon: `{"e":"view","p":<path>}` or `{"e":"depth","p":<path>,"d":25|50|75|100}`,
+  at most 512 bytes, our own paths only, same origin only.
+- Never add a `console.log` of a request, Workers Logs or Logpush: the privacy policy says we don't record IPs.
+
+## Reading the numbers (Growth & Data)
+
+The data is kept three months. Query it with the Analytics Engine SQL API: `POST` the query as the body to
+`https://api.cloudflare.com/client/v4/accounts/<account id>/analytics_engine/sql` with
+`Authorization: Bearer <token>`. Counts use `_sample_interval`, which is how many events a sampled row stands for.
+
+The token: a Cloudflare API token with only **Account › Account Analytics › Read**, for Growth & Data. Growth & Data
+asks Richard for it in a `needs-richard` issue: he creates it, saves it as the Paperclip secret
+`CLOUDFLARE_ANALYTICS_TOKEN` and binds it to Growth & Data in `apps/agents.json`, with `api.cloudflare.com` in its
+role's network list. The deploy token (`CLOUDFLARE_API_TOKEN`) is not for reading.
+
+Views, store clicks and click rate per page per day (last 28 days):
+
+```sql
+SELECT toStartOfDay(timestamp) AS day, blob2 AS page,
+  SUM(if(blob1 = 'page_view', _sample_interval, 0)) AS views,
+  SUM(if(blob1 = 'store_click', _sample_interval, 0)) AS store_clicks,
+  SUM(if(blob1 = 'store_click', _sample_interval, 0)) / SUM(if(blob1 = 'page_view', _sample_interval, 0)) AS click_rate
+FROM site_events
+WHERE index1 = '<slug>' AND blob1 IN ('page_view', 'store_click') AND timestamp > NOW() - INTERVAL '28' DAY
+GROUP BY day, page
+ORDER BY day DESC, views DESC
+FORMAT JSON
+```
+
+Reading depth per guide (last 28 days): how many views reached each step (divide by `views` for the share).
+
+```sql
+SELECT blob2 AS guide,
+  SUM(if(blob1 = 'page_view', _sample_interval, 0)) AS views,
+  SUM(if(blob1 = 'read_depth' AND double1 = 25, _sample_interval, 0)) AS reached_25,
+  SUM(if(blob1 = 'read_depth' AND double1 = 50, _sample_interval, 0)) AS reached_50,
+  SUM(if(blob1 = 'read_depth' AND double1 = 75, _sample_interval, 0)) AS reached_75,
+  SUM(if(blob1 = 'read_depth' AND double1 = 100, _sample_interval, 0)) AS reached_100
+FROM site_events
+WHERE index1 = '<slug>' AND blob2 LIKE '%/guides/%' AND timestamp > NOW() - INTERVAL '28' DAY
+GROUP BY guide
+ORDER BY views DESC
+FORMAT JSON
+```
+
+Depth is a floor: a browser that never says the page was left sends none.
+
+## Deploy and roll back
+
+Each site deploys as the Worker `site-<slug>` on its domain, with `www.<domain>` redirecting to it (`site-<slug>-www`).
+Deploy only what is merged on `main`, as one plain command run from the site's folder (change directory in a separate
+command first; studio rules, section 1). Web & SEO and the Mobile Tech Lead deploy, with `CLOUDFLARE_API_TOKEN`.
+
+1. A new site: run `node kit/wrangler.mjs <slug>` from `sites/` and commit the `wrangler.jsonc` it writes with the
+   site, by PR. CI fails a `wrangler.jsonc` that differs from `kit/templates/wrangler.jsonc`; change the template,
+   then rewrite every site's file, in one PR.
+2. Check it builds and binds, from `sites/<slug>/`: `npx wrangler deploy --dry-run`.
+3. Deploy, from `sites/<slug>/`: `npx wrangler deploy`. Its build is the production build, which stops without
+   Richard's complete `legal/identity.json`. The domain must be on the Cloudflare account (Richard's per-app steps).
+   Wrangler warns that no environment was named: the top-level one is the site, as intended.
+4. Once per site, after the first deploy: `npx wrangler deploy --env www`.
+
+Roll back, from `sites/<slug>/`: `npx wrangler versions list` shows the versions; `npx wrangler versions deploy
+<version-id>` puts the last good one back. Or revert the change by PR and deploy again. `wrangler rollback` is
+Richard's.
 
 ## Commands
 
@@ -105,9 +194,9 @@ npm run lint                       # Biome
 npm test                           # node --test
 npm run build -- <slug>            # writes <slug>/dist/ for review
 npm run build -- <slug> --production   # the deploy build: needs legal/identity.json
+node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compares it)
 ```
 
 ## Still to come (child issues of DAPP-6)
 
-The guide template with download buttons and app banners, internal links and the link check; the cookie-free
-analytics that count store clicks, and the deploy config; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The store buttons (links to `/go/<store>?from=<page path>`, with their design review) and the guide template that places them, internal links and the link check; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
