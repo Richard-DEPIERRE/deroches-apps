@@ -14,6 +14,14 @@ export const STRINGS = {
     comingSoon: 'Bientôt sur l’App Store et Google Play.',
     firstGuides: 'Premiers guides',
     lastUpdated: 'Dernière mise à jour :',
+    published: 'Publié le',
+    updated: 'mis à jour le',
+    breadcrumb: 'Fil d’Ariane',
+    guides: 'Guides',
+    guidesDescription: (name) => `Tous les guides de ${name}, du plus récent au plus ancien.`,
+    sources: 'Sources',
+    read: 'consulté le',
+    stores: { ios: 'Télécharger sur l’App Store', android: 'Télécharger sur Google Play' },
     replyWithinWorkingDay: 'Nous répondons à chaque e-mail sous un jour ouvré.',
     identityMissing:
       'Fichier d’identité manquant : les informations sur l’éditeur et l’hébergeur seront ajoutées avant la mise en ligne.',
@@ -43,6 +51,14 @@ export const STRINGS = {
     comingSoon: 'Coming soon to the App Store and Google Play.',
     firstGuides: 'First guides',
     lastUpdated: 'Last updated:',
+    published: 'Published',
+    updated: 'updated',
+    breadcrumb: 'Breadcrumb',
+    guides: 'Guides',
+    guidesDescription: (name) => `Every ${name} guide, newest first.`,
+    sources: 'Sources',
+    read: 'checked',
+    stores: { ios: 'Download from the App Store', android: 'Download from Google Play' },
     replyWithinWorkingDay: 'We answer every email within a working day.',
     identityMissing:
       'Identity file missing: the publisher and host details will be added before the site goes live.',
@@ -59,3 +75,12 @@ export const STRINGS = {
     publicationDirector: 'Publication director',
   },
 };
+
+/** A YYYY-MM-DD date in words, in the page language ("6 novembre 2026", "6 November 2026"). */
+export function longDate(lang, iso) {
+  const format = new Intl.DateTimeFormat(STRINGS[lang].locale.replace('_', '-'), {
+    dateStyle: 'long',
+    timeZone: 'UTC',
+  });
+  return format.format(new Date(`${iso}T00:00:00Z`));
+}

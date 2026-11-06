@@ -1,4 +1,5 @@
 import { LANGS, langPrefix } from './config.mjs';
+import { guideMain, guidesOf, hubPath, storeButtons } from './guides.mjs';
 import { escapeHtml as e, jsonForScript } from './html.mjs';
 import { STRINGS } from './i18n.mjs';
 import { KIT_PAGES } from './legal.mjs';
@@ -27,15 +28,15 @@ function footer(page, pages) {
 }
 
 /**
- * The home page's text, and before launch the "coming soon" line as plain text (no store link, no form, no
- * countdown) and links to the newest guides.
+ * A page's main column. A guide gets the guide template; a live home page its store buttons; a coming-soon home
+ * page the "coming soon" line as plain text (no store link, no form, no countdown) and links to the newest guides.
  */
 function main(page, { site, pages }) {
-  if (page.type !== 'home' || site.status !== 'coming-soon') return page.html;
+  if (page.type === 'guide') return guideMain(page, site);
+  if (page.type !== 'home') return page.html;
+  if (site.status === 'live') return `${page.html}${storeButtons(site, page.lang, page.path)}\n`;
   const t = STRINGS[page.lang];
-  const guides = pages
-    .filter((p) => p.lang === page.lang && p.type === 'guide' && !p.noindex)
-    .sort((a, b) => (b.updated ?? '').localeCompare(a.updated ?? '') || a.title.localeCompare(b.title))
+  const guides = guidesOf(pages, page.lang)
     .slice(0, 10)
     .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`);
   return `${page.html}<p class="coming-soon">${e(t.comingSoon)}</p>
@@ -85,6 +86,7 @@ ${head.join('\n')}
 <a class="skip" href="#main">${e(t.skip)}</a>
 <header class="site-header">
 <a class="brand" href="${langPrefix(page.lang)}/">${e(appName)}</a>
+${guidesOf(pages, page.lang).length ? `<a class="nav" href="${hubPath(page.lang)}">${e(t.guides)}</a>` : ''}
 <nav class="lang" aria-label="${e(t.language)}">${languageSwitch(page)}</nav>
 </header>
 <main id="main">

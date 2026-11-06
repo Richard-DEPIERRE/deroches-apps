@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { marked } from 'marked';
 import { escapeHtml as e } from './html.mjs';
-import { STRINGS } from './i18n.mjs';
+import { longDate, STRINGS } from './i18n.mjs';
 
 const KIT = dirname(dirname(fileURLToPath(import.meta.url)));
 /** Richard's file (sites/legal/README.md). Agents never create, fill or copy it. */
@@ -81,18 +81,13 @@ export function fillKitPages(pages, site, identity) {
   for (const page of pages.filter((p) => p.type === 'legal' || p.translation === 'support')) {
     const lang = page.lang;
     const email = e(site.supportEmail);
-    const date = page.updated && new Date(`${page.updated}T00:00:00Z`);
-    const long = new Intl.DateTimeFormat(STRINGS[lang].locale.replace('_', '-'), {
-      dateStyle: 'long',
-      timeZone: 'UTC',
-    });
     const values = {
       name: e(site.name[lang]),
       domain: e(site.domain),
       support: `<a href="mailto:${email}">${email}</a>`,
       // The support address on a line of its own, a full-size tap target: most visitors of the support page want it.
       contact: `<p class="contact"><a href="mailto:${email}">${email}</a></p>`,
-      updated: date && e(long.format(date)),
+      updated: page.updated && e(longDate(lang, page.updated)),
       appData: marked.parse(site.appData[lang]),
       identity: identityHtml(lang, identity),
       // A promise on answer time only once Support has confirmed it can keep it (site.json).

@@ -1,5 +1,7 @@
-import { DEFAULT_LANG, LANGS } from './config.mjs';
+import { DEFAULT_LANG, LANGS, langPrefix } from './config.mjs';
+import { hubPath } from './guides.mjs';
 import { escapeHtml } from './html.mjs';
+import { STRINGS } from './i18n.mjs';
 
 /** Every language version of a page, itself included, as [lang, page] pairs in the order of LANGS. */
 export function versions(page) {
@@ -20,6 +22,7 @@ export function alternates(page) {
 
 /** Structured data for a page (schema.org JSON-LD). Never ratings or reviews we don't have. */
 export function structuredData(page, site) {
+  if (page.type === 'guide') return guideData(page, site);
   if (page.type !== 'home') return [];
   const name = site.name[page.lang];
   const data = [
@@ -39,6 +42,39 @@ export function structuredData(page, site) {
     });
   }
   return data;
+}
+
+/** A guide: an Article published by the app's site (no invented author), and its breadcrumb (home, guides, guide). */
+function guideData(page, site) {
+  const home = `${site.origin}${langPrefix(page.lang)}/`;
+  const crumbs = [
+    [STRINGS[page.lang].home, home],
+    [STRINGS[page.lang].guides, `${site.origin}${hubPath(page.lang)}`],
+    [page.title, page.url],
+  ];
+  return [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: page.title,
+      description: page.description,
+      datePublished: page.published,
+      dateModified: page.updated,
+      inLanguage: page.lang,
+      mainEntityOfPage: page.url,
+      publisher: { '@type': 'Organization', name: site.name[page.lang], url: home },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: crumbs.map(([name, item], i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name,
+        item,
+      })),
+    },
+  ];
 }
 
 export function sitemap(pages) {
