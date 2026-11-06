@@ -90,13 +90,15 @@ export function fillKitPages(pages, site, identity) {
       name: e(site.name[lang]),
       domain: e(site.domain),
       support: `<a href="mailto:${email}">${email}</a>`,
+      // The support address on a line of its own, a full-size tap target: most visitors of the support page want it.
+      contact: `<p class="contact"><a href="mailto:${email}">${email}</a></p>`,
       updated: date && e(long.format(date)),
       appData: marked.parse(site.appData[lang]),
       identity: identityHtml(lang, identity),
       // A promise on answer time only once Support has confirmed it can keep it (site.json).
       reply: site.replyWithinWorkingDay ? `<p>${e(STRINGS[lang].replyWithinWorkingDay)}</p>` : '',
     };
-    let html = page.html.replace(/<p>\{\{(appData|identity|reply)\}\}<\/p>/g, '{{$1}}');
+    let html = page.html.replace(/<p>\{\{(appData|identity|reply|contact)\}\}<\/p>/g, '{{$1}}');
     if (page.translation === 'legal-notice') {
       if (!html.includes('{{identity}}')) html += '\n{{identity}}';
       if (!identity.identity) page.noindex = true;

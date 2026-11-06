@@ -220,12 +220,21 @@ describe('a built site', () => {
     assert.match(fr, /<title>Aide et contact \| Exemple<\/title>/);
     assert.match(en, /<title>Help and contact \| Example<\/title>/);
     for (const html of [fr, en]) {
-      assert.match(html, /<a href="mailto:support@exemple\.test">support@exemple\.test<\/a>/);
+      assert.match(
+        html,
+        /<p class="contact"><a href="mailto:support@exemple\.test">support@exemple\.test<\/a><\/p>/,
+        'the address on a line of its own',
+      );
+      assert.doesNotMatch(html, / ›/, 'a no-break space before each › keeps it with the word before');
       assert.match(html, /href="https:\/\/reportaproblem\.apple\.com"/);
       assert.match(html, /href="https:\/\/support\.google\.com\/googleplay\/answer\/2479637\?hl=(fr|en)"/);
       assert.doesNotMatch(html, /jour ouvré|working day/, 'no promise until Support confirms it');
       assert.doesNotMatch(html, /<p>\s*<\/p>/, 'no empty paragraph where the promise would be');
     }
+    assert.match(fr, /Réglages\u00a0› À propos\u00a0› Contacter l’assistance/);
+    assert.match(en, /Settings\u00a0› About\u00a0› Contact support/);
+    assert.match(fr, /ouvrez l’app Réglages de l’iPhone/);
+    assert.match(en, /open the iPhone’s Settings app/);
     assert.match(fr, /Restaurer les achats/);
     assert.match(fr, /Ce que vous enregistrez dans Exemple reste sur votre téléphone/);
     assert.match(en, /Restore purchases/);

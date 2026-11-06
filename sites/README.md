@@ -76,8 +76,9 @@ support address (a `mailto:` link, never a form), how to restore purchases (the 
 refunds go through Apple's or Google's refund pages, how to stop a subscription, and where the app's data lives (on the
 phone, in the user's own iCloud or Google backup, and the kit's backup export). It matches what the app kit does; an
 app that differs overrides the page with its own `content/<lang>/aide.md` or `support.md` (`type: page`,
-`translation: support`). Placeholders: `{{name}}`, `{{support}}`, `{{updated}}`, and `{{reply}}` alone on its line
-(the answer-time promise, empty unless `replyWithinWorkingDay`).
+`translation: support`). Placeholders: `{{name}}`, `{{support}}` (the address as an inline link), `{{updated}}`, and alone on
+their line `{{contact}}` (the address as a full-size link of its own) and `{{reply}}` (the answer-time promise, empty
+unless `replyWithinWorkingDay`). Menu paths keep a no-break space before each `›`, so no line starts with one.
 
 ## Coming-soon home page
 

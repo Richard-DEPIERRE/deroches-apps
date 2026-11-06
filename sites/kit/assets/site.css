@@ -148,3 +148,9 @@ dd {
   display: inline-block;
   padding-block: 0.625rem;
 }
+/* The support page's address: on its own line, a tap target of at least 48px. */
+.contact a {
+  display: inline-block;
+  padding-block: 0.75rem;
+  font-weight: 600;
+}
