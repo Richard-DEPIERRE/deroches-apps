@@ -128,7 +128,7 @@ export function guideMain(page, site) {
         `<li><a href="${e(s.url)}">${e(s.title)}</a>, ${e(s.publisher)}, ${DATE.test(asDate(s.source_date)) ? date(asDate(s.source_date)) : e(s.source_date)} (${e(t.read)} ${date(asDate(s.read))})</li>`,
     )
     .join('');
-  return `<nav class="breadcrumb" aria-label="${e(t.breadcrumb)}"><a href="${langPrefix(lang)}/">${e(t.home)}</a> › <a href="${hubPath(lang)}">${e(t.guides)}</a></nav>
+  return `<nav class="breadcrumb" aria-label="${e(t.breadcrumb)}"><a href="${langPrefix(lang)}/">${e(t.home)}</a> <span aria-hidden="true">›</span> <a href="${hubPath(lang)}">${e(t.guides)}</a></nav>
 <h1>${e(page.title)}</h1>
 <p class="updated">${dates}</p>
 ${body}<aside class="app-banner" aria-label="${e(name)}"><p><strong>${e(name)}</strong> — ${e(tagline)}</p>${cta(site, lang, page.path)}</aside>

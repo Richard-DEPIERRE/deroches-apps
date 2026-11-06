@@ -579,7 +579,10 @@ describe('a guide', () => {
       html,
       /<\/nav>\n<h1>Une page sans traduction<\/h1>\n<p class="updated">Publié le <time datetime="2026-11-02">2 novembre 2026<\/time> · mis à jour le <time datetime="2026-11-04">/,
     );
-    assert.match(html, /<a href="\/">Accueil<\/a> › <a href="\/guides\/">Guides<\/a><\/nav>/);
+    assert.match(
+      html,
+      /<a href="\/">Accueil<\/a> <span aria-hidden="true">›<\/span> <a href="\/guides\/">Guides<\/a><\/nav>/,
+    );
   });
 
   test('puts a download block at the marker and the app banner at the end, saying "coming soon" before launch', async () => {
@@ -599,7 +602,7 @@ describe('a guide', () => {
     const html = await read(out, GUIDE);
     assert.match(
       html,
-      /<h2 id="sources">Sources<\/h2><ol><li><a href="https:\/\/www\.service-public\.fr\/particuliers\/vosdroits\/F1">Une page officielle<\/a>, Un service public, <time datetime="2026-01-01">1 janvier 2026<\/time> \(consulté le <time datetime="2026-11-01">/,
+      /<h2 id="sources">Sources<\/h2><ol><li><a href="https:\/\/www\.service-public\.fr\/particuliers\/vosdroits\/F1">Une page officielle<\/a>, Un service public, <time datetime="2026-01-01">1er janvier 2026<\/time> \(consulté le <time datetime="2026-11-01">1er novembre 2026<\/time>\)/,
     );
   });
 
@@ -638,7 +641,13 @@ describe('a guide', () => {
       hub,
       /<ul class="guide-list"><li><a href="\/guides\/seulement-en-francais\/">.*<li><a href="\/guides\/deuxieme-guide\/">/,
     );
-    assert.match(hub, /<a class="nav" href="\/guides\/">Guides<\/a>/);
+    assert.match(hub, /<a class="nav" href="\/guides\/" aria-current="page">Guides<\/a>/);
+    assert.match(hub, /<meta name="description" content="Exemple\u00a0: tous les guides, du plus récent/);
+    assert.match(
+      await read(out, GUIDE),
+      /<a class="nav" href="\/guides\/">Guides<\/a>/,
+      'current only on the hub',
+    );
     const en = await read(out, 'en/guides/index.html');
     assert.match(en, /<meta name="robots" content="noindex">/);
     assert.doesNotMatch(en, /class="nav"/);

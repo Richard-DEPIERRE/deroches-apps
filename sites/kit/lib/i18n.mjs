@@ -18,7 +18,8 @@ export const STRINGS = {
     updated: 'mis à jour le',
     breadcrumb: 'Fil d’Ariane',
     guides: 'Guides',
-    guidesDescription: (name) => `Tous les guides de ${name}, du plus récent au plus ancien.`,
+    // No article or preposition touches the name ("de Exemple"); a no-break space before the colon.
+    guidesDescription: (name) => `${name}\u00a0: tous les guides, du plus récent au plus ancien.`,
     sources: 'Sources',
     read: 'consulté le',
     stores: { ios: 'Télécharger sur l’App Store', android: 'Télécharger sur Google Play' },
@@ -82,5 +83,7 @@ export function longDate(lang, iso) {
     dateStyle: 'long',
     timeZone: 'UTC',
   });
-  return format.format(new Date(`${iso}T00:00:00Z`));
+  const text = format.format(new Date(`${iso}T00:00:00Z`));
+  // French writes the first of the month as an ordinal: "1er novembre 2026".
+  return lang === 'fr' ? text.replace(/^1 /, '1er ') : text;
 }

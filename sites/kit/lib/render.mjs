@@ -86,8 +86,8 @@ ${head.join('\n')}
 <a class="skip" href="#main">${e(t.skip)}</a>
 <header class="site-header">
 <a class="brand" href="${langPrefix(page.lang)}/">${e(appName)}</a>
-${guidesOf(pages, page.lang).length ? `<a class="nav" href="${hubPath(page.lang)}">${e(t.guides)}</a>` : ''}
-<nav class="lang" aria-label="${e(t.language)}">${languageSwitch(page)}</nav>
+<div class="header-end">${guidesOf(pages, page.lang).length ? `<a class="nav" href="${hubPath(page.lang)}"${page.path === hubPath(page.lang) ? ' aria-current="page"' : ''}>${e(t.guides)}</a>` : ''}
+<nav class="lang" aria-label="${e(t.language)}">${languageSwitch(page)}</nav></div>
 </header>
 <main id="main">
 ${main(page, ctx)}
