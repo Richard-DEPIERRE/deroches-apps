@@ -77,9 +77,10 @@ download: Calculez vos frais réels kilomètre par kilomètre.   # optional: the
 related: [bareme-kilometrique, abattement-10]                 # optional: up to 3 translation keys of guides, same language
 ```
 
-The kit writes the page: a breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own),
-the published date and any later update, the body, the app banner, the sources with their dates, then "Read next" with
-the related guides. Wide tables scroll sideways in their own box.
+The daily procedure, from the topic pick to the deploy, is [GUIDES.md](GUIDES.md). The kit writes the page: a
+breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own), the published date and any
+later update, the body, the app banner, "Read next" with the related guides, then the sources with their dates. Wide
+tables scroll sideways in their own box.
 
 - **Download blocks.** A line `<!-- download -->` in a guide's body becomes a download block: the guide's `download`
   words (else the site's `tagline`), then the store buttons. Put it where readers stop reading (`apps-daily-guide`).
@@ -239,12 +240,10 @@ Run from `sites/`:
 ```
 npm ci
 npm run lint                       # Biome
-npm test                           # node --test
+npm test                           # node --test, then check-guides
+npm run new-guide -- <slug> <lang> <file-slug> [--translation <key>] [--date YYYY-MM-DD]   # starts a guide (GUIDES.md)
+npm run check-guides [-- <site dir>]   # one new guide per site per day, each fact-checked (every site by default)
 npm run build -- <slug>            # writes <slug>/dist/ for review
 npm run build -- <slug> --production   # the deploy build: needs legal/identity.json
 node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compares it)
 ```
-
-## Still to come (child issues of DAPP-6)
-
-The daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).

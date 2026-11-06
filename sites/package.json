@@ -8,7 +8,9 @@
   },
   "scripts": {
     "build": "node kit/build.mjs",
-    "test": "node --test 'kit/test/*.test.mjs'",
+    "new-guide": "node kit/new-guide.mjs",
+    "check-guides": "node kit/check-guides.mjs",
+    "test": "node --test 'kit/test/*.test.mjs' && node kit/check-guides.mjs",
     "lint": "biome check ."
   },
   "dependencies": {

@@ -67,6 +67,30 @@ export function linkRelated(pages) {
   }
 }
 
+/**
+ * The one-a-day rule (GUIDES.md): at most one new guide per site per `published` date. The French and English pages of
+ * one guide share a translation key and count as one; a correction moves only `updated`, so it is not a new guide.
+ * Returns the problems, one per day with more than one.
+ */
+export function oneGuidePerDay(pages) {
+  const days = new Map();
+  for (const page of pages.filter((p) => p.type === 'guide')) {
+    const guides = days.get(page.published) ?? new Map();
+    const key = page.translation ?? page.file;
+    guides.set(key, [...(guides.get(key) ?? []), page.file]);
+    days.set(page.published, guides);
+  }
+  return [...days]
+    .filter(([, guides]) => guides.size > 1)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(
+      ([day, guides]) =>
+        `published ${day}: ${guides.size} new guides, at most one a day per site (${[...guides.values()]
+          .flat()
+          .join(', ')}); move the others to later days`,
+    );
+}
+
 /** A language's indexable guides, newest first. */
 export function guidesOf(pages, lang) {
   return pages
