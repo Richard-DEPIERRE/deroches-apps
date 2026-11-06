@@ -152,7 +152,6 @@ describe('a built site', () => {
     assert.match(en, /<h2>Host<\/h2>\n<dl><dt>Name<\/dt><dd>Test Host<\/dd>/);
     assert.doesNotMatch(en, /Share capital|VAT/, 'optional fields left out are not printed');
     assert.match(en, /<a href="mailto:support@exemple\.test">support@exemple\.test<\/a>/);
-    assert.match(en, /Last updated: 6 November 2026\./);
     const fr = await read(out, 'mentions-legales/index.html');
     assert.match(
       fr,
@@ -170,7 +169,6 @@ describe('a built site', () => {
     assert.match(fr, /<h2>Dans l’application<\/h2>\n<p>L&#39;application Exemple garde vos données/);
     assert.match(fr, /Écrivez à <a href="mailto:support@exemple\.test">/);
     assert.match(fr, /href="https:\/\/www\.cnil\.fr\/fr\/plaintes"/);
-    assert.match(fr, /Dernière mise à jour : 6 novembre 2026\./);
     const en = await read(out, 'en/privacy/index.html');
     assert.match(en, /<p>The Example app keeps your data on your phone and sends nothing\.<\/p>/);
     assert.match(en, /complain to the CNIL/);
@@ -186,6 +184,25 @@ describe('a built site', () => {
     assert.match(en, /href="https:\/\/support\.google\.com\/googleplay\/answer\/2479637\?hl=en"/);
   });
 
+  test('dates every legal page on its own line under the title', async () => {
+    for (const file of ['en/legal-notice/index.html', 'en/privacy/index.html', 'en/terms/index.html']) {
+      assert.match(
+        await read(out, file),
+        /<\/h1>\n<p class="updated">Last updated: 6 November 2026<\/p>\n/,
+        file,
+      );
+    }
+    for (const file of ['confidentialite/index.html', 'conditions/index.html']) {
+      assert.match(
+        await read(out, file),
+        /<\/h1>\n<p class="updated">Dernière mise à jour : 6 novembre 2026<\/p>\n/,
+        file,
+      );
+    }
+    const own = await read(out, 'mentions-legales/index.html');
+    assert.doesNotMatch(own, /class="updated"/, 'the site’s own page has no updated date, so no line');
+  });
+
   test('leaves no placeholder in any page', async () => {
     const files = (await readdir(out, { recursive: true })).filter((f) => f.endsWith('.html'));
     for (const file of files) assert.doesNotMatch(await read(out, file), /\{\{/, file);
@@ -197,7 +214,7 @@ describe('a built site', () => {
     assert.match(fr, /<p class="coming-soon">Bientôt sur l’App Store et Google Play\.<\/p>/);
     assert.match(
       fr,
-      /<h2>Premiers guides<\/h2>\n<ul><li><a href="\/guides\/seulement-en-francais\/">Une page sans traduction<\/a><\/li><\/ul>/,
+      /<h2>Premiers guides<\/h2>\n<ul class="guides"><li><a href="\/guides\/seulement-en-francais\/">Une page sans traduction<\/a><\/li><\/ul>/,
     );
     assert.doesNotMatch(fr, /apps\.apple\.com|play\.google\.com|<form|<input/);
     const en = await read(out, 'en/index.html');

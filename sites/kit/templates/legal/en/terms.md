@@ -9,7 +9,7 @@ updated: 2026-11-06
 
 # Terms of use
 
-Last updated: {{updated}}. These terms apply to the site {{domain}}, which presents the {{name}} app. Its publisher is
+These terms apply to the site {{domain}}, which presents the {{name}} app. Its publisher is
 named in the [legal notice](/en/legal-notice/).
 
 ## Using the site

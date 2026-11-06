@@ -99,6 +99,11 @@ export function fillLegal(pages, site, identity) {
       if (values[key] === undefined) throw new Error(`${page.file}: ${match} is unknown or has no value`);
       return values[key];
     });
+    // The date sits in the same place on every legal page: its own line under the title.
+    if (values.updated) {
+      const line = `<p class="updated">${e(STRINGS[lang].lastUpdated)} ${values.updated}</p>`;
+      html = html.includes('</h1>') ? html.replace('</h1>', `</h1>\n${line}`) : `${line}\n${html}`;
+    }
     page.html = html;
   }
 }

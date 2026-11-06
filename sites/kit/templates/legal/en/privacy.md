@@ -9,7 +9,7 @@ updated: 2026-11-06
 
 # Privacy policy
 
-Last updated: {{updated}}. The publisher of the site {{domain}} and of the {{name}} app is named in the
+The publisher of the site {{domain}} and of the {{name}} app is named in the
 [legal notice](/en/legal-notice/).
 
 ## On this site

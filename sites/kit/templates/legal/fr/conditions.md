@@ -9,7 +9,7 @@ updated: 2026-11-06
 
 # Conditions d’utilisation
 
-Dernière mise à jour : {{updated}}. Ces conditions s’appliquent au site {{domain}}, qui présente l’application
+Ces conditions s’appliquent au site {{domain}}, qui présente l’application
 {{name}}. Son éditeur est indiqué dans les [mentions légales](/mentions-legales/).
 
 ## Utiliser le site

@@ -13,6 +13,7 @@ export const STRINGS = {
     backHome: 'Retour à l’accueil',
     comingSoon: 'Bientôt sur l’App Store et Google Play.',
     firstGuides: 'Premiers guides',
+    lastUpdated: 'Dernière mise à jour :',
     identityMissing:
       'Fichier d’identité manquant : les informations sur l’éditeur et l’hébergeur seront ajoutées avant la mise en ligne.',
     publisher: 'Éditeur du site',
@@ -40,6 +41,7 @@ export const STRINGS = {
     backHome: 'Back to the home page',
     comingSoon: 'Coming soon to the App Store and Google Play.',
     firstGuides: 'First guides',
+    lastUpdated: 'Last updated:',
     identityMissing:
       'Identity file missing: the publisher and host details will be added before the site goes live.',
     publisher: 'Publisher',

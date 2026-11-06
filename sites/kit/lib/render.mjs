@@ -39,7 +39,7 @@ function main(page, { site, pages }) {
     .slice(0, 10)
     .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`);
   return `${page.html}<p class="coming-soon">${e(t.comingSoon)}</p>
-${guides.length ? `<h2>${e(t.firstGuides)}</h2>\n<ul>${guides.join('')}</ul>\n` : ''}`;
+${guides.length ? `<h2>${e(t.firstGuides)}</h2>\n<ul class="guides">${guides.join('')}</ul>\n` : ''}`;
 }
 
 /**

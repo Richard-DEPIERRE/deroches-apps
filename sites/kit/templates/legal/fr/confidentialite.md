@@ -9,7 +9,7 @@ updated: 2026-11-06
 
 # Politique de confidentialité
 
-Dernière mise à jour : {{updated}}. L’éditeur du site {{domain}} et de l’application {{name}} est indiqué dans les
+L’éditeur du site {{domain}} et de l’application {{name}} est indiqué dans les
 [mentions légales](/mentions-legales/).
 
 ## Sur ce site
