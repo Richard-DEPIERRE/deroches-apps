@@ -76,7 +76,7 @@ sources:                         # as the fact-check recorded them (apps-fact-ch
 download: Calculez vos frais réels kilomètre par kilomètre.   # optional: the download block's words for this reader
 ```
 
-The kit writes the page: a breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own),
+The daily procedure, from the topic pick to the deploy, is [GUIDES.md](GUIDES.md). The kit writes the page: a breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own),
 the published date and any later update, the body, the app banner, then the sources with their dates. Wide tables scroll sideways in their own box.
 
 - **Download blocks.** A line `<!-- download -->` in a guide's body becomes a download block: the guide's `download`
@@ -225,7 +225,9 @@ Run from `sites/`:
 ```
 npm ci
 npm run lint                       # Biome
-npm test                           # node --test
+npm test                           # node --test, then check-guides
+npm run new-guide -- <slug> <lang> <file-slug> [--translation <key>] [--date YYYY-MM-DD]   # starts a guide (GUIDES.md)
+npm run check-guides [-- <site dir>]   # one new guide per site per day, each fact-checked (every site by default)
 npm run build -- <slug>            # writes <slug>/dist/ for review
 npm run build -- <slug> --production   # the deploy build: needs legal/identity.json
 node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compares it)
@@ -233,5 +235,4 @@ node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compa
 
 ## Still to come (child issues of DAPP-6)
 
-The related-guides block, the build's link check and its refusal of raw HTML and outside links in Markdown; the
-daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The related-guides block, the build's link check and its refusal of raw HTML and outside links in Markdown.
