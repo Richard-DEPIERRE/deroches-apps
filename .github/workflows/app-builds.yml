@@ -139,7 +139,7 @@ jobs:
     # release=<slug>`). tool/release/build.sh checks the version, runs tool/check.sh, then builds the unsigned .aab
     # and the ad-hoc-signed .xcarchive. The Mobile Tech Lead downloads the tar and runs the store wrapper
     # (tool/release/README.md).
-    name: Release build (${{ inputs.release }})
+    name: Release build
     if: ${{ inputs.release && github.ref == 'refs/heads/main' }}
     runs-on: macos-26
     timeout-minutes: 60
