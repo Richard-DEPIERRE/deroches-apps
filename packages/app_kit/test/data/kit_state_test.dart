@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:app_kit/app_kit.dart';
@@ -79,6 +80,17 @@ void main() {
     final next = controller();
     await next.load();
     expect(next.state, expected);
+  });
+
+  test('flush waits for an update nobody awaited, so the next launch reads it', () async {
+    final kit = controller();
+    await kit.load();
+    unawaited(kit.update((s) => s.copyWith(onboardingCompleted: true)));
+    await kit.flush();
+
+    final next = controller();
+    await next.load();
+    expect(next.state!.onboardingCompleted, isTrue);
   });
 
   test('the rating prompt history cannot be changed in place', () async {
