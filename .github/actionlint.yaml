@@ -1,4 +1,0 @@
-self-hosted-runner:
-  # The studio Mac, registered for this repo (DAPP-7).
-  labels:
-    - deroches-apps

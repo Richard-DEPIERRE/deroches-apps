@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
-# The site kit's checks (CI's site job): install, lint, test, then build the kit's
-# test site and every app's site. Uses the `node` and `npm` on PATH (Node 22+).
-# Exits 0 with a note while the repo has no site kit yet (sites/package.json).
+# CI's site job. The report page (reports/, ADR 0004): install, lint, test (its
+# build reads Paperclip, so it is only built when published). The site kit
+# (sites/): install, lint, test, then build the kit's test site and every app's
+# site. Uses the `node` and `npm` on PATH (Node 22+). A part missing from this
+# tree is skipped with a note.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$root"
+
+if [ -f reports/package.json ]; then
+  echo "== reports: lint and test"
+  (cd reports && npm ci && npm run lint && npm test)
+else
+  echo "No report page in this tree (reports/package.json is missing)."
+fi
 
 if [ ! -f sites/package.json ]; then
   echo "No site kit in this tree (sites/package.json is missing): nothing to build."

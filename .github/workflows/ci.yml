@@ -1,11 +1,11 @@
-# CI for deroches-apps (DAPP-7). Self-hosted only: GitHub-hosted minutes are off
-# on this account, so never `ubuntu-latest` or `macos-latest`. The runner is the
-# studio Mac, registered for this repo with the label `deroches-apps` (the
-# needs-richard child of DAPP-7). It is shared: one job at a time, short timeouts,
-# no secrets in any job.
+# CI for deroches-apps (DAPP-7): lint, tests and the site build, on every PR and
+# push to main. GitHub-hosted Linux runners: the repo is public, so they cost
+# nothing (Richard's option A on DAPP-48, 2026-11-06). If the repo ever goes
+# private, these minutes count against the $100 cap: check before switching.
+# No secrets in any job.
 #
-# Still to come (the follow-up of DAPP-7): the iOS and Android builds of
-# apps/kit_example and the screenshots artifact.
+# The iOS and Android builds of the apps, the screenshots artifact and the
+# release build are in app-builds.yml (DAPP-49).
 name: CI
 
 on:
@@ -29,7 +29,7 @@ defaults:
 jobs:
   lint:
     name: Lint (flutter analyze)
-    runs-on: [self-hosted, macOS, ARM64, deroches-apps]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -43,7 +43,7 @@ jobs:
 
   test:
     name: Tests (flutter test, data-upgrade tests included)
-    runs-on: [self-hosted, macOS, ARM64, deroches-apps]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -55,8 +55,8 @@ jobs:
       - run: tool/check.sh test
 
   site:
-    name: Site build (lint, tests, every site)
-    runs-on: [self-hosted, macOS, ARM64, deroches-apps]
+    name: Site build (site kit and report page)
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
