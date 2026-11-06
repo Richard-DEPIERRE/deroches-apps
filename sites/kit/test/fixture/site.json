@@ -1,0 +1,8 @@
+{
+  "slug": "exemple",
+  "domain": "exemple.test",
+  "status": "coming-soon",
+  "name": { "fr": "Exemple", "en": "Example" },
+  "accent": { "light": "#136f63", "dark": "#5cc8ad" },
+  "stores": { "ios": null, "android": null }
+}
