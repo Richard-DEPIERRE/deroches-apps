@@ -45,14 +45,16 @@ npm run new-guide -- <slug> en <file-slug> --translation <the French file's tran
 
 It writes `<slug>/content/<lang>/guides/<file-slug>.md` (the URL is `/guides/<file-slug>/`, or `/en/guides/…`) with
 the front matter to fill: `title`, `description`, `translation`, `type: guide`, `published`, `updated`, `factCheck`,
-`sources` (title, publisher, url, source_date, read, as the fact-check recorded them) and an optional `download` line.
+`sources` (title, publisher, url, source_date, read, as the fact-check recorded them), an optional `download` line
+and an optional `related` list.
 The kit's README has the format. Open a draft PR; run `CE-FACT-CHECK` in each language and post
 `GATE CE-FACT-CHECK: <VERDICT>` on the issue. Only `PASS` goes on.
 
 ## 4. Links, download buttons, sitemap (Web & SEO, after `PASS`)
 On the same PR:
 - **Into the guide**: a sentence with descriptive anchor text in 2–4 of the pages named in the issue.
-  **Out of it**: 2–3 related guides of the same site. Never another app's site.
+  **Out of it**: 2–3 related guides of the same site, as the `related:` translation keys (the build refuses a key
+  that isn't another guide in that language, and any broken internal link). Never another app's site.
 - **Download blocks**: move the `<!-- download -->` line where readers stop reading (the read-depth query in the
   README); before there's data, right after the section that answers the main question. The banner at the end is the
   kit's.
