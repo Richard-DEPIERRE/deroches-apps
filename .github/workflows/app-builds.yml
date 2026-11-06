@@ -61,6 +61,9 @@ jobs:
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git status --short
+            # The full diff, so a change the build made (such as Flutter's Swift Package Manager migration of the
+            # Xcode project) can be read here and committed.
+            git --no-pager diff
             echo "::error::the build changed or added files the repo should hold (commit them) or ignore"
             exit 1
           fi
@@ -101,6 +104,9 @@ jobs:
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git status --short
+            # The full diff, so a change the build made (such as Flutter's Swift Package Manager migration of the
+            # Xcode project) can be read here and committed.
+            git --no-pager diff
             echo "::error::the build changed or added files the repo should hold (commit them) or ignore"
             exit 1
           fi
