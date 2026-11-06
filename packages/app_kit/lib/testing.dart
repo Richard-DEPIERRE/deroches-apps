@@ -209,6 +209,20 @@ Future<void> pumpOnSmallPhone(
   await tester.pumpAndSettle();
 }
 
+/// Waits in a widget test until [kit]'s saves are on disk, before a relaunch
+/// reads them with a new [KitStateController]. A save started by a tap runs in
+/// the test's fake time, so this pumps while real time passes; it fails after
+/// 10 seconds rather than hang.
+Future<void> waitForKitSaves(WidgetTester tester, KitStateController kit) async {
+  var saved = false;
+  unawaited(kit.flush().then((_) => saved = true));
+  for (var i = 0; !saved; i++) {
+    if (i == 1000) fail('the kit state was still saving after 10 seconds');
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
+    await tester.pump();
+  }
+}
+
 /// The data-upgrade test (ADR 0001, section 8). Call it from the app's
 /// `test/data_upgrade/` test's `main`.
 ///
