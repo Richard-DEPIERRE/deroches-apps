@@ -29,7 +29,7 @@ sites/
 | `status` | `coming-soon` until the app is on a store, then `live` (a live site needs at least one store URL) |
 | `name.fr`, `name.en` | the app's name in each language |
 | `stores.ios`, `stores.android` | store URLs, or `null` until the app is on that store |
-| `themeColor` | optional, `#rrggbb` |
+| `accent.light`, `accent.dark` | required, `#rrggbb`: the app's own link, focus and browser-bar colour in each scheme. The build refuses one under 4.5:1 against the page (`#ffffff` light, `#111113` dark) and adds it to the site's own hashed stylesheet. No shared studio colour. |
 | `category` | optional schema.org application category (default `UtilitiesApplication`) |
 
 ## Pages

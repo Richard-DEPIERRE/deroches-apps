@@ -34,6 +34,14 @@ function checkOutDir(siteDir, outDir) {
   }
 }
 
+/** The site's own accent, appended to the shared stylesheet before hashing (the CSP allows no inline style). */
+function accentCss(accent) {
+  return (
+    `\n/* This site's accent (site.json), added by the build. */\n:root {\n  --accent: ${accent.light};\n}\n` +
+    `@media (prefers-color-scheme: dark) {\n  :root {\n    --accent: ${accent.dark};\n  }\n}\n`
+  );
+}
+
 async function emit(outDir, path, content) {
   const file = join(outDir, path);
   await mkdir(dirname(file), { recursive: true });
@@ -49,7 +57,7 @@ export async function build(siteDir, outDir = join(siteDir, 'dist')) {
   const pages = await loadPages(siteDir, site);
   await rm(outDir, { recursive: true, force: true });
 
-  const css = await readFile(join(KIT, 'assets', 'site.css'));
+  const css = (await readFile(join(KIT, 'assets', 'site.css'), 'utf8')) + accentCss(site.accent);
   const stylesheet = `/assets/site.${createHash('sha256').update(css).digest('hex').slice(0, 10)}.css`;
   await emit(outDir, stylesheet, css);
 

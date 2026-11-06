@@ -3,6 +3,6 @@
   "domain": "exemple.test",
   "status": "coming-soon",
   "name": { "fr": "Exemple", "en": "Example" },
-  "themeColor": "#0b57d0",
+  "accent": { "light": "#136f63", "dark": "#5cc8ad" },
   "stores": { "ios": null, "android": null }
 }

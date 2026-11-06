@@ -103,9 +103,29 @@ describe('a built site', () => {
     assert.equal(blocks[0].inLanguage, 'en');
   });
 
-  test('links legal pages from the footer in their own language only', async () => {
+  test('links legal pages from the footer in their own language only, and has no empty footer', async () => {
     assert.match(await read(out, 'index.html'), /<a href="\/mentions-legales\/">Mentions légales<\/a>/);
-    assert.doesNotMatch(await read(out, 'en/index.html'), /mentions-legales/);
+    const en = await read(out, 'en/index.html');
+    assert.doesNotMatch(en, /mentions-legales/);
+    assert.doesNotMatch(en, /<footer/, 'no English legal page in the fixture, so no footer');
+  });
+
+  test('labels the language switch in the page language', async () => {
+    assert.match(await read(out, 'index.html'), /<nav class="lang" aria-label="Langue">/);
+    assert.match(await read(out, 'en/index.html'), /<nav class="lang" aria-label="Language">/);
+  });
+
+  test("gives the site its own accent, in its own hashed stylesheet and in each scheme's theme colour", async () => {
+    const html = await read(out, 'index.html');
+    assert.match(html, /<meta name="theme-color" media="\(prefers-color-scheme: light\)" content="#136f63">/);
+    assert.match(html, /<meta name="theme-color" media="\(prefers-color-scheme: dark\)" content="#5cc8ad">/);
+    const [, href] = html.match(/<link rel="stylesheet" href="([^"]+)">/);
+    const css = await read(out, href);
+    assert.match(
+      css,
+      /:root \{\n {2}--accent: #136f63;\n\}\n@media \(prefers-color-scheme: dark\) \{\n {2}:root \{\n {4}--accent: #5cc8ad;/,
+    );
+    assert.doesNotMatch(css, /#0b57d0|#8ab4f8/, 'no shared accent left in the kit');
   });
 
   test('loads nothing from another origin, sets no cookie and has no form', async () => {
@@ -157,6 +177,26 @@ describe('the build refuses', () => {
       await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, status: 'live' }));
     });
     await assert.rejects(build(dir, join(dir, 'dist')), /a live site needs at least one store URL/);
+  });
+
+  test('a site without its own accent', async () => {
+    const dir = await variant('no-accent', async (d) => {
+      const { accent, ...site } = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+      await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, accent: { light: accent.light } }));
+    });
+    await assert.rejects(build(dir, join(dir, 'dist')), /accent\.dark is required/);
+  });
+
+  test('an accent links would be hard to read on, giving the ratio', async () => {
+    const dir = await variant('low-contrast', async (d) => {
+      const site = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+      const accent = { light: '#5cc8ad', dark: '#136f63' };
+      await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, accent }));
+    });
+    await assert.rejects(
+      build(dir, join(dir, 'dist')),
+      /accent\.light: #5cc8ad on #ffffff is 2\.03:1, under 4\.5:1[\s\S]*accent\.dark: #136f63 on #111113 is 3\.13:1/,
+    );
   });
 
   test('an out dir that would delete the site, another site or the kit', async () => {

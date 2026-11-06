@@ -14,11 +14,15 @@ function languageSwitch(page) {
     .join(' ');
 }
 
-function footerLinks(page, pages) {
+/** The footer with the legal pages of the page's language; no footer at all when there are none (no empty rule). */
+function footer(page, pages) {
   const legal = pages.filter((p) => p.lang === page.lang && p.type === 'legal');
   if (!legal.length) return '';
   const items = legal.map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`).join('');
-  return `<nav aria-label="${e(STRINGS[page.lang].legal)}"><ul>${items}</ul></nav>`;
+  return `<footer class="site-footer">
+<nav aria-label="${e(STRINGS[page.lang].legal)}"><ul>${items}</ul></nav>
+</footer>
+`;
 }
 
 /**
@@ -44,7 +48,10 @@ export function renderPage(page, { site, pages, stylesheet }) {
     `<meta property="og:description" content="${e(page.description)}">`,
     `<meta property="og:url" content="${e(page.url)}">`,
     `<meta property="og:locale" content="${t.locale}">`,
-    site.themeColor ? `<meta name="theme-color" content="${site.themeColor}">` : '',
+    ...['light', 'dark'].map(
+      (scheme) =>
+        `<meta name="theme-color" media="(prefers-color-scheme: ${scheme})" content="${e(site.accent[scheme])}">`,
+    ),
     `<link rel="stylesheet" href="${e(stylesheet)}">`,
     ...structuredData(page, site).map(
       (data) => `<script type="application/ld+json">${jsonForScript(data)}</script>`,
@@ -59,15 +66,12 @@ ${head.join('\n')}
 <a class="skip" href="#main">${e(t.skip)}</a>
 <header class="site-header">
 <a class="brand" href="${langPrefix(page.lang)}/">${e(appName)}</a>
-<nav class="lang">${languageSwitch(page)}</nav>
+<nav class="lang" aria-label="${e(t.language)}">${languageSwitch(page)}</nav>
 </header>
 <main id="main">
 ${page.html}
 </main>
-<footer class="site-footer">
-${footerLinks(page, pages)}
-</footer>
-</body>
+${footer(page, pages)}</body>
 </html>
 `;
 }

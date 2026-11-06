@@ -67,7 +67,10 @@ an upgrade is its own change.
 `form-action 'none'`, `frame-ancestors 'none'` and `base-uri 'self'`; plus `nosniff`, a strict referrer policy and a
 Permissions-Policy that turns off the camera, microphone and location. Nothing loads from another origin, so no
 third-party script, font or tracker can be added by mistake, and no form can post anywhere. The stylesheet is
-fingerprinted and cached for a year. The build already tests the fixture for other origins, cookies and forms;
+fingerprinted and cached for a year. Because `style-src` is `'self'`, there is no inline style: each site's own
+accent (`accent.light` and `accent.dark` in `site.json`, at least 4.5:1 against the page, checked by the build) is
+appended to the shared stylesheet before it is hashed, so every site gets its own stylesheet and no two apps share a
+recognisable colour (no studio brand; Designer review DAPP-38). The build already tests the fixture for other origins, cookies and forms;
 DAPP-21 makes it refuse raw HTML forms, iframes, scripts and links to other origins in any Markdown, except the
 `/go/<store>` links.
 
