@@ -10,7 +10,8 @@ import 'fr/bareme_2025.dart';
 /// Every barème the app knows, by income year.
 const Map<int, FrenchBareme> frenchBaremes = {2024: bareme2024, 2025: bareme2025};
 
-enum VehicleType { car, motorbike, moped }
+/// A car covers vans too. Bicycles have a rate in the UK only.
+enum VehicleType { car, motorbike, moped, bicycle }
 
 class Vehicle {
   const Vehicle({required this.type, this.fiscalHorsepower, this.electric = false});
@@ -116,6 +117,7 @@ BaremeResult frenchAllowance(Vehicle vehicle, {required int year, required int k
   if (km < 0) throw ArgumentError.value(km, 'km', 'must not be negative');
   final bareme = frenchBaremes[year];
   if (bareme == null) return BaremeNotAvailable(year);
+  if (vehicle.type == VehicleType.bicycle) throw ArgumentError.value(vehicle.type, 'type', 'has no barème');
 
   final cv = vehicle.type == VehicleType.moped ? 1 : vehicle.fiscalHorsepower;
   if (cv == null || cv < 1) {
