@@ -8,13 +8,17 @@ import { STRINGS } from './i18n.mjs';
 const KIT = dirname(dirname(fileURLToPath(import.meta.url)));
 /** Richard's file (sites/legal/README.md). Agents never create, fill or copy it. */
 export const IDENTITY_FILE = join(dirname(KIT), 'legal', 'identity.json');
-export const TEMPLATES = join(KIT, 'templates', 'legal');
+export const TEMPLATES = join(KIT, 'templates');
 
-/** The three legal pages every site has in every language: translation key, then the file (and URL) per language. */
-export const LEGAL = [
-  { key: 'legal-notice', fr: 'mentions-legales', en: 'legal-notice' },
-  { key: 'privacy', fr: 'confidentialite', en: 'privacy' },
-  { key: 'terms', fr: 'conditions', en: 'terms' },
+/**
+ * The pages the kit writes for every site in every language, in footer order: translation key, type, the templates'
+ * folder, then the file (and URL) per language. The support page is the store support URL (DAPP-136).
+ */
+export const KIT_PAGES = [
+  { key: 'support', type: 'page', dir: 'support', fr: 'aide', en: 'support' },
+  { key: 'legal-notice', type: 'legal', dir: 'legal', fr: 'mentions-legales', en: 'legal-notice' },
+  { key: 'privacy', type: 'legal', dir: 'legal', fr: 'confidentialite', en: 'privacy' },
+  { key: 'terms', type: 'legal', dir: 'legal', fr: 'conditions', en: 'terms' },
 ];
 
 const REQUIRED = [
@@ -69,12 +73,12 @@ function identityHtml(lang, { identity }) {
 }
 
 /**
- * Fills the legal pages' placeholders from site.json and the identity file. The legal notice always carries the
- * identity block (appended when an overriding page leaves out `{{identity}}`); without the file it shows a visible
- * placeholder and stays out of search.
+ * Fills the placeholders of the kit's pages (the legal pages and the support page) from site.json and the identity
+ * file. The legal notice always carries the identity block (appended when an overriding page leaves out
+ * `{{identity}}`); without the file it shows a visible placeholder and stays out of search.
  */
-export function fillLegal(pages, site, identity) {
-  for (const page of pages.filter((p) => p.type === 'legal')) {
+export function fillKitPages(pages, site, identity) {
+  for (const page of pages.filter((p) => p.type === 'legal' || p.translation === 'support')) {
     const lang = page.lang;
     const email = e(site.supportEmail);
     const date = page.updated && new Date(`${page.updated}T00:00:00Z`);
@@ -86,11 +90,15 @@ export function fillLegal(pages, site, identity) {
       name: e(site.name[lang]),
       domain: e(site.domain),
       support: `<a href="mailto:${email}">${email}</a>`,
+      // The support address on a line of its own, a full-size tap target: most visitors of the support page want it.
+      contact: `<p class="contact"><a href="mailto:${email}">${email}</a></p>`,
       updated: date && e(long.format(date)),
       appData: marked.parse(site.appData[lang]),
       identity: identityHtml(lang, identity),
+      // A promise on answer time only once Support has confirmed it can keep it (site.json).
+      reply: site.replyWithinWorkingDay ? `<p>${e(STRINGS[lang].replyWithinWorkingDay)}</p>` : '',
     };
-    let html = page.html.replace(/<p>\{\{(appData|identity)\}\}<\/p>/g, '{{$1}}');
+    let html = page.html.replace(/<p>\{\{(appData|identity|reply|contact)\}\}<\/p>/g, '{{$1}}');
     if (page.translation === 'legal-notice') {
       if (!html.includes('{{identity}}')) html += '\n{{identity}}';
       if (!identity.identity) page.noindex = true;
@@ -99,7 +107,7 @@ export function fillLegal(pages, site, identity) {
       if (values[key] === undefined) throw new Error(`${page.file}: ${match} is unknown or has no value`);
       return values[key];
     });
-    // The date sits in the same place on every legal page: its own line under the title.
+    // The date sits in the same place on every kit page: its own line under the title.
     if (values.updated) {
       const line = `<p class="updated">${e(STRINGS[lang].lastUpdated)} ${values.updated}</p>`;
       html = html.includes('</h1>') ? html.replace('</h1>', `</h1>\n${line}`) : `${line}\n${html}`;

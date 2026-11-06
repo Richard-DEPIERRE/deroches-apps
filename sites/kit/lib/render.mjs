@@ -1,7 +1,7 @@
 import { LANGS, langPrefix } from './config.mjs';
 import { escapeHtml as e, jsonForScript } from './html.mjs';
 import { STRINGS } from './i18n.mjs';
-import { LEGAL } from './legal.mjs';
+import { KIT_PAGES } from './legal.mjs';
 import { alternates, structuredData } from './seo.mjs';
 
 /** The link to the same page in the other language, or to that language's home page when there is none. */
@@ -15,13 +15,13 @@ function languageSwitch(page) {
     .join(' ');
 }
 
-/** The footer with the page language's legal pages, which every site has (the kit writes them). */
+/** The footer with the page language's support and legal pages, which every site has (the kit writes them). */
 function footer(page, pages) {
-  const items = LEGAL.map(({ key }) => pages.find((p) => p.lang === page.lang && p.translation === key))
+  const items = KIT_PAGES.map(({ key }) => pages.find((p) => p.lang === page.lang && p.translation === key))
     .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`)
     .join('');
   return `<footer class="site-footer">
-<nav aria-label="${e(STRINGS[page.lang].legal)}"><ul>${items}</ul></nav>
+<nav aria-label="${e(STRINGS[page.lang].footer)}"><ul>${items}</ul></nav>
 </footer>
 `;
 }

@@ -70,12 +70,14 @@ describe('a built site', () => {
     assert.deepEqual(locs.sort(), [
       'https://exemple.test/',
       'https://exemple.test/a-propos/',
+      'https://exemple.test/aide/',
       'https://exemple.test/conditions/',
       'https://exemple.test/confidentialite/',
       'https://exemple.test/en/',
       'https://exemple.test/en/about/',
       'https://exemple.test/en/legal-notice/',
       'https://exemple.test/en/privacy/',
+      'https://exemple.test/en/support/',
       'https://exemple.test/en/terms/',
       'https://exemple.test/guides/seulement-en-francais/',
       'https://exemple.test/mentions-legales/',
@@ -110,10 +112,11 @@ describe('a built site', () => {
     assert.equal(blocks[0].inLanguage, 'en');
   });
 
-  test('links the three legal pages from every footer, in its own language and a fixed order', async () => {
+  test('links the support page and the legal pages from every footer, in its language and a fixed order', async () => {
     const footerLinks = (html) => [...html.split('<footer')[1].matchAll(/href="([^"]+)"/g)].map(([, h]) => h);
     for (const file of ['index.html', 'guides/seulement-en-francais/index.html', '404.html']) {
       assert.deepEqual(footerLinks(await read(out, file)), [
+        '/aide/',
         '/mentions-legales/',
         '/confidentialite/',
         '/conditions/',
@@ -121,6 +124,7 @@ describe('a built site', () => {
     }
     for (const file of ['en/index.html', 'en/about/index.html', 'en/404.html']) {
       assert.deepEqual(footerLinks(await read(out, file)), [
+        '/en/support/',
         '/en/legal-notice/',
         '/en/privacy/',
         '/en/terms/',
@@ -201,6 +205,40 @@ describe('a built site', () => {
     }
     const own = await read(out, 'mentions-legales/index.html');
     assert.doesNotMatch(own, /class="updated"/, 'the site’s own page has no updated date, so no line');
+  });
+
+  test('writes a support page in each language, paired, with the address and no answer-time promise', async () => {
+    const expected = [
+      'fr https://exemple.test/aide/',
+      'en https://exemple.test/en/support/',
+      'x-default https://exemple.test/aide/',
+    ];
+    const fr = await read(out, 'aide/index.html');
+    const en = await read(out, 'en/support/index.html');
+    assert.deepEqual(links(fr, 'alternate'), expected);
+    assert.deepEqual(links(en, 'alternate'), expected);
+    assert.match(fr, /<title>Aide et contact \| Exemple<\/title>/);
+    assert.match(en, /<title>Help and contact \| Example<\/title>/);
+    for (const html of [fr, en]) {
+      assert.match(
+        html,
+        /<p class="contact"><a href="mailto:support@exemple\.test">support@exemple\.test<\/a><\/p>/,
+        'the address on a line of its own',
+      );
+      assert.doesNotMatch(html, / ›/, 'a no-break space before each › keeps it with the word before');
+      assert.match(html, /href="https:\/\/reportaproblem\.apple\.com"/);
+      assert.match(html, /href="https:\/\/support\.google\.com\/googleplay\/answer\/2479637\?hl=(fr|en)"/);
+      assert.doesNotMatch(html, /jour ouvré|working day/, 'no promise until Support confirms it');
+      assert.doesNotMatch(html, /<p>\s*<\/p>/, 'no empty paragraph where the promise would be');
+    }
+    assert.match(fr, /Réglages\u00a0› À propos\u00a0› Contacter l’assistance/);
+    assert.match(en, /Settings\u00a0› About\u00a0› Contact support/);
+    assert.match(fr, /ouvrez l’app Réglages de l’iPhone/);
+    assert.match(en, /open the iPhone’s Settings app/);
+    assert.match(fr, /Restaurer les achats/);
+    assert.match(fr, /Ce que vous enregistrez dans Exemple reste sur votre téléphone/);
+    assert.match(en, /Restore purchases/);
+    assert.match(en, /What you save in Example stays on your phone/);
   });
 
   test('leaves no placeholder in any page', async () => {
@@ -354,6 +392,24 @@ describe('the build refuses', () => {
     );
   });
 
+  test('a page at the support URL that is not marked as the support page', async () => {
+    const dir = await variant('bad-support', (d) =>
+      writeFile(join(d, 'content/fr/aide.md'), '---\ntitle: Aide\ndescription: x\ntype: guide\n---\n'),
+    );
+    await assert.rejects(
+      build(dir, join(dir, 'dist')),
+      /aide\.md: the support page needs type: page and translation: support/,
+    );
+  });
+
+  test('a support answer time that is not true or false', async () => {
+    const dir = await variant('bad-reply', async (d) => {
+      const site = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+      await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, replyWithinWorkingDay: 'yes' }));
+    });
+    await assert.rejects(build(dir, join(dir, 'dist')), /replyWithinWorkingDay: true or false/);
+  });
+
   test('a page at a legal URL that is not marked as that legal page', async () => {
     const dir = await variant('bad-legal', (d) =>
       writeFile(join(d, 'content/en/privacy.md'), '---\ntitle: Privacy\ndescription: x\n---\n'),
@@ -428,6 +484,47 @@ describe('the build refuses', () => {
     await access(join(dir, 'site.json'));
     await access(join(dir, 'content/fr/index.md'));
     await access(join(SITES, 'kit/build.mjs'));
+  });
+});
+
+describe('the support page', () => {
+  test('promises an answer within a working day once Support has confirmed it', async () => {
+    const dir = await variant('reply', async (d) => {
+      const site = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+      await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, replyWithinWorkingDay: true }));
+    });
+    const out = join(tmp, 'reply-dist');
+    await build(dir, out, { identityFile: IDENTITY });
+    assert.match(
+      await read(out, 'aide/index.html'),
+      /<p>Nous répondons à chaque e-mail sous un jour ouvré\.<\/p>/,
+    );
+    assert.match(
+      await read(out, 'en/support/index.html'),
+      /<p>We answer every email within a working day\.<\/p>/,
+    );
+  });
+
+  test("can be the site's own page, with the kit's placeholders filled", async () => {
+    const dir = await variant('own-support', (d) =>
+      writeFile(
+        join(d, 'content/en/support.md'),
+        '---\ntitle: Support\ndescription: x\ntranslation: support\n---\n# Support\n\nMail {{support}} about {{name}}.\n',
+      ),
+    );
+    const out = join(tmp, 'own-support-dist');
+    await build(dir, out, { identityFile: IDENTITY });
+    const html = await read(out, 'en/support/index.html');
+    assert.match(
+      html,
+      /<p>Mail <a href="mailto:support@exemple\.test">support@exemple\.test<\/a> about Example\.<\/p>/,
+    );
+    assert.doesNotMatch(html, /Restore purchases/, 'the kit text is replaced');
+    assert.match(
+      await read(out, 'aide/index.html'),
+      /Restaurer les achats/,
+      'the other language keeps the kit text',
+    );
   });
 });
 
