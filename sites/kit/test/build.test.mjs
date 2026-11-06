@@ -79,6 +79,8 @@ describe('a built site', () => {
       'https://exemple.test/en/privacy/',
       'https://exemple.test/en/support/',
       'https://exemple.test/en/terms/',
+      'https://exemple.test/guides/',
+      'https://exemple.test/guides/deuxieme-guide/',
       'https://exemple.test/guides/seulement-en-francais/',
       'https://exemple.test/mentions-legales/',
     ]);
@@ -252,7 +254,7 @@ describe('a built site', () => {
     assert.match(fr, /<p class="coming-soon">Bientôt sur l’App Store et Google Play\.<\/p>/);
     assert.match(
       fr,
-      /<h2>Premiers guides<\/h2>\n<ul class="guides"><li><a href="\/guides\/seulement-en-francais\/">Une page sans traduction<\/a><\/li><\/ul>/,
+      /<h2>Premiers guides<\/h2>\n<ul class="guides"><li><a href="\/guides\/seulement-en-francais\/">Une page sans traduction<\/a><\/li><li><a href="\/guides\/deuxieme-guide\/">/,
     );
     assert.doesNotMatch(fr, /apps\.apple\.com|play\.google\.com|<form|<input/);
     const en = await read(out, 'en/index.html');
@@ -394,7 +396,7 @@ describe('the build refuses', () => {
 
   test('a page at the support URL that is not marked as the support page', async () => {
     const dir = await variant('bad-support', (d) =>
-      writeFile(join(d, 'content/fr/aide.md'), '---\ntitle: Aide\ndescription: x\ntype: guide\n---\n'),
+      writeFile(join(d, 'content/fr/aide.md'), '---\ntitle: Aide\ndescription: x\ntype: legal\n---\n'),
     );
     await assert.rejects(
       build(dir, join(dir, 'dist')),
@@ -541,4 +543,151 @@ test('a live site offers the app in its structured data', async () => {
   assert.deepEqual(app.sameAs, ['https://apps.apple.com/app/id0']);
   assert.equal(app.aggregateRating, undefined, 'never a rating we do not have');
   assert.doesNotMatch(html, /coming-soon|Premiers guides/, "a live home page is the site's own text");
+});
+
+const GUIDE = 'guides/seulement-en-francais/index.html';
+/** The fixture as a live site, with an App Store URL only. */
+const goLive = async (d) => {
+  const site = JSON.parse(await readFile(join(d, 'site.json'), 'utf8'));
+  const stores = { ios: 'https://apps.apple.com/app/id0', android: null };
+  await writeFile(join(d, 'site.json'), JSON.stringify({ ...site, status: 'live', stores }));
+};
+/** Writes a French guide (front matter lines, then body) into a copy of the fixture. */
+const guide =
+  (lines, body = 'Texte.') =>
+  (d) =>
+    writeFile(join(d, 'content/fr/guides/test.md'), `---\n${lines.join('\n')}\n---\n${body}\n`);
+const VALID = [
+  'title: T',
+  'description: D',
+  'type: guide',
+  'published: 2026-11-05',
+  'factCheck: DAPP-3',
+  'sources: [{title: S, publisher: P, url: "https://www.impots.gouv.fr/", source_date: 2026-01-01, read: 2026-11-04}]',
+];
+
+describe('a guide', () => {
+  let out;
+  before(async () => {
+    out = join(tmp, 'dist-guides');
+    await build(FIXTURE, out, { identityFile: IDENTITY });
+  });
+
+  test('takes its H1 from the title and shows when it was published and updated', async () => {
+    const html = await read(out, GUIDE);
+    assert.match(
+      html,
+      /<\/nav>\n<h1>Une page sans traduction<\/h1>\n<p class="updated">Publié le <time datetime="2026-11-02">2 novembre 2026<\/time> · mis à jour le <time datetime="2026-11-04">/,
+    );
+    assert.match(
+      html,
+      /<a href="\/">Accueil<\/a> <span aria-hidden="true">›<\/span> <a href="\/guides\/">Guides<\/a><\/nav>/,
+    );
+  });
+
+  test('puts a download block at the marker and the app banner at the end, saying "coming soon" before launch', async () => {
+    const html = await read(out, GUIDE);
+    assert.match(
+      html,
+      /<aside class="download"><p>Exemple fait ce calcul pour vous, sur votre téléphone\.<\/p><p class="coming-soon">/,
+    );
+    assert.match(
+      html,
+      /<aside class="app-banner" aria-label="Exemple"><p><strong>Exemple<\/strong> — L&#39;appli qui sert/,
+    );
+    assert.doesNotMatch(html, /\/go\/|<!-- download/, 'no store link before launch');
+  });
+
+  test('lists its dated sources', async () => {
+    const html = await read(out, GUIDE);
+    assert.match(
+      html,
+      /<h2 id="sources">Sources<\/h2><ol><li><a href="https:\/\/www\.service-public\.fr\/particuliers\/vosdroits\/F1">Une page officielle<\/a>, Un service public, <time datetime="2026-01-01">1er janvier 2026<\/time> \(consulté le <time datetime="2026-11-01">1er novembre 2026<\/time>\)/,
+    );
+  });
+
+  test('scrolls a wide table in its own box', async () => {
+    assert.match(
+      await read(out, GUIDE),
+      /<div class="table-scroll" tabindex="0"><table>[\s\S]*<\/table><\/div>/,
+    );
+  });
+
+  test('is an Article published by the site, with its breadcrumb', async () => {
+    const [article, crumbs] = jsonLd(await read(out, GUIDE));
+    assert.equal(article['@type'], 'Article');
+    assert.equal(article.datePublished, '2026-11-02');
+    assert.equal(article.dateModified, '2026-11-04');
+    assert.equal(article.inLanguage, 'fr');
+    assert.deepEqual(article.publisher, {
+      '@type': 'Organization',
+      name: 'Exemple',
+      url: 'https://exemple.test/',
+    });
+    assert.equal(article.author, undefined, 'no invented author');
+    assert.deepEqual(
+      crumbs.itemListElement.map((c) => c.item),
+      [
+        'https://exemple.test/',
+        'https://exemple.test/guides/',
+        `https://exemple.test/${GUIDE.replace('index.html', '')}`,
+      ],
+    );
+  });
+
+  test('is listed on its hub, newest first; a hub without guides stays out of search and the header', async () => {
+    const hub = await read(out, 'guides/index.html');
+    assert.match(
+      hub,
+      /<ul class="guide-list"><li><a href="\/guides\/seulement-en-francais\/">.*<li><a href="\/guides\/deuxieme-guide\/">/,
+    );
+    assert.match(hub, /<a class="nav" href="\/guides\/" aria-current="page">Guides<\/a>/);
+    assert.match(hub, /<meta name="description" content="Exemple\u00a0: tous les guides, du plus récent/);
+    assert.match(
+      await read(out, GUIDE),
+      /<a class="nav" href="\/guides\/">Guides<\/a>/,
+      'current only on the hub',
+    );
+    const en = await read(out, 'en/guides/index.html');
+    assert.match(en, /<meta name="robots" content="noindex">/);
+    assert.doesNotMatch(en, /class="nav"/);
+  });
+});
+
+test('a live site links each store it is on through the counted redirect, in guides and on the home page', async () => {
+  const dir = await variant('live-guides', goLive);
+  await build(dir, join(dir, 'dist'));
+  const html = await read(join(dir, 'dist'), GUIDE);
+  const button =
+    '<p class="store-buttons"><a class="store-button" href="/go/ios?from=%2Fguides%2Fseulement-en-francais%2F" rel="nofollow">Télécharger sur l’App Store</a></p>';
+  assert.equal(html.split(button).length - 1, 2, 'at the marker and in the banner');
+  assert.doesNotMatch(html, /\/go\/android|apps\.apple\.com|coming-soon/);
+  assert.match(
+    await read(join(dir, 'dist'), 'en/index.html'),
+    /href="\/go\/ios\?from=%2Fen%2F" rel="nofollow">Download from the App Store</,
+  );
+});
+
+describe('the build refuses a guide', () => {
+  const refuses = async (name, change, error) => {
+    const dir = await variant(name, change);
+    await assert.rejects(build(dir, join(dir, 'dist')), error);
+  };
+  test('(none of the below: a complete guide builds)', async () => {
+    const dir = await variant('guide-ok', guide(VALID));
+    await build(dir, join(dir, 'dist'));
+  });
+  test('without its publish date, its fact-check issue or its sources', () =>
+    refuses(
+      'guide-bare',
+      guide(VALID.slice(0, 3)),
+      /published: YYYY-MM-DD[\s\S]*factCheck: DAPP-<n>[\s\S]*sources: at least one/,
+    ));
+  test('with an undated source', () =>
+    refuses(
+      'guide-source',
+      guide([...VALID.slice(0, 5), 'sources: [{title: S, publisher: P, url: "https://x.fr/"}]']),
+      /sources\[0\]\.source_date[\s\S]*sources\[0\]\.read/,
+    ));
+  test('with its own # heading', () => refuses('guide-h1', guide(VALID, '# Titre'), /its H1 is the title/));
 });

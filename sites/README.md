@@ -32,6 +32,7 @@ sites/
 | `domain` | the bare domain, e.g. `example.fr` (canonical URLs, sitemap and robots use `https://<domain>`) |
 | `status` | `coming-soon` until the app is on a store, then `live` (a live site needs at least one store URL) |
 | `name.fr`, `name.en` | the app's name in each language |
+| `tagline.fr`, `tagline.en` | one line on what the app does: the app banner, and every download block without its own words |
 | `supportEmail` | the app's support address: contact on the support page, and privacy-rights contact on the legal pages |
 | `replyWithinWorkingDay` | optional, `true` only once Support confirms it keeps that promise: the support page then says every email gets an answer within a working day. Absent or `false`: no promise |
 | `appData.fr`, `appData.en` | Markdown: what the app collects, the privacy policy's app section. It must match the store privacy answers (App Privacy, data safety) once they exist |
@@ -51,13 +52,46 @@ title: Frais réels ou abattement de 10 % ?    # required; <title> and H1 wordin
 description: Comment comparer les deux…        # required; meta description (about 120–160 characters)
 translation: actual-costs                      # same key on the French and the English page = translations
 type: guide                                    # home | page | guide | legal (default: page; index.md is home)
-updated: 2026-11-01                            # last real change; the sitemap's lastmod
+updated: 2026-11-01                            # last real change; the sitemap's lastmod (a guide: its published date if absent)
 noindex: true                                  # optional; kept out of search and the sitemap
 ---
 ```
 
 The build fails on a missing title or description, a file name that isn't a slug, a duplicate URL, a translation key
 used twice in one language, or a missing home page.
+
+## Guides
+
+A guide (`type: guide`) also carries, and the build refuses one without them:
+
+```yaml
+published: 2026-11-06            # the day it went live
+factCheck: DAPP-123              # the guide issue with GATE CE-FACT-CHECK: PASS
+sources:                         # as the fact-check recorded them (apps-fact-check), at least one
+  - title: Frais de déplacement (frais réels)
+    publisher: Direction générale des Finances publiques
+    url: https://www.impots.gouv.fr/…
+    source_date: 2026-01-01      # the source's own date or version
+    read: 2026-11-05             # the day it was read
+download: Calculez vos frais réels kilomètre par kilomètre.   # optional: the download block's words for this reader
+```
+
+The kit writes the page: a breadcrumb (home › guides), the H1 from `title` (the body has no `#` heading of its own),
+the published date and any later update, the body, the app banner, then the sources with their dates. Wide tables scroll sideways in their own box.
+
+- **Download blocks.** A line `<!-- download -->` in a guide's body becomes a download block: the guide's `download`
+  words (else the site's `tagline`), then the store buttons. Put it where readers stop reading (`apps-daily-guide`).
+- **App banner.** At the end of every guide: the app's name, its `tagline` and the store buttons. In the flow of the
+  text: never fixed, full-screen or over the text.
+- **Store buttons.** Plain text in the page's language (no Apple or Google artwork), one per store with a URL in
+  `site.json`, each a `rel="nofollow"` link to `/go/<store>?from=<page path>` (the counted redirect). A live home page
+  shows them under its text. While the site is `coming-soon`, a download block and the banner say "coming soon" as
+  plain text instead, with no link.
+- **Hubs.** `/guides/` and `/en/guides/` list a language's guides, newest first, and the header links to the hub of the
+  page's language once it has a guide. A hub without guides stays out of search. A site may write its own
+  `content/<lang>/guides/index.md` (`translation: guides`); the kit adds the list under its text.
+- **Structured data.** An `Article` (headline, description, `datePublished`, `dateModified`, `inLanguage`, published by
+  the app's site, no author person) and a `BreadcrumbList` (home, guides, the guide).
 
 ## Legal pages
 
@@ -94,8 +128,8 @@ newest guides. No store link, no form, no email capture, no countdown.
 
 - One `index.html` per page: `lang`, canonical URL, `hreflang` alternates (plus `x-default`, the French page) when a
   translation exists, Open Graph tags, a language switch (to the translation, else to the other home page).
-- Structured data (JSON-LD): `WebSite` on home pages; `MobileApplication` with its store links once the site is `live`.
-  Never a rating or a review we don't have.
+- Structured data (JSON-LD): `WebSite` on home pages; `MobileApplication` with its store links once the site is `live`;
+  `Article` and `BreadcrumbList` on guides. Never a rating or a review we don't have.
 - `sitemap.xml` with `lastmod` and the French and English alternates of each page; `robots.txt` pointing to it.
 - `404.html` and `en/404.html`; `_headers` with a strict Content-Security-Policy (no other origin, no forms).
 - `assets/a.<hash>.js`, the analytics script, on every page but the 404 pages.
@@ -199,4 +233,5 @@ node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compa
 
 ## Still to come (child issues of DAPP-6)
 
-The store buttons (links to `/go/<store>?from=<page path>`, with their design review) and the guide template that places them, internal links and the link check; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The related-guides block, the build's link check and its refusal of raw HTML and outside links in Markdown; the
+daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).

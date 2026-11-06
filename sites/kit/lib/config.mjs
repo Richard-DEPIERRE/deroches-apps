@@ -40,6 +40,8 @@ export async function loadSite(siteDir) {
   if (!STATUSES.includes(site.status)) errors.push(`status: one of ${STATUSES.join(', ')}`);
   for (const lang of LANGS) {
     if (!site.name?.[lang]) errors.push(`name.${lang} is required`);
+    if (typeof site.tagline?.[lang] !== 'string' || !site.tagline[lang].trim())
+      errors.push(`tagline.${lang} is required: one line on what the app does (app banner, download blocks)`);
     if (typeof site.appData?.[lang] !== 'string' || !site.appData[lang].trim())
       errors.push(`appData.${lang} is required: what the app collects, for the privacy policy`);
   }

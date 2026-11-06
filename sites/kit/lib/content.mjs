@@ -3,6 +3,7 @@ import { join, relative } from 'node:path';
 import { marked } from 'marked';
 import YAML from 'yaml';
 import { LANGS, langPrefix, SLUG } from './config.mjs';
+import { checkGuide, fillHub, hubPage, hubPath } from './guides.mjs';
 import { KIT_PAGES, TEMPLATES } from './legal.mjs';
 
 const TYPES = ['home', 'page', 'guide', 'legal'];
@@ -42,6 +43,12 @@ function asDate(value) {
   return value instanceof Date ? value.toISOString().slice(0, 10) : value;
 }
 
+/** Wide tables scroll sideways in their own box instead of pushing the page past a phone's width. */
+const scrollTables = (html) =>
+  html
+    .replaceAll('<table>', '<div class="table-scroll" tabindex="0"><table>')
+    .replaceAll('</table>', '</table></div>');
+
 function toPage(lang, file, rel, source, site) {
   const { data, body } = parseFrontMatter(source, file);
   const path = pathFor(lang, rel, file);
@@ -58,7 +65,7 @@ function toPage(lang, file, rel, source, site) {
     updated: asDate(data.updated),
     noindex: data.noindex === true,
     data,
-    html: marked.parse(body),
+    html: scrollTables(marked.parse(body)),
   };
   const errors = [];
   if (typeof page.title !== 'string' || !page.title.trim()) errors.push('title is required');
@@ -67,6 +74,7 @@ function toPage(lang, file, rel, source, site) {
   if (!TYPES.includes(page.type)) errors.push(`type: one of ${TYPES.join(', ')}`);
   if (page.updated !== undefined && !DATE.test(page.updated)) errors.push('updated: YYYY-MM-DD');
   if (page.translation !== undefined && !SLUG.test(page.translation)) errors.push('translation: a slug');
+  if (page.type === 'guide') errors.push(...checkGuide(page));
   if (errors.length) throw new Error(`${file}:\n- ${errors.join('\n- ')}`);
   return page;
 }
@@ -94,7 +102,13 @@ export async function loadPages(siteDir, site) {
       const file = join(TEMPLATES, kit.dir, lang, rel);
       pages.push(toPage(lang, file, rel, await readFile(file, 'utf8'), site));
     }
+    // The guides hub: the kit's, or the site's own content/<lang>/guides/index.md, with the list added.
+    const hub = pages.find((p) => p.path === hubPath(lang));
+    if (hub && hub.translation !== 'guides')
+      throw new Error(`${hub.file}: the guides hub needs translation: guides`);
+    if (!hub) pages.push(hubPage(lang, site));
   }
+  for (const hub of pages.filter((p) => p.translation === 'guides')) fillHub(hub, pages);
   const byPath = new Map();
   const groups = new Map();
   for (const page of pages) {
