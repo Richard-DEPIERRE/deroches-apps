@@ -3,6 +3,7 @@ import { join, relative } from 'node:path';
 import { marked } from 'marked';
 import YAML from 'yaml';
 import { LANGS, langPrefix, SLUG } from './config.mjs';
+import { LEGAL, TEMPLATES } from './legal.mjs';
 
 const TYPES = ['home', 'page', 'guide', 'legal'];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -81,6 +82,16 @@ export async function loadPages(siteDir, site) {
     for (const file of await markdownFiles(root)) {
       pages.push(toPage(lang, file, relative(root, file), await readFile(file, 'utf8'), site));
     }
+    // Every language gets the three legal pages: the kit's template, unless the site overrides the page.
+    for (const legal of LEGAL) {
+      const rel = `${legal[lang]}.md`;
+      const own = pages.find((p) => p.path === pathFor(lang, rel, rel));
+      if (own && (own.type !== 'legal' || own.translation !== legal.key))
+        throw new Error(`${own.file}: a legal page needs type: legal and translation: ${legal.key}`);
+      if (own) continue;
+      const file = join(TEMPLATES, lang, rel);
+      pages.push(toPage(lang, file, rel, await readFile(file, 'utf8'), site));
+    }
   }
   const byPath = new Map();
   const groups = new Map();
@@ -98,6 +109,10 @@ export async function loadPages(siteDir, site) {
   for (const lang of LANGS) {
     if (!byPath.has(`${langPrefix(lang)}/`))
       throw new Error(`${siteDir}: content/${lang}/index.md is missing`);
+  }
+  for (const page of pages) {
+    if (site.status === 'coming-soon' && page.type === 'home' && !page.html.includes('<p>'))
+      throw new Error(`${page.file}: a coming-soon home page says what the app will do, in a paragraph`);
   }
   for (const page of pages) {
     const key = page.type === 'home' ? (page.translation ?? 'home') : page.translation;

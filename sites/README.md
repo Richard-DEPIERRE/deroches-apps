@@ -28,6 +28,8 @@ sites/
 | `domain` | the bare domain, e.g. `example.fr` (canonical URLs, sitemap and robots use `https://<domain>`) |
 | `status` | `coming-soon` until the app is on a store, then `live` (a live site needs at least one store URL) |
 | `name.fr`, `name.en` | the app's name in each language |
+| `supportEmail` | the app's support address: contact and privacy-rights contact on the legal pages |
+| `appData.fr`, `appData.en` | Markdown: what the app collects, the privacy policy's app section. It must match the store privacy answers (App Privacy, data safety) once they exist |
 | `stores.ios`, `stores.android` | store URLs, or `null` until the app is on that store |
 | `accent.light`, `accent.dark` | required, `#rrggbb`: the app's own link, focus and browser-bar colour in each scheme. The build refuses one under 4.5:1 against the page (`#ffffff` light, `#111113` dark) and adds it to the site's own hashed stylesheet. No shared studio colour. |
 | `category` | optional schema.org application category (default `UtilitiesApplication`) |
@@ -52,6 +54,25 @@ noindex: true                                  # optional; kept out of search an
 The build fails on a missing title or description, a file name that isn't a slug, a duplicate URL, a translation key
 used twice in one language, or a missing home page.
 
+## Legal pages
+
+The kit writes the three legal pages of every site in both languages from `kit/templates/legal/` (paired as
+translations, linked from every footer): the legal notice (`/mentions-legales/`, `/en/legal-notice/`), the privacy
+policy (`/confidentialite/`, `/en/privacy/`) and the terms (`/conditions/`, `/en/terms/`). A site overrides one with
+its own `content/<lang>/<same path>.md` (`type: legal` and the same `translation` key: `legal-notice`, `privacy`,
+`terms`). Placeholders: `{{name}}`, `{{domain}}`, `{{support}}`, `{{updated}}` (the page's `updated`), `{{appData}}`
+and `{{identity}}`, each alone on its line for the last two.
+
+The legal notice always carries Richard's `legal/identity.json` (appended when an override leaves `{{identity}}`
+out). `--production`, the deploy build, fails when that file is missing or a required field is empty. A review build
+without it shows a visible "identity file missing" box and keeps the legal notice `noindex`.
+
+## Coming-soon home page
+
+While `status` is `coming-soon`, the home page is the site's own `index.md` (which must say, in at least one
+paragraph, what the app will do), then "Bientôt sur l'App Store et Google Play" as plain text and links to the 10
+newest guides. No store link, no form, no email capture, no countdown.
+
 ## What the build writes
 
 - One `index.html` per page: `lang`, canonical URL, `hreflang` alternates (plus `x-default`, the French page) when a
@@ -69,11 +90,11 @@ Run from `sites/`:
 npm ci
 npm run lint                       # Biome
 npm test                           # node --test
-npm run build -- <slug>            # writes <slug>/dist/
+npm run build -- <slug>            # writes <slug>/dist/ for review
+npm run build -- <slug> --production   # the deploy build: needs legal/identity.json
 ```
 
 ## Still to come (child issues of DAPP-6)
 
-The guide template with download buttons and app banners, internal links and the link check; the legal notice,
-privacy policy, terms and the coming-soon page; the cookie-free analytics that count store clicks, and the deploy
-config; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The guide template with download buttons and app banners, internal links and the link check; the cookie-free
+analytics that count store clicks, and the deploy config; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).

@@ -40,7 +40,11 @@ export async function loadSite(siteDir) {
   if (!STATUSES.includes(site.status)) errors.push(`status: one of ${STATUSES.join(', ')}`);
   for (const lang of LANGS) {
     if (!site.name?.[lang]) errors.push(`name.${lang} is required`);
+    if (typeof site.appData?.[lang] !== 'string' || !site.appData[lang].trim())
+      errors.push(`appData.${lang} is required: what the app collects, for the privacy policy`);
   }
+  if (!/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(site.supportEmail ?? ''))
+    errors.push("supportEmail: the app's support address (the privacy rights contact)");
   if (site.themeColor !== undefined) errors.push('themeColor: replaced by accent.light and accent.dark');
   for (const [scheme, bg] of Object.entries(BACKGROUNDS)) {
     const color = site.accent?.[scheme];

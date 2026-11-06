@@ -1,11 +1,13 @@
 #!/usr/bin/env node
-// Builds one app's site: node kit/build.mjs <site dir> [out dir]   (out dir defaults to <site dir>/dist)
+// Builds one app's site: node kit/build.mjs <site dir> [out dir] [--production]   (out dir defaults to <site dir>/dist)
+// --production, for a deploy, fails without Richard's complete identity file (sites/legal/identity.json).
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGS, loadSite } from './lib/config.mjs';
 import { loadPages } from './lib/content.mjs';
+import { fillLegal, IDENTITY_FILE, loadIdentity } from './lib/legal.mjs';
 import { notFoundPage, renderPage } from './lib/render.mjs';
 import { headers, robots, sitemap } from './lib/seo.mjs';
 
@@ -48,13 +50,19 @@ async function emit(outDir, path, content) {
   await writeFile(file, content);
 }
 
-/** Builds the site in `siteDir` into `outDir` and returns what it wrote. */
-export async function build(siteDir, outDir = join(siteDir, 'dist')) {
+/**
+ * Builds the site in `siteDir` into `outDir` and returns what it wrote. A `production` build (a deploy) refuses a
+ * missing or incomplete identity file; a review build shows a visible placeholder and keeps the legal notice noindex.
+ */
+export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {}) {
+  const { production = false, identityFile = IDENTITY_FILE } = options;
   siteDir = resolve(siteDir);
   outDir = resolve(outDir);
   checkOutDir(siteDir, outDir);
   const site = await loadSite(siteDir);
   const pages = await loadPages(siteDir, site);
+  const identity = await loadIdentity(identityFile, production);
+  fillLegal(pages, site, identity);
   await rm(outDir, { recursive: true, force: true });
 
   const css = (await readFile(join(KIT, 'assets', 'site.css'), 'utf8')) + accentCss(site.accent);
@@ -70,17 +78,23 @@ export async function build(siteDir, outDir = join(siteDir, 'dist')) {
   await emit(outDir, 'sitemap.xml', sitemap(pages));
   await emit(outDir, 'robots.txt', robots(site));
   await emit(outDir, '_headers', headers());
-  return { site, pages, outDir };
+  return { site, pages, outDir, identityProblem: identity.problem };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const [siteArg, outArg] = process.argv.slice(2);
-  if (!siteArg) {
-    console.error('Usage: node kit/build.mjs <site dir> [out dir]');
+  const args = process.argv.slice(2);
+  const production = args.includes('--production');
+  const [siteArg, outArg, ...rest] = args.filter((arg) => arg !== '--production');
+  if (!siteArg || rest.length) {
+    console.error('Usage: node kit/build.mjs <site dir> [out dir] [--production]');
     process.exit(2);
   }
   try {
-    const { pages, outDir } = await build(resolve(siteArg), outArg && resolve(outArg));
+    const { pages, outDir, identityProblem } = await build(resolve(siteArg), outArg && resolve(outArg), {
+      production,
+    });
+    if (identityProblem)
+      console.warn(`Review build only (the legal notice is a placeholder): ${identityProblem}`);
     console.log(`Built ${pages.length} pages into ${outDir}`);
   } catch (error) {
     console.error(error.message);

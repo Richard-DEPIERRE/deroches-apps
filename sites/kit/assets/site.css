@@ -123,3 +123,28 @@ td {
   padding: 0.4rem 0.6rem;
   text-align: left;
 }
+dt {
+  font-weight: 600;
+}
+dd {
+  margin: 0 0 0.75rem;
+}
+/* Review builds only: the legal notice without Richard's identity file must look unfinished. */
+.identity-missing {
+  border: 2px dashed var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+.coming-soon {
+  font-weight: 600;
+}
+/* Legal pages: the date of the text, on its own line under the title, as quiet as the footer. */
+.updated {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+/* The coming-soon home's guide links: rows stay close, each tap target at least 44px. */
+.guides a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}

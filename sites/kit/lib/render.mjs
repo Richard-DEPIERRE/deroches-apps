@@ -1,6 +1,7 @@
 import { LANGS, langPrefix } from './config.mjs';
 import { escapeHtml as e, jsonForScript } from './html.mjs';
 import { STRINGS } from './i18n.mjs';
+import { LEGAL } from './legal.mjs';
 import { alternates, structuredData } from './seo.mjs';
 
 /** The link to the same page in the other language, or to that language's home page when there is none. */
@@ -14,11 +15,11 @@ function languageSwitch(page) {
     .join(' ');
 }
 
-/** The footer with the legal pages of the page's language; no footer at all when there are none (no empty rule). */
+/** The footer with the page language's legal pages, which every site has (the kit writes them). */
 function footer(page, pages) {
-  const legal = pages.filter((p) => p.lang === page.lang && p.type === 'legal');
-  if (!legal.length) return '';
-  const items = legal.map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`).join('');
+  const items = LEGAL.map(({ key }) => pages.find((p) => p.lang === page.lang && p.translation === key))
+    .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`)
+    .join('');
   return `<footer class="site-footer">
 <nav aria-label="${e(STRINGS[page.lang].legal)}"><ul>${items}</ul></nav>
 </footer>
@@ -26,10 +27,27 @@ function footer(page, pages) {
 }
 
 /**
+ * The home page's text, and before launch the "coming soon" line as plain text (no store link, no form, no
+ * countdown) and links to the newest guides.
+ */
+function main(page, { site, pages }) {
+  if (page.type !== 'home' || site.status !== 'coming-soon') return page.html;
+  const t = STRINGS[page.lang];
+  const guides = pages
+    .filter((p) => p.lang === page.lang && p.type === 'guide' && !p.noindex)
+    .sort((a, b) => (b.updated ?? '').localeCompare(a.updated ?? '') || a.title.localeCompare(b.title))
+    .slice(0, 10)
+    .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`);
+  return `${page.html}<p class="coming-soon">${e(t.comingSoon)}</p>
+${guides.length ? `<h2>${e(t.firstGuides)}</h2>\n<ul class="guides">${guides.join('')}</ul>\n` : ''}`;
+}
+
+/**
  * The whole HTML document for a page. `page` needs lang, path, url, title, description, html,
  * translations; `ctx` holds the site, every page (for the footer) and the stylesheet's hashed path.
  */
-export function renderPage(page, { site, pages, stylesheet }) {
+export function renderPage(page, ctx) {
+  const { site, pages, stylesheet } = ctx;
   const t = STRINGS[page.lang];
   const appName = site.name[page.lang];
   const title = page.type === 'home' ? page.title : `${page.title} | ${appName}`;
@@ -69,7 +87,7 @@ ${head.join('\n')}
 <nav class="lang" aria-label="${e(t.language)}">${languageSwitch(page)}</nav>
 </header>
 <main id="main">
-${page.html}
+${main(page, ctx)}
 </main>
 ${footer(page, pages)}</body>
 </html>

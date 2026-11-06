@@ -7,4 +7,4 @@ updated: 2026-11-01
 
 # Example
 
-Coming soon to the App Store and Google Play. [About](/en/about/).
+Example does one thing well: it serves as the kit's example. [About](/en/about/).
