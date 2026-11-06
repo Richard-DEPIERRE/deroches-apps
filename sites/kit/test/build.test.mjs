@@ -595,11 +595,15 @@ describe('a guide', () => {
     assert.doesNotMatch(html, /\/go\/|<!-- download/, 'no store link before launch');
   });
 
-  test('lists its dated sources', async () => {
+  test('lists its dated sources, then its related guides', async () => {
     const html = await read(out, GUIDE);
     assert.match(
       html,
       /<h2 id="sources">Sources<\/h2><ol><li><a href="https:\/\/www\.service-public\.fr\/particuliers\/vosdroits\/F1">Une page officielle<\/a>, Un service public, <time datetime="2026-01-01">1 janvier 2026<\/time> \(consulté le <time datetime="2026-11-01">/,
+    );
+    assert.match(
+      html,
+      /<h2 id="related">À lire aussi<\/h2><ul><li><a href="\/guides\/deuxieme-guide\/">Un deuxième guide<\/a>/,
     );
   });
 
@@ -662,7 +666,7 @@ test('a live site links each store it is on through the counted redirect, in gui
 describe('the build refuses a guide', () => {
   const refuses = async (name, change, error) => {
     const dir = await variant(name, change);
-    await assert.rejects(build(dir, join(dir, 'dist')), error);
+    await assert.rejects(build(dir, join(dir, 'dist'), { otherDomains: ['autre-appli.fr'] }), error);
   };
   test('(none of the below: a complete guide builds)', async () => {
     const dir = await variant('guide-ok', guide(VALID));
@@ -681,4 +685,43 @@ describe('the build refuses a guide', () => {
       /sources\[0\]\.source_date[\s\S]*sources\[0\]\.read/,
     ));
   test('with its own # heading', () => refuses('guide-h1', guide(VALID, '# Titre'), /its H1 is the title/));
+  test('relating to a guide that does not exist', () =>
+    refuses('guide-related', guide([...VALID, 'related: [nope]']), /related "nope" is not another guide/));
+});
+
+describe('the build refuses Markdown with', () => {
+  const refuses = async (name, body, error) => {
+    const dir = await variant(name, guide(VALID, body));
+    await assert.rejects(build(dir, join(dir, 'dist'), { otherDomains: ['autre-appli.fr'] }), error);
+  };
+  for (const tag of ['script', 'iframe', 'form'])
+    test(`a raw <${tag}>`, () =>
+      refuses(`raw-${tag}`, `<${tag}></${tag}>`, new RegExp(`raw <${tag}> is not allowed`)));
+  test('a link to another origin, even a store', () =>
+    refuses(
+      'foreign-href',
+      '[App](https://apps.apple.com/app/id0)',
+      /href="https:\/\/apps\.apple\.com\/app\/id0" points to another origin/,
+    ));
+  test('an image or srcset from another origin', () =>
+    refuses(
+      'foreign-src',
+      '<img src="https://cdn.test/a.png" srcset="/a.png 1x, https://cdn.test/b.png 2x" alt="">',
+      /src="https:\/\/cdn\.test\/a\.png"[\s\S]*srcset="https:\/\/cdn\.test\/b\.png"/,
+    ));
+  test('a link to no page of the site', () =>
+    refuses(
+      'broken-link',
+      '[Perdu](/guides/perdu/)',
+      /Link check failed:\n- \/guides\/test\/: href="\/guides\/perdu\/" goes to no page/,
+    ));
+  test("a source on another studio app's site", async () => {
+    const source =
+      'sources: [{title: S, publisher: P, url: "https://www.autre-appli.fr/x", source_date: 2026, read: 2026-11-04}]';
+    const dir = await variant('studio-link', guide([...VALID.slice(0, 5), source]));
+    await assert.rejects(
+      build(dir, join(dir, 'dist'), { otherDomains: ['autre-appli.fr'] }),
+      /href="https:\/\/www\.autre-appli\.fr\/x" links to another studio app's site/,
+    );
+  });
 });

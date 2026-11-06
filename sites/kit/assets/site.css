@@ -215,3 +215,7 @@ dd {
 .sources {
   font-size: 0.9375rem;
 }
+.related a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}

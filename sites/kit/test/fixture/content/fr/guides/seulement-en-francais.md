@@ -8,6 +8,7 @@ published: 2026-11-02
 updated: 2026-11-04
 factCheck: DAPP-1
 download: Exemple fait ce calcul pour vous, sur votre téléphone.
+related: [deuxieme-guide]
 sources:
 - title: Une page officielle
   publisher: Un service public

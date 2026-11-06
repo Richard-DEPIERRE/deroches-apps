@@ -3,8 +3,9 @@ import { join, relative } from 'node:path';
 import { marked } from 'marked';
 import YAML from 'yaml';
 import { LANGS, langPrefix, SLUG } from './config.mjs';
-import { checkGuide, fillHub, hubPage, hubPath } from './guides.mjs';
+import { checkGuide, fillHub, hubPage, hubPath, linkRelated } from './guides.mjs';
 import { KIT_PAGES, TEMPLATES } from './legal.mjs';
+import { markdownProblems } from './links.mjs';
 
 const TYPES = ['home', 'page', 'guide', 'legal'];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -49,7 +50,7 @@ const scrollTables = (html) =>
     .replaceAll('<table>', '<div class="table-scroll" tabindex="0"><table>')
     .replaceAll('</table>', '</table></div>');
 
-function toPage(lang, file, rel, source, site) {
+function toPage(lang, file, rel, source, site, ownContent = true) {
   const { data, body } = parseFrontMatter(source, file);
   const path = pathFor(lang, rel, file);
   const isHome = path === `${langPrefix(lang)}/`;
@@ -75,6 +76,7 @@ function toPage(lang, file, rel, source, site) {
   if (page.updated !== undefined && !DATE.test(page.updated)) errors.push('updated: YYYY-MM-DD');
   if (page.translation !== undefined && !SLUG.test(page.translation)) errors.push('translation: a slug');
   if (page.type === 'guide') errors.push(...checkGuide(page));
+  errors.push(...markdownProblems(page.html, page, site, { ownContent }));
   if (errors.length) throw new Error(`${file}:\n- ${errors.join('\n- ')}`);
   return page;
 }
@@ -100,7 +102,7 @@ export async function loadPages(siteDir, site) {
       }
       if (own) continue;
       const file = join(TEMPLATES, kit.dir, lang, rel);
-      pages.push(toPage(lang, file, rel, await readFile(file, 'utf8'), site));
+      pages.push(toPage(lang, file, rel, await readFile(file, 'utf8'), site, false));
     }
     // The guides hub: the kit's, or the site's own content/<lang>/guides/index.md, with the list added.
     const hub = pages.find((p) => p.path === hubPath(lang));
@@ -108,6 +110,7 @@ export async function loadPages(siteDir, site) {
       throw new Error(`${hub.file}: the guides hub needs translation: guides`);
     if (!hub) pages.push(hubPage(lang, site));
   }
+  linkRelated(pages);
   for (const hub of pages.filter((p) => p.translation === 'guides')) fillHub(hub, pages);
   const byPath = new Map();
   const groups = new Map();

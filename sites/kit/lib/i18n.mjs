@@ -21,6 +21,7 @@ export const STRINGS = {
     guidesDescription: (name) => `Tous les guides de ${name}, du plus récent au plus ancien.`,
     sources: 'Sources',
     read: 'consulté le',
+    related: 'À lire aussi',
     stores: { ios: 'Télécharger sur l’App Store', android: 'Télécharger sur Google Play' },
     replyWithinWorkingDay: 'Nous répondons à chaque e-mail sous un jour ouvré.',
     identityMissing:
@@ -58,6 +59,7 @@ export const STRINGS = {
     guidesDescription: (name) => `Every ${name} guide, newest first.`,
     sources: 'Sources',
     read: 'checked',
+    related: 'Read next',
     stores: { ios: 'Download from the App Store', android: 'Download from Google Play' },
     replyWithinWorkingDay: 'We answer every email within a working day.',
     identityMissing:
