@@ -3,7 +3,7 @@ import { join, relative } from 'node:path';
 import { marked } from 'marked';
 import YAML from 'yaml';
 import { LANGS, langPrefix, SLUG } from './config.mjs';
-import { LEGAL, TEMPLATES } from './legal.mjs';
+import { KIT_PAGES, TEMPLATES } from './legal.mjs';
 
 const TYPES = ['home', 'page', 'guide', 'legal'];
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -82,14 +82,16 @@ export async function loadPages(siteDir, site) {
     for (const file of await markdownFiles(root)) {
       pages.push(toPage(lang, file, relative(root, file), await readFile(file, 'utf8'), site));
     }
-    // Every language gets the three legal pages: the kit's template, unless the site overrides the page.
-    for (const legal of LEGAL) {
-      const rel = `${legal[lang]}.md`;
+    // Every language gets the kit's pages (support, legal): the kit's template, unless the site overrides the page.
+    for (const kit of KIT_PAGES) {
+      const rel = `${kit[lang]}.md`;
       const own = pages.find((p) => p.path === pathFor(lang, rel, rel));
-      if (own && (own.type !== 'legal' || own.translation !== legal.key))
-        throw new Error(`${own.file}: a legal page needs type: legal and translation: ${legal.key}`);
+      if (own && (own.type !== kit.type || own.translation !== kit.key)) {
+        const what = kit.type === 'legal' ? 'a legal page' : `the ${kit.key} page`;
+        throw new Error(`${own.file}: ${what} needs type: ${kit.type} and translation: ${kit.key}`);
+      }
       if (own) continue;
-      const file = join(TEMPLATES, lang, rel);
+      const file = join(TEMPLATES, kit.dir, lang, rel);
       pages.push(toPage(lang, file, rel, await readFile(file, 'utf8'), site));
     }
   }

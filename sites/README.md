@@ -28,7 +28,8 @@ sites/
 | `domain` | the bare domain, e.g. `example.fr` (canonical URLs, sitemap and robots use `https://<domain>`) |
 | `status` | `coming-soon` until the app is on a store, then `live` (a live site needs at least one store URL) |
 | `name.fr`, `name.en` | the app's name in each language |
-| `supportEmail` | the app's support address: contact and privacy-rights contact on the legal pages |
+| `supportEmail` | the app's support address: contact on the support page, and privacy-rights contact on the legal pages |
+| `replyWithinWorkingDay` | optional, `true` only once Support confirms it keeps that promise: the support page then says every email gets an answer within a working day. Absent or `false`: no promise |
 | `appData.fr`, `appData.en` | Markdown: what the app collects, the privacy policy's app section. It must match the store privacy answers (App Privacy, data safety) once they exist |
 | `stores.ios`, `stores.android` | store URLs, or `null` until the app is on that store |
 | `accent.light`, `accent.dark` | required, `#rrggbb`: the app's own link, focus and browser-bar colour in each scheme. The build refuses one under 4.5:1 against the page (`#ffffff` light, `#111113` dark) and adds it to the site's own hashed stylesheet. No shared studio colour. |
@@ -66,6 +67,17 @@ and `{{identity}}`, each alone on its line for the last two.
 The legal notice always carries Richard's `legal/identity.json` (appended when an override leaves `{{identity}}`
 out). `--production`, the deploy build, fails when that file is missing or a required field is empty. A review build
 without it shows a visible "identity file missing" box and keeps the legal notice `noindex`.
+
+## Support page
+
+The kit also writes every site's support page, the app's store **support URL**: `/aide/` and `/en/support/` (paired as
+translations, key `support`, first in every footer), from `kit/templates/support/`. It says how to write to the
+support address (a `mailto:` link, never a form), how to restore purchases (the app kit's Settings › Purchases), that
+refunds go through Apple's or Google's refund pages, how to stop a subscription, and where the app's data lives (on the
+phone, in the user's own iCloud or Google backup, and the kit's backup export). It matches what the app kit does; an
+app that differs overrides the page with its own `content/<lang>/aide.md` or `support.md` (`type: page`,
+`translation: support`). Placeholders: `{{name}}`, `{{support}}`, `{{updated}}`, and `{{reply}}` alone on its line
+(the answer-time promise, empty unless `replyWithinWorkingDay`).
 
 ## Coming-soon home page
 

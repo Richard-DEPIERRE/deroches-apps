@@ -45,6 +45,8 @@ export async function loadSite(siteDir) {
   }
   if (!/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(site.supportEmail ?? ''))
     errors.push("supportEmail: the app's support address (the privacy rights contact)");
+  if (site.replyWithinWorkingDay !== undefined && typeof site.replyWithinWorkingDay !== 'boolean')
+    errors.push('replyWithinWorkingDay: true or false (true only once Support confirms it)');
   if (site.themeColor !== undefined) errors.push('themeColor: replaced by accent.light and accent.dark');
   for (const [scheme, bg] of Object.entries(BACKGROUNDS)) {
     const color = site.accent?.[scheme];

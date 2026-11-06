@@ -7,7 +7,7 @@ import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LANGS, loadSite } from './lib/config.mjs';
 import { loadPages } from './lib/content.mjs';
-import { fillLegal, IDENTITY_FILE, loadIdentity } from './lib/legal.mjs';
+import { fillKitPages, IDENTITY_FILE, loadIdentity } from './lib/legal.mjs';
 import { notFoundPage, renderPage } from './lib/render.mjs';
 import { headers, robots, sitemap } from './lib/seo.mjs';
 
@@ -62,7 +62,7 @@ export async function build(siteDir, outDir = join(siteDir, 'dist'), options = {
   const site = await loadSite(siteDir);
   const pages = await loadPages(siteDir, site);
   const identity = await loadIdentity(identityFile, production);
-  fillLegal(pages, site, identity);
+  fillKitPages(pages, site, identity);
   await rm(outDir, { recursive: true, force: true });
 
   const css = (await readFile(join(KIT, 'assets', 'site.css'), 'utf8')) + accentCss(site.accent);
