@@ -243,3 +243,13 @@ dd {
 .sources {
   font-size: 0.9375rem;
 }
+.related a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}
+/* Link lists without bullets or indent: a bullet sits by an inline-block's last line, and titles need the width. */
+.guides,
+.related ul {
+  list-style: none;
+  padding-left: 0;
+}

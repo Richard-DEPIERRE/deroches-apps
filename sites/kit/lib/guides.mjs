@@ -1,4 +1,4 @@
-import { langPrefix } from './config.mjs';
+import { langPrefix, SLUG } from './config.mjs';
 import { escapeHtml as e } from './html.mjs';
 import { longDate, STRINGS } from './i18n.mjs';
 
@@ -16,8 +16,8 @@ const text = (value) => typeof value === 'string' && value.trim() !== '';
 export const hubPath = (lang) => `${langPrefix(lang)}/guides/`;
 
 /**
- * Checks a guide's front matter and fills `published`, `updated` (defaults to `published`), `sources` and `download` on
- * the page. A guide publishes only after `GATE CE-FACT-CHECK: PASS` on its `guide` issue (`factCheck`),
+ * Checks a guide's front matter and fills `published`, `updated` (defaults to `published`), `sources`, `related` and
+ * `download` on the page. A guide publishes only after `GATE CE-FACT-CHECK: PASS` on its `guide` issue (`factCheck`),
  * and lists the dated sources the fact-check recorded (apps-fact-check). Returns the problems.
  */
 export function checkGuide(page) {
@@ -41,10 +41,30 @@ export function checkGuide(page) {
     if (!DATE.test(asDate(source?.read) ?? ''))
       problems.push(`sources[${i}].read: YYYY-MM-DD, the day it was read`);
   });
+  page.related = data.related ?? [];
+  if (
+    !Array.isArray(page.related) ||
+    page.related.length > 3 ||
+    !page.related.every((k) => SLUG.test(k)) ||
+    new Set(page.related).size < page.related.length
+  )
+    problems.push('related: up to 3 different translation keys of guides in the same language');
   if (data.download !== undefined && !text(data.download))
     problems.push('download: one line on what the app does for this reader');
   page.download = data.download;
   return problems;
+}
+
+/** Resolves each guide's `related` keys to guides of its language; throws on one that isn't there. */
+export function linkRelated(pages) {
+  for (const page of pages.filter((p) => p.type === 'guide')) {
+    page.related = page.related.map((key) => {
+      const target = pages.find((p) => p.lang === page.lang && p.type === 'guide' && p.translation === key);
+      if (!target || target === page)
+        throw new Error(`${page.file}: related "${key}" is not another guide in ${page.lang}`);
+      return target;
+    });
+  }
 }
 
 /**
@@ -133,7 +153,7 @@ function cta(site, lang, path) {
 
 /**
  * A guide's main column: breadcrumb, H1 from the title, its dates, the body with each `<!-- download -->` line turned
- * into a download block, the app banner, then the sources.
+ * into a download block, the app banner, the related guides, then the sources (last: they run long).
  */
 export function guideMain(page, site) {
   const { lang } = page;
@@ -152,10 +172,15 @@ export function guideMain(page, site) {
         `<li><a href="${e(s.url)}">${e(s.title)}</a>, ${e(s.publisher)}, ${DATE.test(asDate(s.source_date)) ? date(asDate(s.source_date)) : e(s.source_date)} (${e(t.read)} ${date(asDate(s.read))})</li>`,
     )
     .join('');
+  const related = page.related.length
+    ? `<nav class="related" aria-labelledby="related"><h2 id="related">${e(t.related)}</h2><ul>${page.related
+        .map((p) => `<li><a href="${e(p.path)}">${e(p.title)}</a></li>`)
+        .join('')}</ul></nav>\n`
+    : '';
   return `<nav class="breadcrumb" aria-label="${e(t.breadcrumb)}"><a href="${langPrefix(lang)}/">${e(t.home)}</a> <span aria-hidden="true">›</span> <a href="${hubPath(lang)}">${e(t.guides)}</a></nav>
 <h1>${e(page.title)}</h1>
 <p class="updated">${dates}</p>
 ${body}<aside class="app-banner" aria-label="${e(name)}"><p><strong>${e(name)}</strong> — ${e(tagline)}</p>${cta(site, lang, page.path)}</aside>
-<section class="sources" aria-labelledby="sources"><h2 id="sources">${e(t.sources)}</h2><ol>${sources}</ol></section>
+${related}<section class="sources" aria-labelledby="sources"><h2 id="sources">${e(t.sources)}</h2><ol>${sources}</ol></section>
 `;
 }
