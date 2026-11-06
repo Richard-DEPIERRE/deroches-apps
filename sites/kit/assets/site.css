@@ -148,18 +148,3 @@ dd {
   display: inline-block;
   padding-block: 0.625rem;
 }
-/* Store buttons (render.mjs storeButtons): plain text in the accent, outlined, each tap target at least 44px. */
-.store-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-.store-button {
-  display: inline-block;
-  min-height: 2.75rem;
-  padding: 0.625rem 1.125rem;
-  border: 2px solid var(--accent);
-  border-radius: 0.5rem;
-  font-weight: 600;
-  text-decoration: none;
-}

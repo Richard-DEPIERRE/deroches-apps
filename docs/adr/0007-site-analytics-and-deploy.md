@@ -44,9 +44,8 @@ Cloudflare's docs:
 4. **`www.` redirects with a second environment** of the same config (`site-<slug>-www`, `run_worker_first: true`),
    deployed once per site: every `www.` request reaches the Worker, which answers 301 to the bare domain. Only `www.`
    traffic counts against the Worker quota.
-5. **Store buttons are plain text** ("Télécharger dans l’App Store", "Disponible sur Google Play" and the English
-   equivalents), not Apple's or Google's badge artwork, so the badge guidelines' artwork rules don't apply. Using the
-   artwork later needs those guidelines checked first, with a date.
+5. **The store buttons are not part of this change.** They link to `/go/<store>?from=<page path>` and come with the
+   guide template (DAPP-21), which gets its own design review.
 
 Rejected:
 - **A third-party analytics service** (Plausible, Fathom, PostHog's web snippet): another origin in the CSP, a
@@ -64,5 +63,9 @@ Rejected:
 - Three months of history only: anything kept longer goes into Growth & Data's own reports.
 - Up to five data points per page view: 100,000 a day covers about 20,000 views a day across all sites. Past that
   (or once Analytics Engine is billed), the cost goes through a `SPEND` check.
+- The beacon and `/go/*` share the account's Workers Free quota (100,000 requests a day, every Worker on the account
+  counted), and one page view can cost up to five Worker requests. Past the quota `/go/*` answers 429, so analytics
+  traffic could break the store links. Growth & Data watches daily Worker requests and asks for Workers Paid (a
+  `SPEND` check) before they reach about 50% of the quota.
 - A reader whose browser never fires `pagehide` or `visibilitychange` sends no depth: depth rates are a floor.
 - A store click from a page that no longer exists is counted with an empty path.

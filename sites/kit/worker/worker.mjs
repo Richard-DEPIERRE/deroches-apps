@@ -59,8 +59,8 @@ export function createWorker(config) {
     if (request.method !== 'POST') return respond(405, { Allow: 'POST' });
     const sender = request.headers.get('Origin');
     if (sender && sender !== origin) return respond(403);
-    const length = Number(request.headers.get('Content-Length'));
-    if (!length || length > MAX_BEACON_BYTES) return respond(413);
+    // A missing Content-Length is not a reason to drop the beacon: the length of the text read is checked below.
+    if (Number(request.headers.get('Content-Length')) > MAX_BEACON_BYTES) return respond(413);
     const text = await request.text();
     if (text.length > MAX_BEACON_BYTES) return respond(413);
     let data;

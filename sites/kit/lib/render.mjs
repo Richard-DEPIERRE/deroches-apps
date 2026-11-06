@@ -42,25 +42,6 @@ function main(page, { site, pages }) {
 ${guides.length ? `<h2>${e(t.firstGuides)}</h2>\n<ul class="guides">${guides.join('')}</ul>\n` : ''}`;
 }
 
-/** The stores' own names for their links, in the page's language (plain text: no badge artwork, ADR 0007). */
-const STORE_LABELS = { ios: 'appStore', android: 'googlePlay' };
-
-/**
- * The App Store and Google Play buttons, for a guide to place: links to the Worker's `/go/<store>?from=<page path>`,
- * which counts the click and redirects to the store. Nothing before launch (`coming-soon`), and only stores with a URL.
- */
-export function storeButtons(page, site) {
-  if (site.status !== 'live') return '';
-  const t = STRINGS[page.lang];
-  const links = Object.keys(STORE_LABELS)
-    .filter((store) => site.stores?.[store])
-    .map(
-      (store) =>
-        `<a class="store-button" rel="nofollow" href="/go/${store}?from=${e(encodeURIComponent(page.path))}">${e(t[STORE_LABELS[store]])}</a>`,
-    );
-  return links.length ? `<p class="store-buttons">${links.join(' ')}</p>\n` : '';
-}
-
 /**
  * The whole HTML document for a page. `page` needs lang, path, url, title, description, html,
  * translations; `ctx` holds the site, every page (for the footer) and the stylesheet's hashed path.

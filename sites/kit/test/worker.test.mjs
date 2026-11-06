@@ -5,7 +5,6 @@ import { join } from 'node:path';
 import { after, beforeEach, describe, test } from 'node:test';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { build } from '../build.mjs';
-import { storeButtons } from '../lib/render.mjs';
 import { createWorker, MAX_BEACON_BYTES } from '../worker/worker.mjs';
 import { wranglerConfig } from '../wrangler.mjs';
 
@@ -121,6 +120,23 @@ describe('the beacon', () => {
     assert.equal((await get('/a')).status, 405);
     assert.deepEqual(points, []);
   });
+
+  test('without a Content-Length, still records a beacon and still caps the payload', async () => {
+    const post = (text) =>
+      worker.fetch(
+        new Request(`${ORIGIN}/a`, { method: 'POST', body: text, headers: { Origin: ORIGIN } }),
+        env,
+      );
+    const view = JSON.stringify({ e: 'view', p: '/' });
+    assert.equal(
+      new Request(`${ORIGIN}/a`, { method: 'POST', body: view }).headers.get('Content-Length'),
+      null,
+    );
+    assert.equal((await post(view)).status, 204);
+    assert.equal(points.length, 1);
+    assert.equal((await post('x'.repeat(MAX_BEACON_BYTES + 1))).status, 413);
+    assert.equal(points.length, 1);
+  });
 });
 
 test('redirects www. to the bare domain and leaves everything else to the static assets', async () => {
@@ -165,16 +181,4 @@ test('the deploy config is the kit template with the slug and domain', async () 
     '"observability": { "enabled": false }',
   ])
     assert.ok(config.includes(line), line);
-});
-
-test('store buttons link to the counted redirect, in the page language, and only once the app is live', () => {
-  const page = { lang: 'en', path: '/en/guides/x/' };
-  const live = { status: 'live', stores: { ios: IOS, android: null } };
-  assert.equal(
-    storeButtons(page, live),
-    '<p class="store-buttons"><a class="store-button" rel="nofollow" href="/go/ios?from=%2Fen%2Fguides%2Fx%2F">' +
-      'Download on the App Store</a></p>\n',
-  );
-  assert.match(storeButtons({ ...page, lang: 'fr' }, live), />Télécharger dans l’App Store</);
-  assert.equal(storeButtons(page, { ...live, status: 'coming-soon' }), '');
 });

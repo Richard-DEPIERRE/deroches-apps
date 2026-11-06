@@ -89,13 +89,6 @@ newest guides. No store link, no form, no email capture, no countdown.
 - `_worker/index.mjs`, the Worker entry with the site's slug, store URLs and page paths embedded (kept out of the
   uploaded assets by `.assetsignore`).
 
-## Store buttons
-
-`storeButtons(page, site)` (`kit/lib/render.mjs`) writes the App Store and Google Play buttons in the page's language,
-for the stores that have a URL, each a link to `/go/<store>?from=<page path>`. It writes nothing while the site is
-`coming-soon`. They are plain text in the site's accent, not Apple's or Google's badge artwork (ADR 0007): using the
-artwork needs their current badge guidelines checked first, with a date.
-
 ## Analytics (ADR 0007)
 
 No cookie, no identifier, nothing about the visitor. The Worker writes one data point per event to the Analytics
@@ -193,4 +186,4 @@ node kit/wrangler.mjs <slug>       # writes <slug>/wrangler.jsonc (--check compa
 
 ## Still to come (child issues of DAPP-6)
 
-The guide template that places the store buttons, internal links and the link check; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
+The store buttons (links to `/go/<store>?from=<page path>`, with their design review) and the guide template that places them, internal links and the link check; the daily-guide pipeline (one new guide per app per day, only after `CE-FACT-CHECK`).
