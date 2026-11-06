@@ -1,7 +1,7 @@
 # ADR 0003: Where the iOS archive's asset catalog and storyboards get compiled
 
-- Status: accepted (the studio's choice; path 1 waits on Richard's pick on DAPP-48, path 2's wrapper change on his
-  merge)
+- Status: accepted; **path 1 applies** (Richard picked A, GitHub-hosted runners, on DAPP-48 on 2026-11-06). The
+  `release` job is in `.github/workflows/app-builds.yml` (DAPP-49); path 2 stays here for the record
 - Date: 2026-11-03
 - Deciders: Mobile Tech Lead; Richard picks where CI runs (DAPP-48) and merges any shared-file change
 - Issue: DAPP-51 (found on DAPP-50); amends ADR 0002's iOS archive step

@@ -18,6 +18,17 @@ Lead. The release order, rollout and pause rules are in the `apps-release` skill
 
 In the agent sandbox, run it with `HOME` under `$TMPDIR`, the shared `PUB_CACHE` and `PUB_OFFLINE=1` (`AGENTS.md`).
 
+## Where it runs: CI, on main (ADR 0003, path 1)
+The sandbox can't compile the iOS icon and storyboards (ADR 0003), so the release build comes from CI, on the merged
+release commit:
+1. `gh workflow run app-builds.yml --ref main -f release=<slug>` (the `release` job, on GitHub's pinned macOS image and
+   Xcode). It refuses any ref but `main`.
+2. `gh run list --workflow app-builds.yml --branch main --limit 3 --json databaseId,status,conclusion`, then once it
+   is `success`, from the root of the checkout: `gh run download <run-id> --name release-<slug> --dir build/ci`.
+   The artifact is kept 1 day.
+3. `tar -xf build/ci/release-<slug>.tar -C build/release` gives `build/release/<slug>/<version>/`, as below. Check
+   `manifest.json` (`commit` is the release commit, `dirty` is false).
+
 ## Then, by hand (Mobile Tech Lead)
 From the root of the `deroches-apps` checkout, on the merged release commit (the manifest's `commit`, `dirty: false`):
 1. iOS: `/usr/bin/python3 /Volumes/Hermes/Studio/repos/deroches-studio/ops/apps_store.py testflight --app <slug> --archive build/release/<slug>/<version>/<slug>.xcarchive`

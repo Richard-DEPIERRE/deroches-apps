@@ -10,6 +10,9 @@ cd "$root"
 flutter pub get ${PUB_OFFLINE:+--offline}  # PUB_OFFLINE=1 in the agent sandbox (AGENTS.md)
 flutter analyze --no-pub
 
+echo "== every app that saves data has a data-upgrade test"
+python3 tool/data_upgrade/check.py
+
 members=$(sed -n '/^workspace:/,/^[^ ]/s/^  - //p' pubspec.yaml)
 for member in $members; do
   if [ -d "$member/test" ]; then
@@ -21,3 +24,4 @@ done
 echo "== python tests in tool/"
 python3 -m unittest discover -s tool/release_watch -p '*_test.py'
 python3 -m unittest discover -s tool/release -p '*_test.py'
+python3 -m unittest discover -s tool/data_upgrade -p '*_test.py'
