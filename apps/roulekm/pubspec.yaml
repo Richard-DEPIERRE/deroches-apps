@@ -11,9 +11,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   app_kit:
     path: ../../packages/app_kit
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Parses the Android backup rules in test/backup_rules_test.dart.
+  xml: ^6.6.1
+
+flutter:
+  uses-material-design: true
+  generate: true

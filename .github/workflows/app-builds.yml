@@ -44,7 +44,7 @@ jobs:
       fail-fast: false
       matrix:
         # Every app with its own ios/ folder.
-        app: [apps/kit_example]
+        app: [apps/kit_example, apps/roulekm]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -78,7 +78,7 @@ jobs:
       fail-fast: false
       matrix:
         # Every app with its own android/ folder.
-        app: [apps/kit_example]
+        app: [apps/kit_example, apps/roulekm]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
