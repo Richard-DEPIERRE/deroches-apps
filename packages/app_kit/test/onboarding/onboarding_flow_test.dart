@@ -15,16 +15,20 @@ const pages = [
 void main() {
   late Directory dir;
   late FakeAnalyticsBackend backend;
+  KitStateController? last;
 
   setUp(() {
     dir = Directory.systemTemp.createTempSync('onboarding_');
     addTearDown(() => dir.deleteSync(recursive: true));
     backend = FakeAnalyticsBackend();
+    last = null;
   });
 
-  /// Opens the app as a fresh launch would: the kit state read from disk.
+  /// Opens the app as a fresh launch would: the kit state read from disk,
+  /// once the last launch's saves are written.
   Future<KitStateController> launch(WidgetTester tester, {Locale locale = const Locale('en')}) async {
-    final kit = KitStateController(directory: dir, appId: 'kit-test');
+    if (last case final previous?) await waitForKitSaves(tester, previous);
+    final kit = last = KitStateController(directory: dir, appId: 'kit-test');
     await tester.runAsync(kit.load);
     final analytics = Analytics(
       backend: backend,

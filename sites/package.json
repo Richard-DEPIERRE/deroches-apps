@@ -1,0 +1,24 @@
+{
+  "name": "deroches-site-kit",
+  "private": true,
+  "type": "module",
+  "description": "Static site kit for each app's website (French at the root, English under /en/).",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node kit/build.mjs",
+    "new-guide": "node kit/new-guide.mjs",
+    "check-guides": "node kit/check-guides.mjs",
+    "test": "node --test 'kit/test/*.test.mjs' && node kit/check-guides.mjs",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "marked": "18.1.2",
+    "yaml": "2.9.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4",
+    "wrangler": "4.158.0"
+  }
+}

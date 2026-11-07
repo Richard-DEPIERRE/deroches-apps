@@ -19,7 +19,8 @@ android {
         applicationId = "com.derochesapps.kit_example"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // 26: sentry_flutter (crash reporting) declares minSdk 26, so a lower value fails the manifest merge.
+        minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

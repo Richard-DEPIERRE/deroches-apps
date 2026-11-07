@@ -1,0 +1,17 @@
+{
+  "slug": "exemple",
+  "domain": "exemple.test",
+  "status": "coming-soon",
+  "name": { "fr": "Exemple", "en": "Example" },
+  "tagline": {
+    "fr": "L'appli qui sert d'exemple au kit.",
+    "en": "The app that serves as the kit's example."
+  },
+  "supportEmail": "support@exemple.test",
+  "appData": {
+    "fr": "L'application Exemple garde vos données sur votre téléphone et n'envoie rien.",
+    "en": "The Example app keeps your data on your phone and sends nothing."
+  },
+  "accent": { "light": "#136f63", "dark": "#5cc8ad" },
+  "stores": { "ios": null, "android": null }
+}

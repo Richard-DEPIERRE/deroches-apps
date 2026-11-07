@@ -137,4 +137,7 @@ class KitStateController extends ChangeNotifier {
     notifyListeners();
     await _store.save(next.toJson());
   }
+
+  /// Waits for the saves already called to be written (failed ones included).
+  Future<void> flush() => _store.flush();
 }

@@ -40,3 +40,7 @@ __pycache__/
 # Store screenshots: made by tool/screenshots.sh before each listing, never committed
 apps/*/store/ios/screenshots/
 apps/*/store/android/*/images/phoneScreenshots/
+
+# Site kit (Node)
+node_modules/
+sites/*/dist/

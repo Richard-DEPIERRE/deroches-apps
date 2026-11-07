@@ -1,0 +1,255 @@
+/* System fonts only: no font host, nothing loaded from another origin. */
+:root {
+  color-scheme: light dark;
+  --text: #1c1c1e;
+  --muted: #5f6368;
+  --bg: #ffffff;
+  /* --accent: each site's own colour, appended at the end of this file by the build from site.json. */
+  --line: #e3e3e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #f2f2f7;
+    --muted: #aeaeb2;
+    --bg: #111113;
+    --line: #38383a;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  margin: 0 auto;
+  max-width: 44rem;
+  padding: 0 1.25rem;
+  font:
+    1.0625rem / 1.65 system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  overflow-wrap: break-word;
+}
+/* Links keep their underline: the accent is under 3:1 against body text (WCAG 1.4.1). */
+a {
+  color: var(--accent);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: from-font;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+.skip {
+  position: absolute;
+  left: -999px;
+}
+.skip:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 1;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+}
+.site-header,
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0;
+}
+.site-header {
+  border-bottom: 1px solid var(--line);
+}
+/* Tap targets of 48px (44pt on iOS, 48dp on Android); the negative margin keeps the header's height. */
+.lang a {
+  display: inline-block;
+  padding: 0.625rem 0.75rem;
+  margin: -0.625rem -0.75rem;
+}
+.site-footer {
+  border-top: 1px solid var(--line);
+  margin-top: 3rem;
+  padding-block: 0.5rem 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+.site-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-footer a {
+  display: inline-block;
+  padding-block: 0.75rem;
+}
+.brand {
+  font-weight: 700;
+  text-decoration: none;
+  color: var(--text);
+}
+h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+}
+h2 {
+  margin-top: 2.25rem;
+}
+img {
+  max-width: 100%;
+  height: auto;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  border: 1px solid var(--line);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+dt {
+  font-weight: 600;
+}
+dd {
+  margin: 0 0 0.75rem;
+}
+/* Review builds only: the legal notice without Richard's identity file must look unfinished. */
+.identity-missing {
+  border: 2px dashed var(--accent);
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+}
+.coming-soon {
+  font-weight: 600;
+}
+/* Legal pages: the date of the text, on its own line under the title, as quiet as the footer. */
+.updated {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+/* The coming-soon home's guide links: rows stay close, each tap target at least 44px. */
+.guides a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}
+/* The support page's address: on its own line, a tap target of at least 48px. */
+.contact {
+  margin-top: -0.5rem;
+}
+.contact a {
+  display: inline-block;
+  padding-block: 0.75rem;
+  font-weight: 600;
+}
+/* Wide tables scroll sideways in their own box, so a phone's page never gets wider than its screen. */
+.table-scroll {
+  overflow-x: auto;
+}
+/* The hub and language links wrap together, as one right-aligned group, when a long app name needs the room. */
+.header-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 1.75rem;
+  margin-left: auto;
+}
+.site-header .nav {
+  padding-block: 0.625rem;
+  margin-block: -0.625rem;
+}
+.breadcrumb {
+  margin-top: 1.5rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+/* 48px tap targets; the negative margin keeps the line's height. */
+.breadcrumb a {
+  display: inline-block;
+  padding-block: 0.75rem;
+  margin-block: -0.75rem;
+}
+/* Guide blocks: in the flow of the text, never fixed, full-screen or over it. */
+.download,
+.app-banner {
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  padding: 0.25rem 1rem;
+  margin: 2rem 0;
+}
+.store-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+/* A button, not an inline link: the shape marks it. Equal widths side by side, full width stacked on a phone, centred
+   and safe to wrap. Text in the page colour on the accent reads at the accent's own 4.5:1 or more (the build checks
+   it against both page colours). */
+.store-button {
+  flex: 1 1 14rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.625rem 1rem;
+  line-height: 1.3;
+  text-align: center;
+  border-radius: 0.5rem;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .store-button {
+    transition: transform 0.1s;
+  }
+  .store-button:active {
+    transform: scale(0.97);
+  }
+}
+.guide-list {
+  list-style: none;
+  padding: 0;
+}
+.guide-list li {
+  margin-bottom: 1.25rem;
+}
+.guide-list a {
+  display: inline-block;
+  padding-block: 0.625rem;
+  font-weight: 600;
+}
+.guide-list span {
+  display: block;
+  margin-top: -0.25rem;
+  color: var(--muted);
+}
+.sources {
+  font-size: 0.9375rem;
+}
+.related a {
+  display: inline-block;
+  padding-block: 0.625rem;
+}
+/* Link lists without bullets or indent: a bullet sits by an inline-block's last line, and titles need the width. */
+.guides,
+.related ul {
+  list-style: none;
+  padding-left: 0;
+}
