@@ -1,0 +1,27 @@
+{
+  "slug": "roulekm",
+  "domain": "roulekm.fr",
+  "status": "coming-soon",
+  "name": {
+    "fr": "Roulekm",
+    "en": "Roulekm"
+  },
+  "tagline": {
+    "fr": "Vos trajets en euros, au barème kilométrique de chaque véhicule. Sans compte, sans GPS en arrière-plan.",
+    "en": "Your business miles in money, at each vehicle’s IRS or HMRC rate. No account, no background GPS."
+  },
+  "supportEmail": "support@roulekm.fr",
+  "appData": {
+    "fr": "Roulekm ne vous demande ni compte, ni localisation. Vos trajets, vos véhicules et les relevés que vous exportez (PDF, CSV) restent sur votre téléphone. Leurs sauvegardes vont dans votre propre compte iCloud ou Google, que nous ne voyons jamais, ou là où vous enregistrez l’export.\n\nPour fonctionner et s’améliorer, l’application envoie aussi, sans rien qui vous identifie :\n\n- **Vos achats**, à RevenueCat, sous un identifiant tiré au hasard à l’installation : pour débloquer Pro et compter les ventes.\n- **Des statistiques d’utilisation anonymes**, à PostHog (hébergé dans l’Union européenne) : quels écrans et boutons servent, avec la version de l’application, le système, la langue et le nombre de jours depuis l’installation. Jamais un texte que vous avez saisi, jamais un trajet.\n- **Des rapports de plantage**, à Sentry (hébergé dans l’Union européenne) : l’erreur, les blocages de l’application, le modèle de l’appareil et la version du système. Sans adresse IP, sans nom d’appareil, sans vos données.\n\nCes identifiants sont propres à l’installation et ne sont reliés à aucune personne. Pas de publicité, pas d’identifiant publicitaire, rien de vendu ni croisé avec d’autres données. Vous pouvez couper les statistiques et les rapports de plantage dans les réglages de l’application, rubrique Confidentialité (« Partager des statistiques d’utilisation et des rapports de plantage anonymes », activé par défaut). Les achats, eux, restent nécessaires pour débloquer Pro.",
+    "en": "Roulekm asks for no account and no location. Your trips, your vehicles and the logs you export (PDF, CSV) stay on your phone. Their backups go to your own iCloud or Google account, which we never see, or wherever you save the export.\n\nTo work and to get better, the app also sends, with nothing that identifies you:\n\n- **Your purchases**, to RevenueCat, under an ID drawn at random when the app is installed: to unlock Pro and count sales.\n- **Anonymous usage statistics**, to PostHog (hosted in the European Union): which screens and buttons get used, with the app version, the operating system, the language and the number of days since install. Never text you typed, never a trip.\n- **Crash reports**, to Sentry (hosted in the European Union): the error, app freezes, the device model and the operating system version. No IP address, no device name, none of your data.\n\nThese IDs belong to the installation and are linked to no person. No ads, no advertising ID, nothing sold or combined with other data. You can turn off usage statistics and crash reports in the app’s Settings, under Privacy (“Share anonymous usage statistics and crash reports”, on by default). Purchases are still needed to unlock Pro."
+  },
+  "accent": {
+    "light": "#8e4d31",
+    "dark": "#ffb598"
+  },
+  "category": "FinanceApplication",
+  "stores": {
+    "ios": null,
+    "android": null
+  }
+}
