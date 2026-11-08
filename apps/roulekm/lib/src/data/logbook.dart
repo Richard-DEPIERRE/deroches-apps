@@ -118,6 +118,16 @@ class VehicleRecord extends _Value {
   /// Archived vehicles keep their trips and totals and don't count as in use (DAPP-140 §1).
   final bool archived;
 
+  VehicleRecord copyWith({bool? archived}) => VehicleRecord(
+    id: id,
+    name: name,
+    rates: rates,
+    type: type,
+    horsepower: horsepower,
+    electric: electric,
+    archived: archived ?? this.archived,
+  );
+
   factory VehicleRecord.fromJson(Map<String, Object?> json) => VehicleRecord(
     id: json['id']! as String,
     name: json['name']! as String,

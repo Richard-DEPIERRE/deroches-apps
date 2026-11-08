@@ -3,5 +3,51 @@
   "roulekmPlaceholderBody": "Roulekm’s screens are coming soon. This page never ships.",
   "@roulekmPlaceholderBody": {
     "description": "Placeholder home until the app's own screens land (DAPP-144 to DAPP-147). Never shipped."
-  }
+  },
+  "vehicleNewTitle": "New vehicle",
+  "vehicleEditTitle": "Edit vehicle",
+  "vehicleName": "Name",
+  "vehicleNameHelper": "So you can tell it apart: “Clio”, “Van”…",
+  "vehicleNameMissing": "Give it a name.",
+  "vehicleRates": "Rate system",
+  "vehicleRatesFrance": "France",
+  "vehicleRatesUk": "UK · HMRC",
+  "vehicleRatesUs": "US · IRS",
+  "vehicleType": "Type",
+  "vehicleTypeCar": "Car or van",
+  "vehicleTypeMotorbike": "Motorcycle",
+  "vehicleTypeMoped": "Moped",
+  "vehicleTypeBicycle": "Bicycle",
+  "vehicleHorsepower": "Fiscal horsepower",
+  "vehicleHorsepowerOne": "{cv} CV",
+  "@vehicleHorsepowerOne": {
+    "description": "A French barème band of one fiscal horsepower (CV, as on the carte grise).",
+    "placeholders": {"cv": {"type": "int"}}
+  },
+  "vehicleHorsepowerUpTo": "{cv} CV or less",
+  "@vehicleHorsepowerUpTo": {"placeholders": {"cv": {"type": "int"}}},
+  "vehicleHorsepowerRange": "{min} to {max} CV",
+  "@vehicleHorsepowerRange": {"placeholders": {"min": {"type": "int"}, "max": {"type": "int"}}},
+  "vehicleHorsepowerFrom": "{cv} CV or more",
+  "@vehicleHorsepowerFrom": {"placeholders": {"cv": {"type": "int"}}},
+  "vehicleHorsepowerNote": "On the carte grise (registration certificate), box P.6.",
+  "vehicleHorsepowerMissing": "Pick its fiscal horsepower.",
+  "vehicleElectric": "Electric",
+  "vehicleElectricNote": "The barème is 20% higher.",
+  "vehicleUkNote": "Cars and vans: {first}p a mile for the first 10,000 business miles in the tax year, {after}p after. The tax year starts on 6 April.",
+  "@vehicleUkNote": {
+    "description": "The pence come from the HMRC rates in force in the engine.",
+    "placeholders": {"first": {"type": "int"}, "after": {"type": "int"}}
+  },
+  "vehicleUkNoteMotorbike": "Motorcycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
+  "@vehicleUkNoteMotorbike": {"placeholders": {"rate": {"type": "int"}}},
+  "vehicleUkNoteBicycle": "Bicycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
+  "@vehicleUkNoteBicycle": {"placeholders": {"rate": {"type": "int"}}},
+  "vehicleUsNote": "One IRS rate for cars, vans, pickups and panel trucks, electric or not. Business miles only: commuting doesn’t count.",
+  "vehicleSave": "Save",
+  "vehicleArchive": "Archive this vehicle",
+  "vehicleArchived": "“{name}” archived.",
+  "@vehicleArchived": {"description": "Snackbar after archiving, with Undo.", "placeholders": {"name": {"type": "String"}}},
+  "vehicleArchiveUndo": "Undo",
+  "vehicleSaveFailed": "The vehicle couldn’t be saved. Try again."
 }
