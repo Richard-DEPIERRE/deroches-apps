@@ -106,6 +106,174 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Roulekm’s screens are coming soon. This page never ships.'**
   String get roulekmPlaceholderBody;
+
+  /// No description provided for @vehicleNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New vehicle'**
+  String get vehicleNewTitle;
+
+  /// No description provided for @vehicleEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit vehicle'**
+  String get vehicleEditTitle;
+
+  /// No description provided for @vehicleName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get vehicleName;
+
+  /// No description provided for @vehicleNameHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'So you can tell it apart: “Clio”, “Van”…'**
+  String get vehicleNameHelper;
+
+  /// No description provided for @vehicleNameMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Give it a name.'**
+  String get vehicleNameMissing;
+
+  /// No description provided for @vehicleRates.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate system'**
+  String get vehicleRates;
+
+  /// No description provided for @vehicleRatesFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'France'**
+  String get vehicleRatesFrance;
+
+  /// No description provided for @vehicleRatesUk.
+  ///
+  /// In en, this message translates to:
+  /// **'UK · HMRC'**
+  String get vehicleRatesUk;
+
+  /// No description provided for @vehicleRatesUs.
+  ///
+  /// In en, this message translates to:
+  /// **'US · IRS'**
+  String get vehicleRatesUs;
+
+  /// No description provided for @vehicleType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get vehicleType;
+
+  /// No description provided for @vehicleTypeCar.
+  ///
+  /// In en, this message translates to:
+  /// **'Car or van'**
+  String get vehicleTypeCar;
+
+  /// No description provided for @vehicleTypeMotorbike.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorcycle'**
+  String get vehicleTypeMotorbike;
+
+  /// No description provided for @vehicleTypeMoped.
+  ///
+  /// In en, this message translates to:
+  /// **'Moped'**
+  String get vehicleTypeMoped;
+
+  /// No description provided for @vehicleTypeBicycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bicycle'**
+  String get vehicleTypeBicycle;
+
+  /// No description provided for @vehicleHorsepower.
+  ///
+  /// In en, this message translates to:
+  /// **'Fiscal horsepower'**
+  String get vehicleHorsepower;
+
+  /// A French barème band of one fiscal horsepower (CV, as on the carte grise).
+  ///
+  /// In en, this message translates to:
+  /// **'{cv} CV'**
+  String vehicleHorsepowerOne(int cv);
+
+  /// No description provided for @vehicleHorsepowerUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'{cv} CV or less'**
+  String vehicleHorsepowerUpTo(int cv);
+
+  /// No description provided for @vehicleHorsepowerRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{min} to {max} CV'**
+  String vehicleHorsepowerRange(int min, int max);
+
+  /// No description provided for @vehicleHorsepowerFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'{cv} CV or more'**
+  String vehicleHorsepowerFrom(int cv);
+
+  /// No description provided for @vehicleHorsepowerNote.
+  ///
+  /// In en, this message translates to:
+  /// **'On the carte grise (registration certificate), box P.6.'**
+  String get vehicleHorsepowerNote;
+
+  /// No description provided for @vehicleHorsepowerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick its fiscal horsepower.'**
+  String get vehicleHorsepowerMissing;
+
+  /// No description provided for @vehicleElectric.
+  ///
+  /// In en, this message translates to:
+  /// **'Electric'**
+  String get vehicleElectric;
+
+  /// No description provided for @vehicleElectricNote.
+  ///
+  /// In en, this message translates to:
+  /// **'The barème is 20% higher.'**
+  String get vehicleElectricNote;
+
+  /// The pence come from the latest HMRC rates in the engine.
+  ///
+  /// In en, this message translates to:
+  /// **'Cars and vans: {first}p a mile for the first 10,000 business miles in the tax year, {after}p after. The tax year starts on 6 April.'**
+  String vehicleUkNote(int first, int after);
+
+  /// No description provided for @vehicleUsNote.
+  ///
+  /// In en, this message translates to:
+  /// **'One IRS rate for cars, vans, pickups and panel trucks, electric or not. Business miles only: commuting doesn’t count.'**
+  String get vehicleUsNote;
+
+  /// No description provided for @vehicleSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get vehicleSave;
+
+  /// No description provided for @vehicleArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive this vehicle'**
+  String get vehicleArchive;
+
+  /// No description provided for @vehicleSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The vehicle couldn’t be saved. Try again.'**
+  String get vehicleSaveFailed;
 }
 
 class _RoulekmLocalizationsDelegate
