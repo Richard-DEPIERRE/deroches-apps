@@ -5,24 +5,37 @@
 /// Pure Dart: no Flutter, no I/O.
 library;
 
+import 'dart:math';
+
 import 'distance.dart';
 import 'french_bareme.dart';
 import 'uk_us_rates.dart';
 
 enum RateSystem {
-  france(DistanceUnit.km),
-  uk(DistanceUnit.mile),
-  us(DistanceUnit.mile);
+  france(DistanceUnit.km, [VehicleType.car, VehicleType.motorbike, VehicleType.moped]),
+  uk(DistanceUnit.mile, [VehicleType.car, VehicleType.motorbike, VehicleType.bicycle]),
 
-  const RateSystem(this.unit);
+  /// One rate for every vehicle the app logs.
+  us(DistanceUnit.mile, [VehicleType.car]);
+
+  const RateSystem(this.unit, this.types);
 
   /// The unit its totals are shown in.
   final DistanceUnit unit;
+
+  /// The vehicle types it has a rate for.
+  final List<VehicleType> types;
 
   /// The period [date] counts in, named by the year it starts: the income year in France, the tax year from 6 April
   /// in the UK (2026 is 2026-27), the calendar year in the US.
   int periodOf(DateTime date) =>
       this == uk && (date.month < 4 || date.month == 4 && date.day < 6) ? date.year - 1 : date.year;
+}
+
+/// The HMRC rates in force on [date]: its tax year's, or the last year in the table when that one isn't in it yet.
+HmrcYear hmrcYearOn(DateTime date) {
+  final period = RateSystem.uk.periodOf(date);
+  return hmrcRates[period] ?? hmrcRates[hmrcRates.keys.where((y) => y < period).reduce(max)]!;
 }
 
 class Trip {

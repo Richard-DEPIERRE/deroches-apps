@@ -23,7 +23,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get vehicleNameHelper =>
-      'Pour le reconnaître : « Clio », « Utilitaire »…';
+      'Pour le reconnaître : « Clio », « Utilitaire »…';
 
   @override
   String get vehicleNameMissing => 'Donnez-lui un nom.';
@@ -88,22 +88,40 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get vehicleElectric => 'Électrique';
 
   @override
-  String get vehicleElectricNote => 'Le barème est majoré de 20 %.';
+  String get vehicleElectricNote => 'Le barème est majoré de 20 %.';
 
   @override
   String vehicleUkNote(int first, int after) {
-    return 'Voitures et utilitaires : $first pence par mile pour les 10 000 premiers miles professionnels de l’année fiscale, $after pence au-delà. L’année fiscale commence le 6 avril.';
+    return 'Voitures et utilitaires : $first pence par mile pour les 10 000 premiers miles professionnels de l’année fiscale, $after pence au-delà. L’année fiscale commence le 6 avril.';
+  }
+
+  @override
+  String vehicleUkNoteMotorbike(int rate) {
+    return 'Motos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
+  }
+
+  @override
+  String vehicleUkNoteBicycle(int rate) {
+    return 'Vélos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
   }
 
   @override
   String get vehicleUsNote =>
-      'Un seul taux IRS pour les voitures, utilitaires, pick-up et fourgons, électriques ou non. Seuls les miles professionnels comptent, pas les trajets domicile – travail.';
+      'Un seul taux IRS pour les voitures, utilitaires, pick-up et fourgons, électriques ou non. Seuls les miles professionnels comptent, pas les trajets domicile – travail.';
 
   @override
   String get vehicleSave => 'Enregistrer';
 
   @override
   String get vehicleArchive => 'Archiver ce véhicule';
+
+  @override
+  String vehicleArchived(String name) {
+    return '« $name » est archivé.';
+  }
+
+  @override
+  String get vehicleArchiveUndo => 'Annuler';
 
   @override
   String get vehicleSaveFailed =>

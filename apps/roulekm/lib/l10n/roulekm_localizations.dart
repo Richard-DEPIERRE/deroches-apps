@@ -245,11 +245,23 @@ abstract class RoulekmLocalizations {
   /// **'The barème is 20% higher.'**
   String get vehicleElectricNote;
 
-  /// The pence come from the latest HMRC rates in the engine.
+  /// The pence come from the HMRC rates in force in the engine.
   ///
   /// In en, this message translates to:
   /// **'Cars and vans: {first}p a mile for the first 10,000 business miles in the tax year, {after}p after. The tax year starts on 6 April.'**
   String vehicleUkNote(int first, int after);
+
+  /// No description provided for @vehicleUkNoteMotorbike.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorcycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.'**
+  String vehicleUkNoteMotorbike(int rate);
+
+  /// No description provided for @vehicleUkNoteBicycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bicycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.'**
+  String vehicleUkNoteBicycle(int rate);
 
   /// No description provided for @vehicleUsNote.
   ///
@@ -268,6 +280,18 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Archive this vehicle'**
   String get vehicleArchive;
+
+  /// Snackbar after archiving, with Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” archived.'**
+  String vehicleArchived(String name);
+
+  /// No description provided for @vehicleArchiveUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get vehicleArchiveUndo;
 
   /// No description provided for @vehicleSaveFailed.
   ///

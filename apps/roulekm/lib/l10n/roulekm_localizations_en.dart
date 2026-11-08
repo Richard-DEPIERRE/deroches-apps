@@ -96,6 +96,16 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   }
 
   @override
+  String vehicleUkNoteMotorbike(int rate) {
+    return 'Motorcycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
+  }
+
+  @override
+  String vehicleUkNoteBicycle(int rate) {
+    return 'Bicycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
+  }
+
+  @override
   String get vehicleUsNote =>
       'One IRS rate for cars, vans, pickups and panel trucks, electric or not. Business miles only: commuting doesn’t count.';
 
@@ -104,6 +114,14 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get vehicleArchive => 'Archive this vehicle';
+
+  @override
+  String vehicleArchived(String name) {
+    return '“$name” archived.';
+  }
+
+  @override
+  String get vehicleArchiveUndo => 'Undo';
 
   @override
   String get vehicleSaveFailed => 'The vehicle couldn’t be saved. Try again.';

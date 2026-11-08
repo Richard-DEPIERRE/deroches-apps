@@ -29,6 +29,12 @@ void main() {
     expect(const Logbook().toJson(), Logbook.empty);
   });
 
+  test('copyWith keeps every other field of a vehicle', () {
+    for (final v in schema1Logbook.vehicles) {
+      expect(v.copyWith(archived: !v.archived).toJson(), {...v.toJson(), 'archived': !v.archived});
+    }
+  });
+
   test('a vehicle is saved with its archived flag, false by default', () {
     const v = VehicleRecord(id: 'v', name: 'Moto', rates: RateSystem.uk, type: VehicleType.motorbike);
     expect(v.toJson(), {

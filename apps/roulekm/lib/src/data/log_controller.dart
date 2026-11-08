@@ -31,25 +31,9 @@ class LogController extends ChangeNotifier {
     return _save(_with(vehicles: i < 0 ? [...vehicles, vehicle] : (List.of(vehicles)..[i] = vehicle)));
   }
 
-  /// Archiving keeps the vehicle's trips and totals.
-  Future<void> archiveVehicle(String id) => _save(
-    _with(
-      vehicles: [
-        for (final v in logbook!.vehicles)
-          v.id != id
-              ? v
-              : VehicleRecord(
-                  id: v.id,
-                  name: v.name,
-                  rates: v.rates,
-                  type: v.type,
-                  horsepower: v.horsepower,
-                  electric: v.electric,
-                  archived: true,
-                ),
-      ],
-    ),
-  );
+  /// Archiving keeps the vehicle's trips and totals; `archived: false` brings it back (Undo).
+  Future<void> archiveVehicle(String id, {bool archived = true}) =>
+      _save(_with(vehicles: [for (final v in logbook!.vehicles) v.id == id ? v.copyWith(archived: archived) : v]));
 
   Logbook _with({required List<VehicleRecord> vehicles}) {
     final l = logbook!;

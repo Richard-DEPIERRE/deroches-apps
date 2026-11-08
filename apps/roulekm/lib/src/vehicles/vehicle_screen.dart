@@ -7,7 +7,6 @@ import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
-import '../rates/uk_us_rates.dart';
 
 /// Add or edit a vehicle: its rate system, type, fiscal horsepower and electric flag (DAPP-141 §5).
 class VehicleScreen extends StatefulWidget {
@@ -22,16 +21,8 @@ class VehicleScreen extends StatefulWidget {
   State<VehicleScreen> createState() => _VehicleScreenState();
 }
 
-/// The types each system has a rate for. The US has one rate for every vehicle the app logs.
-const _types = {
-  RateSystem.france: [VehicleType.car, VehicleType.motorbike, VehicleType.moped],
-  RateSystem.uk: [VehicleType.car, VehicleType.motorbike, VehicleType.bicycle],
-  RateSystem.us: [VehicleType.car],
-};
-
 /// The chips follow the latest barème's bands.
 final _bareme = frenchBaremes[frenchBaremes.keys.reduce(max)]!;
-final _hmrc = hmrcRates[hmrcRates.keys.reduce(max)]!;
 
 class _VehicleScreenState extends State<VehicleScreen> {
   late final _name = TextEditingController(text: widget.vehicle?.name);
@@ -57,11 +48,14 @@ class _VehicleScreenState extends State<VehicleScreen> {
     super.dispose();
   }
 
-  Future<void> _run(Future<void> Function() change) async {
+  /// Runs [change], then [done] and closes the form; keeps it open and says so when the save fails.
+  Future<void> _run(Future<void> Function() change, [VoidCallback? done]) async {
     setState(() => _saving = true);
     try {
       await change();
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      done?.call();
+      Navigator.of(context).pop();
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
@@ -91,6 +85,36 @@ class _VehicleScreenState extends State<VehicleScreen> {
     );
   }
 
+  /// The snackbar goes through the app's messenger, so it stays on the screen underneath.
+  void _archive(VehicleRecord vehicle) {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = RoulekmLocalizations.of(context);
+    final log = widget.log;
+    _run(
+      () => log.archiveVehicle(vehicle.id),
+      () => messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.vehicleArchived(vehicle.name)),
+          action: SnackBarAction(
+            label: l10n.vehicleArchiveUndo,
+            onPressed: () => log.archiveVehicle(vehicle.id, archived: false).onError((_, _) {
+              messenger.showSnackBar(SnackBar(content: Text(l10n.vehicleSaveFailed)));
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _ukNote(RoulekmLocalizations l10n) {
+    final hmrc = hmrcYearOn(DateTime.now());
+    return switch (_type) {
+      VehicleType.motorbike => l10n.vehicleUkNoteMotorbike(hmrc.motorcycle ~/ 10),
+      VehicleType.bicycle => l10n.vehicleUkNoteBicycle(hmrc.cycle ~/ 10),
+      _ => l10n.vehicleUkNote(hmrc.carFirst10k ~/ 10, hmrc.carAbove10k ~/ 10),
+    };
+  }
+
   String _bandLabel(RoulekmLocalizations l10n, HorsepowerBand b) => switch (b) {
     HorsepowerBand(maxCv: null) => l10n.vehicleHorsepowerFrom(b.minCv),
     HorsepowerBand(minCv: 1, :final maxCv?) => l10n.vehicleHorsepowerUpTo(maxCv),
@@ -102,7 +126,6 @@ class _VehicleScreenState extends State<VehicleScreen> {
   Widget build(BuildContext context) {
     final l10n = RoulekmLocalizations.of(context);
     final theme = Theme.of(context);
-    final error = TextStyle(color: theme.colorScheme.error);
     final note = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
 
     Widget header(String text) => Padding(
@@ -117,7 +140,12 @@ class _VehicleScreenState extends State<VehicleScreen> {
       runSpacing: 8,
       children: [
         for (final v in values)
-          ChoiceChip(label: Text(label(v)), selected: v == selected, onSelected: (_) => setState(() => onSelected(v))),
+          // A chip's label is one line: one too long for a whole line at large text shrinks, rather than fade.
+          ChoiceChip(
+            label: FittedBox(fit: BoxFit.scaleDown, child: Text(label(v))),
+            selected: v == selected,
+            onSelected: (_) => setState(() => onSelected(v)),
+          ),
       ],
     );
 
@@ -134,7 +162,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
               decoration: InputDecoration(
                 labelText: l10n.vehicleName,
                 helperText: l10n.vehicleNameHelper,
-                helperMaxLines: 2,
+                helperMaxLines: 4,
                 errorText: _checked && _name.text.trim().isEmpty ? l10n.vehicleNameMissing : null,
               ),
               onChanged: (_) => _checked ? setState(() {}) : null,
@@ -150,13 +178,13 @@ class _VehicleScreenState extends State<VehicleScreen> {
               },
               (r) {
                 _rates = r;
-                if (!_types[r]!.contains(_type)) _type = VehicleType.car;
+                if (!r.types.contains(_type)) _type = VehicleType.car;
               },
             ),
-            if (_types[_rates]!.length > 1) ...[
+            if (_rates.types.length > 1) ...[
               header(l10n.vehicleType),
               chips(
-                _types[_rates]!,
+                _rates.types,
                 _type,
                 (t) => switch (t) {
                   VehicleType.car => l10n.vehicleTypeCar,
@@ -179,7 +207,14 @@ class _VehicleScreenState extends State<VehicleScreen> {
                 (b) => _horsepower = b.maxCv ?? b.minCv,
               ),
               const SizedBox(height: 8),
-              if (_checked && _horsepower == null) Text(l10n.vehicleHorsepowerMissing, style: error),
+              if (_checked && _horsepower == null)
+                Semantics(
+                  liveRegion: true,
+                  child: Text(
+                    l10n.vehicleHorsepowerMissing,
+                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.error),
+                  ),
+                ),
               Text(l10n.vehicleHorsepowerNote, style: note),
             ],
             if (_rates == RateSystem.france)
@@ -192,14 +227,9 @@ class _VehicleScreenState extends State<VehicleScreen> {
               ),
             if (_rates != RateSystem.france) ...[
               const SizedBox(height: 16),
-              Text(
-                _rates == RateSystem.uk
-                    ? l10n.vehicleUkNote(_hmrc.carFirst10k ~/ 10, _hmrc.carAbove10k ~/ 10)
-                    : l10n.vehicleUsNote,
-                style: note,
-              ),
+              Text(_rates == RateSystem.uk ? _ukNote(l10n) : l10n.vehicleUsNote, style: note),
             ],
-            if (widget.vehicle case VehicleRecord(archived: false, :final id))
+            if (widget.vehicle case final vehicle? when !vehicle.archived)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 // The text-button alignment rule: its label lines up with the fields' edge.
@@ -208,7 +238,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                   child: Transform.translate(
                     offset: const Offset(-12, 0),
                     child: TextButton(
-                      onPressed: _saving ? null : () => _run(() => widget.log.archiveVehicle(id)),
+                      onPressed: _saving ? null : () => _archive(vehicle),
                       child: Text(l10n.vehicleArchive),
                     ),
                   ),

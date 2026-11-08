@@ -63,6 +63,14 @@ void main() {
     expect(log.logbook!.trips, schema1Logbook.trips);
   });
 
+  test('an archived vehicle can be brought back as it was (Undo)', () async {
+    await data.log.replace(schema1Logbook.toJson());
+    await log.open();
+    await log.archiveVehicle('v1');
+    await log.archiveVehicle('v1', archived: false);
+    expect(log.logbook, schema1Logbook);
+  });
+
   test('a save that fails leaves the logbook as it was and says so', () async {
     await data.log.replace(const Logbook().toJson()); // a restore: saving is refused until opened again
     await expectLater(log.saveVehicle(clio), throwsStateError);

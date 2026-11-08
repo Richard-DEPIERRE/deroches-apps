@@ -13,7 +13,13 @@ import 'package:roulekm/src/vehicles/vehicle_screen.dart';
 late RoulekmData data;
 
 /// Opens the vehicle form on a phone in [device] (its language and region), over a host screen.
-Future<LogController> openForm(WidgetTester tester, Locale device, {VehicleRecord? vehicle}) async {
+Future<LogController> openForm(
+  WidgetTester tester,
+  Locale device, {
+  VehicleRecord? vehicle,
+  Size size = const Size(390, 844),
+  double textScale = 1,
+}) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_vehicle_');
   addTearDown(() => dir.deleteSync(recursive: true));
   data = RoulekmData(dir);
@@ -23,7 +29,9 @@ Future<LogController> openForm(WidgetTester tester, Locale device, {VehicleRecor
 
   tester.platformDispatcher.localesTestValue = [device];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  tester.view.physicalSize = const Size(1170, 2532);
+  tester.platformDispatcher.textScaleFactorTestValue = textScale;
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+  tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -82,7 +90,7 @@ void main() {
       expect(find.widgetWithText(ChoiceChip, chip), findsOneWidget, reason: chip);
     }
     expect(find.text('Sur la carte grise, case P.6.'), findsOneWidget);
-    expect(find.text('Le barème est majoré de 20 %.'), findsOneWidget);
+    expect(find.text('Le barème est majoré de 20\u00a0%.'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Nom'), 'Clio');
     await tapText(tester, '5 CV');
@@ -101,7 +109,17 @@ void main() {
     final log = await openForm(tester, const Locale('fr', 'FR'));
     await save(tester, 'Enregistrer');
     expect(find.text('Donnez-lui un nom.'), findsOneWidget);
-    expect(find.text('Choisissez sa puissance fiscale.'), findsOneWidget);
+    final error = find.text('Choisissez sa puissance fiscale.');
+    final theme = Theme.of(tester.element(error));
+    expect(tester.widget<Text>(error).style, theme.textTheme.bodySmall!.copyWith(color: theme.colorScheme.error));
+    expect(
+      find.ancestor(
+        of: error,
+        matching: find.byWidgetPredicate((w) => w is Semantics && w.properties.liveRegion == true),
+      ),
+      findsOneWidget,
+      reason: 'screen readers announce it',
+    );
     expect(log.logbook!.vehicles, isEmpty);
   });
 
@@ -130,7 +148,8 @@ void main() {
     expect(selected(tester, 'Voiture'), isTrue, reason: 'France has no rate for bicycles');
   });
 
-  testWidgets('in the UK: HMRC, its types and the rates from the engine', (tester) async {
+  testWidgets('in the UK: HMRC, its types and the rates in force from the engine', (tester) async {
+    final hmrc = hmrcYearOn(DateTime.now());
     final log = await openForm(tester, const Locale('en', 'GB'));
     expect(find.text('New vehicle'), findsOneWidget);
     expect(selected(tester, 'UK · HMRC'), isTrue);
@@ -139,11 +158,29 @@ void main() {
     }
     expect(find.text('Moped'), findsNothing);
     expect(find.text('Electric'), findsNothing);
-    expect(find.textContaining('Cars and vans: 55p a mile for the first 10,000 business miles'), findsOneWidget);
-    expect(find.textContaining('25p after. The tax year starts on 6 April.'), findsOneWidget);
+    final (car, above) = (hmrc.carFirst10k ~/ 10, hmrc.carAbove10k ~/ 10);
+    expect(
+      find.text(
+        'Cars and vans: ${car}p a mile for the first 10,000 business miles in the tax year, ${above}p after. '
+        'The tax year starts on 6 April.',
+      ),
+      findsOneWidget,
+    );
+    await tapText(tester, 'Motorcycle');
+    expect(
+      find.text(
+        'Motorcycles: ${hmrc.motorcycle ~/ 10}p a mile, whatever the distance. '
+        'The tax year starts on 6 April.',
+      ),
+      findsOneWidget,
+    );
 
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Bike');
     await tapText(tester, 'Bicycle');
+    expect(
+      find.text('Bicycles: ${hmrc.cycle ~/ 10}p a mile, whatever the distance. The tax year starts on 6 April.'),
+      findsOneWidget,
+    );
     await save(tester, 'Save');
     final v = log.inUse.single;
     expect([v.rates, v.type, v.horsepower, v.electric], [RateSystem.uk, VehicleType.bicycle, null, false]);
@@ -173,7 +210,7 @@ void main() {
     ]);
   });
 
-  testWidgets('archiving a vehicle takes it out of use', (tester) async {
+  testWidgets('archiving a vehicle takes it out of use, and Undo brings it back', (tester) async {
     final log = await openForm(tester, const Locale('fr', 'FR'), vehicle: clio);
     expect(find.text('Modifier le véhicule'), findsOneWidget);
     await tester.ensureVisible(find.text('Archiver ce véhicule'));
@@ -181,6 +218,19 @@ void main() {
     expect(find.text('Modifier le véhicule'), findsNothing);
     expect(log.inUse, isEmpty);
     expect(log.logbook!.vehicles.single.archived, isTrue);
+
+    expect(find.text('«\u00a0Clio\u00a0» est archivé.'), findsOneWidget, reason: 'on the screen underneath');
+    await save(tester, 'Annuler');
+    expect(log.logbook!.vehicles, [clio]);
+  });
+
+  testWidgets('in English: the Undo snackbar', (tester) async {
+    final log = await openForm(tester, const Locale('en', 'GB'), vehicle: clio);
+    await tester.ensureVisible(find.text('Archive this vehicle'));
+    await save(tester, 'Archive this vehicle');
+    expect(find.text('“Clio” archived.'), findsOneWidget);
+    await save(tester, 'Undo');
+    expect(log.inUse, [clio]);
   });
 
   testWidgets('a save that fails keeps the form open and says so', (tester) async {

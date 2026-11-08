@@ -155,4 +155,22 @@ void main() {
       expect(_claim(RateSystem.france, 2025, [_miles(DateTime(2025, 5), 100, clio)]).lines.single.distance, 161);
     });
   });
+
+  group('the form', () {
+    test('shows the HMRC year in force: it starts on 6 April', () {
+      expect(hmrcYearOn(DateTime(2026, 3, 31)).carFirst10k, 450, reason: '2025-26');
+      expect(hmrcYearOn(DateTime(2026, 4, 5)).carFirst10k, 450, reason: '2025-26');
+      expect(hmrcYearOn(DateTime(2026, 4, 6)).carFirst10k, 550, reason: '2026-27');
+    });
+
+    test('a tax year not in the table yet keeps the last one', () {
+      expect(hmrcYearOn(DateTime(2030, 5)).carFirst10k, 550);
+    });
+
+    test('offers only the types each system has a rate for', () {
+      expect(RateSystem.france.types, [VehicleType.car, VehicleType.motorbike, VehicleType.moped]);
+      expect(RateSystem.uk.types, [VehicleType.car, VehicleType.motorbike, VehicleType.bicycle]);
+      expect(RateSystem.us.types, [VehicleType.car]);
+    });
+  });
 }
