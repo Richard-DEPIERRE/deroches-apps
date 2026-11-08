@@ -162,7 +162,7 @@ void main() {
     expect(
       find.text(
         'Cars and vans: ${car}p a mile for the first 10,000 business miles in the tax year, ${above}p after. '
-        'The tax year starts on 6 April.',
+        'The tax year starts on 6\u00a0April.',
       ),
       findsOneWidget,
     );
@@ -170,7 +170,7 @@ void main() {
     expect(
       find.text(
         'Motorcycles: ${hmrc.motorcycle ~/ 10}p a mile, whatever the distance. '
-        'The tax year starts on 6 April.',
+        'The tax year starts on 6\u00a0April.',
       ),
       findsOneWidget,
     );
@@ -178,7 +178,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, 'Name'), 'Bike');
     await tapText(tester, 'Bicycle');
     expect(
-      find.text('Bicycles: ${hmrc.cycle ~/ 10}p a mile, whatever the distance. The tax year starts on 6 April.'),
+      find.text('Bicycles: ${hmrc.cycle ~/ 10}p a mile, whatever the distance. The tax year starts on 6\u00a0April.'),
       findsOneWidget,
     );
     await save(tester, 'Save');

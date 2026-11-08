@@ -34,14 +34,14 @@
   "vehicleHorsepowerMissing": "Pick its fiscal horsepower.",
   "vehicleElectric": "Electric",
   "vehicleElectricNote": "The barème is 20% higher.",
-  "vehicleUkNote": "Cars and vans: {first}p a mile for the first 10,000 business miles in the tax year, {after}p after. The tax year starts on 6 April.",
+  "vehicleUkNote": "Cars and vans: {first}p a mile for the first 10,000 business miles in the tax year, {after}p after. The tax year starts on 6 April.",
   "@vehicleUkNote": {
     "description": "The pence come from the HMRC rates in force in the engine.",
     "placeholders": {"first": {"type": "int"}, "after": {"type": "int"}}
   },
-  "vehicleUkNoteMotorbike": "Motorcycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
+  "vehicleUkNoteMotorbike": "Motorcycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
   "@vehicleUkNoteMotorbike": {"placeholders": {"rate": {"type": "int"}}},
-  "vehicleUkNoteBicycle": "Bicycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
+  "vehicleUkNoteBicycle": "Bicycles: {rate}p a mile, whatever the distance. The tax year starts on 6 April.",
   "@vehicleUkNoteBicycle": {"placeholders": {"rate": {"type": "int"}}},
   "vehicleUsNote": "One IRS rate for cars, vans, pickups and panel trucks, electric or not. Business miles only: commuting doesn’t count.",
   "vehicleSave": "Save",

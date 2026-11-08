@@ -92,17 +92,17 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String vehicleUkNote(int first, int after) {
-    return 'Cars and vans: ${first}p a mile for the first 10,000 business miles in the tax year, ${after}p after. The tax year starts on 6 April.';
+    return 'Cars and vans: ${first}p a mile for the first 10,000 business miles in the tax year, ${after}p after. The tax year starts on 6 April.';
   }
 
   @override
   String vehicleUkNoteMotorbike(int rate) {
-    return 'Motorcycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
+    return 'Motorcycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
   }
 
   @override
   String vehicleUkNoteBicycle(int rate) {
-    return 'Bicycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
+    return 'Bicycles: ${rate}p a mile, whatever the distance. The tax year starts on 6 April.';
   }
 
   @override

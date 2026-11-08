@@ -92,17 +92,17 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String vehicleUkNote(int first, int after) {
-    return 'Voitures et utilitaires : $first pence par mile pour les 10 000 premiers miles professionnels de l’année fiscale, $after pence au-delà. L’année fiscale commence le 6 avril.';
+    return 'Voitures et utilitaires : $first pence par mile pour les 10 000 premiers miles professionnels de l’année fiscale, $after pence au-delà. L’année fiscale commence le 6 avril.';
   }
 
   @override
   String vehicleUkNoteMotorbike(int rate) {
-    return 'Motos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
+    return 'Motos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
   }
 
   @override
   String vehicleUkNoteBicycle(int rate) {
-    return 'Vélos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
+    return 'Vélos : $rate pence par mile, quelle que soit la distance. L’année fiscale commence le 6 avril.';
   }
 
   @override

@@ -238,6 +238,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
                   child: Transform.translate(
                     offset: const Offset(-12, 0),
                     child: TextButton(
+                      // M3 narrows a text button's padding at large text: keep it at the 12 the offset cancels.
+                      style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
                       onPressed: _saving ? null : () => _archive(vehicle),
                       child: Text(l10n.vehicleArchive),
                     ),

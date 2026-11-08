@@ -31,6 +31,11 @@ void main() {
     await tester.ensureVisible(find.text('Archiver ce véhicule'));
     await tester.pumpAndSettle();
     expect(find.text('Archiver ce véhicule').hitTestable(), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Archiver ce véhicule')).dx,
+      tester.getTopLeft(find.text('Utilitaire')).dx,
+      reason: 'the text button lines up with the fields at any text size',
+    );
     // A layout overflow fails the test by itself; a chip fades a label that's too long instead.
     for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
       expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
