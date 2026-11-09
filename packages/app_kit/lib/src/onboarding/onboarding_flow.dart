@@ -24,6 +24,7 @@ class OnboardingFlow extends StatelessWidget {
     required this.analytics,
     required this.pages,
     required this.child,
+    this.doneLabel,
   }) {
     if (pages.length < 2 || pages.length > 4) throw ArgumentError('onboarding takes 2 to 4 pages, not ${pages.length}');
   }
@@ -33,6 +34,10 @@ class OnboardingFlow extends StatelessWidget {
   final List<OnboardingPage> pages;
   final Widget child;
 
+  /// The last page's button, in the user's language, from the app. Without
+  /// it the button reads the kit's own "Get started".
+  final String? doneLabel;
+
   @override
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: kitState,
@@ -41,6 +46,7 @@ class OnboardingFlow extends StatelessWidget {
       // A kit state that failed to open never keeps the user out of the app.
       KitStateController(state: KitState(onboardingCompleted: false)) => _Pages(
         pages: pages,
+        doneLabel: doneLabel,
         onDone: (skipped) {
           analytics.track(skipped ? 'onboarding.dismiss.skipped' : 'onboarding.complete.finished');
           // A failed save still lets the user in; onboarding shows again next launch.
@@ -53,9 +59,10 @@ class OnboardingFlow extends StatelessWidget {
 }
 
 class _Pages extends StatefulWidget {
-  const _Pages({required this.pages, required this.onDone});
+  const _Pages({required this.pages, required this.doneLabel, required this.onDone});
 
   final List<OnboardingPage> pages;
+  final String? doneLabel;
   final void Function(bool skipped) onDone;
 
   @override
@@ -178,7 +185,7 @@ class _PagesState extends State<_Pages> {
                     child: FilledButton(
                       style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
                       onPressed: _last ? () => _finish(false) : () => _go(_page + 1),
-                      child: Text(_last ? l10n.kitOnboardingDone : l10n.kitOnboardingNext),
+                      child: Text(_last ? widget.doneLabel ?? l10n.kitOnboardingDone : l10n.kitOnboardingNext),
                     ),
                   ),
                 ],
