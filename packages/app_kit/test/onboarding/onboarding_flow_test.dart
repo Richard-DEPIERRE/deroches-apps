@@ -26,7 +26,11 @@ void main() {
 
   /// Opens the app as a fresh launch would: the kit state read from disk,
   /// once the last launch's saves are written.
-  Future<KitStateController> launch(WidgetTester tester, {Locale locale = const Locale('en')}) async {
+  Future<KitStateController> launch(
+    WidgetTester tester, {
+    Locale locale = const Locale('en'),
+    String? doneLabel,
+  }) async {
     if (last case final previous?) await waitForKitSaves(tester, previous);
     final kit = last = KitStateController(directory: dir, appId: 'kit-test');
     await tester.runAsync(kit.load);
@@ -40,7 +44,13 @@ void main() {
     await pumpOnSmallPhone(
       tester,
       locale,
-      OnboardingFlow(kitState: kit, analytics: analytics, pages: pages, child: const Text('Home')),
+      OnboardingFlow(
+        kitState: kit,
+        analytics: analytics,
+        pages: pages,
+        doneLabel: doneLabel,
+        child: const Text('Home'),
+      ),
     );
     return kit;
   }
@@ -79,6 +89,16 @@ void main() {
     expect(find.text('Home'), findsOneWidget);
     expect(sent(), contains('onboarding.complete.finished'));
     expect((await launch(tester)).state!.onboardingCompleted, isTrue);
+  });
+
+  testWidgets("the last button shows the app's own label when it gives one", (tester) async {
+    await launch(tester, doneLabel: 'Add my vehicle');
+    await tapAndSave(tester, 'Next');
+    await tapAndSave(tester, 'Next');
+    expect(find.text('Get started'), findsNothing);
+    await tapAndSave(tester, 'Add my vehicle');
+    expect(find.text('Home'), findsOneWidget);
+    expect(sent(), contains('onboarding.complete.finished'));
   });
 
   testWidgets('a double tap on Skip counts once', (tester) async {
