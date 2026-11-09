@@ -60,22 +60,22 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String vehicleHorsepowerOne(int cv) {
-    return '$cv CV';
+    return '$cv CV';
   }
 
   @override
   String vehicleHorsepowerUpTo(int cv) {
-    return '$cv CV et moins';
+    return '$cv CV et moins';
   }
 
   @override
   String vehicleHorsepowerRange(int min, int max) {
-    return '$min à $max CV';
+    return '$min à $max CV';
   }
 
   @override
   String vehicleHorsepowerFrom(int cv) {
-    return '$cv CV et plus';
+    return '$cv CV et plus';
   }
 
   @override
@@ -135,7 +135,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get vehiclesSwapHint =>
-      'Vous changez de voiture ? Archivez l’ancienne : ses trajets restent, et la nouvelle est gratuite.';
+      'Vous changez de voiture ? Archivez l’ancienne : ses trajets restent, et la nouvelle est gratuite.';
 
   @override
   String get vehiclesArchived => 'Archivés';
@@ -161,12 +161,12 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String distanceKm(String distance) {
-    return '$distance km';
+    return '$distance km';
   }
 
   @override
   String distanceMiles(String distance) {
-    return '$distance mi';
+    return '$distance mi';
   }
 
   @override

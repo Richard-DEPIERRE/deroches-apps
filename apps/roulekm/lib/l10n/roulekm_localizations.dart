@@ -200,25 +200,25 @@ abstract class RoulekmLocalizations {
   /// A French barème band of one fiscal horsepower (CV, as on the carte grise).
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV'**
+  /// **'{cv} CV'**
   String vehicleHorsepowerOne(int cv);
 
   /// No description provided for @vehicleHorsepowerUpTo.
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV or less'**
+  /// **'{cv} CV or less'**
   String vehicleHorsepowerUpTo(int cv);
 
   /// No description provided for @vehicleHorsepowerRange.
   ///
   /// In en, this message translates to:
-  /// **'{min} to {max} CV'**
+  /// **'{min} to {max} CV'**
   String vehicleHorsepowerRange(int min, int max);
 
   /// No description provided for @vehicleHorsepowerFrom.
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV or more'**
+  /// **'{cv} CV or more'**
   String vehicleHorsepowerFrom(int cv);
 
   /// No description provided for @vehicleHorsepowerNote.
@@ -326,7 +326,7 @@ abstract class RoulekmLocalizations {
   /// Subtitle of an archived vehicle in the list.
   ///
   /// In en, this message translates to:
-  /// **'Its trips stay in past years’ logs.'**
+  /// **'Its trips stay in past years’ logs'**
   String get vehiclesArchivedNote;
 
   /// Tooltip of the button that puts an archived vehicle back in use.
@@ -338,7 +338,7 @@ abstract class RoulekmLocalizations {
   /// Vehicle summary: not electric (French: thermique).
   ///
   /// In en, this message translates to:
-  /// **'fuel'**
+  /// **'combustion'**
   String get vehicleEngineFuel;
 
   /// No description provided for @vehicleEngineElectric.
@@ -362,13 +362,13 @@ abstract class RoulekmLocalizations {
   /// A distance, already formatted.
   ///
   /// In en, this message translates to:
-  /// **'{distance} km'**
+  /// **'{distance} km'**
   String distanceKm(String distance);
 
   /// A distance, already formatted.
   ///
   /// In en, this message translates to:
-  /// **'{distance} mi'**
+  /// **'{distance} mi'**
   String distanceMiles(String distance);
 
   /// Small tag on a Pro action.

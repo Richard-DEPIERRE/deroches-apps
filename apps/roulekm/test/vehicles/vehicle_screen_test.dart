@@ -86,14 +86,23 @@ void main() {
     final log = await openForm(tester, const Locale('fr', 'FR'));
     expect(find.text('Nouveau véhicule'), findsOneWidget);
     expect(selected(tester, 'France'), isTrue, reason: 'the default follows the phone’s region');
-    for (final chip in ['Voiture', 'Moto', 'Cyclomoteur', '3 CV et moins', '4 CV', '5 CV', '6 CV', '7 CV et plus']) {
+    for (final chip in [
+      'Voiture',
+      'Moto',
+      'Cyclomoteur',
+      '3\u00A0CV et moins',
+      '4\u00A0CV',
+      '5\u00A0CV',
+      '6\u00A0CV',
+      '7\u00A0CV et plus',
+    ]) {
       expect(find.widgetWithText(ChoiceChip, chip), findsOneWidget, reason: chip);
     }
     expect(find.text('Sur la carte grise, case P.6.'), findsOneWidget);
     expect(find.text('Le barème est majoré de 20\u00a0%.'), findsOneWidget);
 
     await tester.enterText(find.widgetWithText(TextField, 'Nom'), 'Clio');
-    await tapText(tester, '5 CV');
+    await tapText(tester, '5\u00A0CV');
     await tapText(tester, 'Électrique');
     await save(tester, 'Enregistrer');
 
@@ -126,13 +135,13 @@ void main() {
   testWidgets('in France: a motorbike has its own bands, a moped none', (tester) async {
     final log = await openForm(tester, const Locale('fr', 'FR'));
     await tapText(tester, 'Moto');
-    for (final chip in ['2 CV et moins', '3 à 5 CV', '6 CV et plus']) {
+    for (final chip in ['2\u00A0CV et moins', '3 à 5\u00A0CV', '6\u00A0CV et plus']) {
       expect(find.widgetWithText(ChoiceChip, chip), findsOneWidget, reason: chip);
     }
-    expect(find.text('3 CV et moins'), findsNothing);
+    expect(find.text('3\u00A0CV et moins'), findsNothing);
 
     await tapText(tester, 'Cyclomoteur');
-    expect(find.textContaining(' CV'), findsNothing);
+    expect(find.textContaining('\u00A0CV'), findsNothing);
     await tester.enterText(find.widgetWithText(TextField, 'Nom'), 'Booster');
     await save(tester, 'Enregistrer');
     expect([log.inUse.single.type, log.inUse.single.horsepower], [VehicleType.moped, null]);
@@ -202,8 +211,8 @@ void main() {
     final log = await openForm(tester, const Locale('en', 'US'), vehicle: clio);
     expect(find.text('Edit vehicle'), findsOneWidget);
     expect(selected(tester, 'France'), isTrue, reason: 'its own system, not the region’s');
-    expect(selected(tester, '5 CV'), isTrue);
-    await tapText(tester, '6 CV');
+    expect(selected(tester, '5\u00A0CV'), isTrue);
+    await tapText(tester, '6\u00A0CV');
     await save(tester, 'Save');
     expect(log.logbook!.vehicles, [
       const VehicleRecord(id: 'v1', name: 'Clio', rates: RateSystem.france, type: VehicleType.car, horsepower: 6),

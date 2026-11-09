@@ -69,7 +69,10 @@ class VehiclesScreen extends StatelessWidget {
     final note = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     const tabular = [FontFeature.tabularFigures()];
 
+    /// Archived vehicles get a muted disc, so the two groups don't look alike.
     Widget avatar(VehicleRecord v) => CircleAvatar(
+      backgroundColor: v.archived ? theme.colorScheme.surfaceContainerHighest : null,
+      foregroundColor: v.archived ? theme.colorScheme.onSurfaceVariant : null,
       child: Icon(switch (v.type) {
         VehicleType.car => Icons.directions_car_outlined,
         VehicleType.motorbike => Icons.two_wheeler,
@@ -127,6 +130,7 @@ class VehiclesScreen extends StatelessWidget {
             children: [
               for (final v in inUse)
                 ListTile(
+                  titleAlignment: ListTileTitleAlignment.titleHeight,
                   leading: avatar(v),
                   title: line(Text(v.name), amount(v, totals[v.id]!)),
                   subtitle: line(Text(vehicleSummary(l10n, v)), distance(v, totals[v.id]!)),
@@ -164,13 +168,21 @@ class VehiclesScreen extends StatelessWidget {
                 ),
                 for (final v in archived)
                   ListTile(
+                    titleAlignment: ListTileTitleAlignment.titleHeight,
                     leading: avatar(v),
                     title: Text(v.name),
                     subtitle: Text(l10n.vehiclesArchivedNote),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.unarchive_outlined),
-                      tooltip: l10n.vehiclesUnarchive,
-                      onPressed: () => _addInUse(context, () => _unarchive(context, v)),
+                    // Putting it back in use costs Pro while another is in use: labelled before the tap.
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (locked) ...[const ProTag(), const SizedBox(width: 8)],
+                        IconButton(
+                          icon: const Icon(Icons.unarchive_outlined),
+                          tooltip: l10n.vehiclesUnarchive,
+                          onPressed: () => _addInUse(context, () => _unarchive(context, v)),
+                        ),
+                      ],
                     ),
                     onTap: () => _open(context, v),
                   ),
