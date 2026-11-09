@@ -59,22 +59,22 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String vehicleHorsepowerOne(int cv) {
-    return '$cv CV';
+    return '$cv CV';
   }
 
   @override
   String vehicleHorsepowerUpTo(int cv) {
-    return '$cv CV or less';
+    return '$cv CV or less';
   }
 
   @override
   String vehicleHorsepowerRange(int min, int max) {
-    return '$min to $max CV';
+    return '$min to $max CV';
   }
 
   @override
   String vehicleHorsepowerFrom(int cv) {
-    return '$cv CV or more';
+    return '$cv CV or more';
   }
 
   @override
@@ -127,9 +127,53 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String get vehicleSaveFailed => 'The vehicle couldn’t be saved. Try again.';
 
   @override
+  String get vehiclesTitle => 'Vehicles';
+
+  @override
+  String get vehiclesAdd => 'Add a vehicle';
+
+  @override
+  String get vehiclesSwapHint =>
+      'Changing cars? Archive the old one: its trips stay, and the new one is free.';
+
+  @override
+  String get vehiclesArchived => 'Archived';
+
+  @override
+  String get vehiclesArchivedNote => 'Its trips stay in past years’ logs';
+
+  @override
+  String get vehiclesUnarchive => 'Back in use';
+
+  @override
+  String get vehicleEngineFuel => 'combustion';
+
+  @override
+  String get vehicleEngineElectric => 'electric';
+
+  @override
+  String get vehicleRatesUkShort => 'HMRC rates';
+
+  @override
+  String get vehicleRatesUsShort => 'IRS standard rate';
+
+  @override
+  String distanceKm(String distance) {
+    return '$distance km';
+  }
+
+  @override
+  String distanceMiles(String distance) {
+    return '$distance mi';
+  }
+
+  @override
   String get proTag => 'Pro';
 
   @override
   String get proAfterFirstTrip =>
       'Part of Roulekm Pro, once you’ve saved your first trip.';
+
+  @override
+  String get settingsAppSection => 'Roulekm';
 }

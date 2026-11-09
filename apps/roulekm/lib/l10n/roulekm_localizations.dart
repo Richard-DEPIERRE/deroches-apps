@@ -200,25 +200,25 @@ abstract class RoulekmLocalizations {
   /// A French barème band of one fiscal horsepower (CV, as on the carte grise).
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV'**
+  /// **'{cv} CV'**
   String vehicleHorsepowerOne(int cv);
 
   /// No description provided for @vehicleHorsepowerUpTo.
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV or less'**
+  /// **'{cv} CV or less'**
   String vehicleHorsepowerUpTo(int cv);
 
   /// No description provided for @vehicleHorsepowerRange.
   ///
   /// In en, this message translates to:
-  /// **'{min} to {max} CV'**
+  /// **'{min} to {max} CV'**
   String vehicleHorsepowerRange(int min, int max);
 
   /// No description provided for @vehicleHorsepowerFrom.
   ///
   /// In en, this message translates to:
-  /// **'{cv} CV or more'**
+  /// **'{cv} CV or more'**
   String vehicleHorsepowerFrom(int cv);
 
   /// No description provided for @vehicleHorsepowerNote.
@@ -299,6 +299,78 @@ abstract class RoulekmLocalizations {
   /// **'The vehicle couldn’t be saved. Try again.'**
   String get vehicleSaveFailed;
 
+  /// No description provided for @vehiclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicles'**
+  String get vehiclesTitle;
+
+  /// No description provided for @vehiclesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a vehicle'**
+  String get vehiclesAdd;
+
+  /// Under the Add button while a vehicle is in use (DAPP-140 §1).
+  ///
+  /// In en, this message translates to:
+  /// **'Changing cars? Archive the old one: its trips stay, and the new one is free.'**
+  String get vehiclesSwapHint;
+
+  /// No description provided for @vehiclesArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get vehiclesArchived;
+
+  /// Subtitle of an archived vehicle in the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Its trips stay in past years’ logs'**
+  String get vehiclesArchivedNote;
+
+  /// Tooltip of the button that puts an archived vehicle back in use.
+  ///
+  /// In en, this message translates to:
+  /// **'Back in use'**
+  String get vehiclesUnarchive;
+
+  /// Vehicle summary: not electric (French: thermique).
+  ///
+  /// In en, this message translates to:
+  /// **'combustion'**
+  String get vehicleEngineFuel;
+
+  /// No description provided for @vehicleEngineElectric.
+  ///
+  /// In en, this message translates to:
+  /// **'electric'**
+  String get vehicleEngineElectric;
+
+  /// No description provided for @vehicleRatesUkShort.
+  ///
+  /// In en, this message translates to:
+  /// **'HMRC rates'**
+  String get vehicleRatesUkShort;
+
+  /// No description provided for @vehicleRatesUsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS standard rate'**
+  String get vehicleRatesUsShort;
+
+  /// A distance, already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km'**
+  String distanceKm(String distance);
+
+  /// A distance, already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} mi'**
+  String distanceMiles(String distance);
+
   /// Small tag on a Pro action.
   ///
   /// In en, this message translates to:
@@ -310,6 +382,12 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Part of Roulekm Pro, once you’ve saved your first trip.'**
   String get proAfterFirstTrip;
+
+  /// Header of the app's own section, first in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Roulekm'**
+  String get settingsAppSection;
 }
 
 class _RoulekmLocalizationsDelegate
