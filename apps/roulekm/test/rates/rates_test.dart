@@ -165,6 +165,7 @@ void main() {
 
     test('a tax year not in the table yet keeps the last one', () {
       expect(hmrcYearOn(DateTime(2030, 5)).carFirst10k, 550);
+      expect(hmrcYearOn(DateTime(2023, 6)).carFirst10k, 450, reason: 'a clock before the table: its first year');
     });
 
     test('offers only the types each system has a rate for', () {

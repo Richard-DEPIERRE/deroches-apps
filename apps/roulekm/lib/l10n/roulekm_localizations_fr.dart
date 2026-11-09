@@ -126,4 +126,11 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   @override
   String get vehicleSaveFailed =>
       'Le véhicule n’a pas pu être enregistré. Réessayez.';
+
+  @override
+  String get proTag => 'Pro';
+
+  @override
+  String get proAfterFirstTrip =>
+      'Disponible avec Roulekm Pro, après votre premier trajet.';
 }

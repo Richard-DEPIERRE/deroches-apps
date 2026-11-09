@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:io';
+
+import 'package:app_kit/app_kit.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:roulekm/src/data/log_controller.dart';
@@ -77,7 +80,48 @@ void main() {
     expect(log.logbook, const Logbook());
   });
 
+  test('a save that fails while the next waits takes back only its own change', () async {
+    final store = _HeldStore(dir);
+    final held = LogController(store);
+    await held.open();
+    final first = held.saveVehicle(clio);
+    final second = held.saveVehicle(
+      const VehicleRecord(id: 'v2', name: 'Kangoo', rates: RateSystem.us, type: VehicleType.car),
+    );
+    await pumpEventQueue();
+    expect(store.writes, hasLength(1), reason: 'the second save waits for the first');
+    store.writes.first.completeError(StateError('disk full'));
+    await expectLater(first, throwsStateError);
+    await pumpEventQueue();
+    store.writes.last.complete();
+    await second;
+    expect(held.logbook!.vehicles.map((v) => v.name), ['Kangoo']);
+    expect(store.saved.last, held.logbook!.toJson(), reason: 'what is on disk is what is shown');
+  });
+
   test('new ids are unique', () {
     expect({for (var i = 0; i < 100; i++) newId()}, hasLength(100));
   });
+}
+
+/// Holds each save until the test completes it.
+class _HeldStore extends DataStore {
+  _HeldStore(Directory dir)
+    : super(
+        directory: dir,
+        appId: roulekmAppId,
+        name: logDocument,
+        migrations: logMigrations,
+        initial: () => Logbook.empty,
+      );
+
+  final writes = <Completer<void>>[];
+  final saved = <Map<String, Object?>>[];
+
+  @override
+  Future<void> save(Map<String, Object?> data) async {
+    writes.add(Completer());
+    await writes.last.future;
+    saved.add(data);
+  }
 }
