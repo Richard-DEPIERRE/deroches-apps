@@ -24,6 +24,34 @@ class VehicleScreen extends StatefulWidget {
 /// The chips follow the latest barème's bands.
 final _bareme = frenchBaremes[frenchBaremes.keys.reduce(max)]!;
 
+String vehicleTypeLabel(RoulekmLocalizations l10n, VehicleType type) => switch (type) {
+  VehicleType.car => l10n.vehicleTypeCar,
+  VehicleType.motorbike => l10n.vehicleTypeMotorbike,
+  VehicleType.moped => l10n.vehicleTypeMoped,
+  VehicleType.bicycle => l10n.vehicleTypeBicycle,
+};
+
+String _bandLabel(RoulekmLocalizations l10n, HorsepowerBand b) => switch (b) {
+  HorsepowerBand(maxCv: null) => l10n.vehicleHorsepowerFrom(b.minCv),
+  HorsepowerBand(minCv: 1, :final maxCv?) => l10n.vehicleHorsepowerUpTo(maxCv),
+  HorsepowerBand(:final minCv, :final maxCv?) when minCv == maxCv => l10n.vehicleHorsepowerOne(minCv),
+  HorsepowerBand(:final minCv, :final maxCv?) => l10n.vehicleHorsepowerRange(minCv, maxCv),
+};
+
+/// "Voiture · 5 CV · thermique", "Car or van · HMRC rates": the vehicle's line in the list.
+String vehicleSummary(RoulekmLocalizations l10n, VehicleRecord v) => [
+  vehicleTypeLabel(l10n, v.type),
+  ...switch (v.rates) {
+    RateSystem.france => [
+      if (v.horsepower case final cv?)
+        _bandLabel(l10n, _bareme.bands[v.type]!.firstWhere((b) => cv >= b.minCv && cv <= (b.maxCv ?? cv))),
+      v.electric ? l10n.vehicleEngineElectric : l10n.vehicleEngineFuel,
+    ],
+    RateSystem.uk => [l10n.vehicleRatesUkShort],
+    RateSystem.us => [l10n.vehicleRatesUsShort],
+  },
+].join(' · ');
+
 class _VehicleScreenState extends State<VehicleScreen> {
   late final _name = TextEditingController(text: widget.vehicle?.name);
   late RateSystem _rates = widget.vehicle?.rates ?? _regionRates();
@@ -115,13 +143,6 @@ class _VehicleScreenState extends State<VehicleScreen> {
     };
   }
 
-  String _bandLabel(RoulekmLocalizations l10n, HorsepowerBand b) => switch (b) {
-    HorsepowerBand(maxCv: null) => l10n.vehicleHorsepowerFrom(b.minCv),
-    HorsepowerBand(minCv: 1, :final maxCv?) => l10n.vehicleHorsepowerUpTo(maxCv),
-    HorsepowerBand(:final minCv, :final maxCv?) when minCv == maxCv => l10n.vehicleHorsepowerOne(minCv),
-    HorsepowerBand(:final minCv, :final maxCv?) => l10n.vehicleHorsepowerRange(minCv, maxCv),
-  };
-
   @override
   Widget build(BuildContext context) {
     final l10n = RoulekmLocalizations.of(context);
@@ -183,20 +204,10 @@ class _VehicleScreenState extends State<VehicleScreen> {
             ),
             if (_rates.types.length > 1) ...[
               header(l10n.vehicleType),
-              chips(
-                _rates.types,
-                _type,
-                (t) => switch (t) {
-                  VehicleType.car => l10n.vehicleTypeCar,
-                  VehicleType.motorbike => l10n.vehicleTypeMotorbike,
-                  VehicleType.moped => l10n.vehicleTypeMoped,
-                  VehicleType.bicycle => l10n.vehicleTypeBicycle,
-                },
-                (t) {
-                  if (t != _type) _horsepower = null;
-                  _type = t;
-                },
-              ),
+              chips(_rates.types, _type, (t) => vehicleTypeLabel(l10n, t), (t) {
+                if (t != _type) _horsepower = null;
+                _type = t;
+              }),
             ],
             if (_hasHorsepower) ...[
               header(l10n.vehicleHorsepower),

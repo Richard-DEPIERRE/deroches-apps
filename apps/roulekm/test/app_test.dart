@@ -82,4 +82,20 @@ void main() {
     await tester.scrollUntilVisible(find.text('Export a backup'), 100, scrollable: find.byType(Scrollable).first);
     expect(find.text('Export a backup'), findsOneWidget);
   });
+
+  for (final (device, section, title) in [
+    (const Locale('fr', 'FR'), 'Véhicules', 'Véhicules'),
+    (const Locale('en', 'GB'), 'Vehicles', 'Vehicles'),
+  ]) {
+    testWidgets('Settings → Roulekm → $section opens the vehicles list (${device.languageCode})', (tester) async {
+      await pumpApp(tester, device);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+      expect(find.text('Roulekm'), findsOneWidget, reason: "the app's own section comes first");
+      await tester.tap(find.text(section));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(AppBar, title), findsOneWidget);
+      expect(find.byType(OutlinedButton), findsOneWidget, reason: 'the add button, free with no vehicle in use');
+    });
+  }
 }

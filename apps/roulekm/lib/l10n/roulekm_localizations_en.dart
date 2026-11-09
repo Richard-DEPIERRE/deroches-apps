@@ -127,9 +127,53 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String get vehicleSaveFailed => 'The vehicle couldn’t be saved. Try again.';
 
   @override
+  String get vehiclesTitle => 'Vehicles';
+
+  @override
+  String get vehiclesAdd => 'Add a vehicle';
+
+  @override
+  String get vehiclesSwapHint =>
+      'Changing cars? Archive the old one: its trips stay, and the new one is free.';
+
+  @override
+  String get vehiclesArchived => 'Archived';
+
+  @override
+  String get vehiclesArchivedNote => 'Its trips stay in past years’ logs.';
+
+  @override
+  String get vehiclesUnarchive => 'Back in use';
+
+  @override
+  String get vehicleEngineFuel => 'fuel';
+
+  @override
+  String get vehicleEngineElectric => 'electric';
+
+  @override
+  String get vehicleRatesUkShort => 'HMRC rates';
+
+  @override
+  String get vehicleRatesUsShort => 'IRS standard rate';
+
+  @override
+  String distanceKm(String distance) {
+    return '$distance km';
+  }
+
+  @override
+  String distanceMiles(String distance) {
+    return '$distance mi';
+  }
+
+  @override
   String get proTag => 'Pro';
 
   @override
   String get proAfterFirstTrip =>
       'Part of Roulekm Pro, once you’ve saved your first trip.';
+
+  @override
+  String get settingsAppSection => 'Roulekm';
 }

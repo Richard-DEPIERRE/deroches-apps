@@ -128,9 +128,54 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
       'Le véhicule n’a pas pu être enregistré. Réessayez.';
 
   @override
+  String get vehiclesTitle => 'Véhicules';
+
+  @override
+  String get vehiclesAdd => 'Ajouter un véhicule';
+
+  @override
+  String get vehiclesSwapHint =>
+      'Vous changez de voiture ? Archivez l’ancienne : ses trajets restent, et la nouvelle est gratuite.';
+
+  @override
+  String get vehiclesArchived => 'Archivés';
+
+  @override
+  String get vehiclesArchivedNote =>
+      'Ses trajets restent dans les relevés des années passées';
+
+  @override
+  String get vehiclesUnarchive => 'Remettre en service';
+
+  @override
+  String get vehicleEngineFuel => 'thermique';
+
+  @override
+  String get vehicleEngineElectric => 'électrique';
+
+  @override
+  String get vehicleRatesUkShort => 'barème HMRC';
+
+  @override
+  String get vehicleRatesUsShort => 'barème IRS';
+
+  @override
+  String distanceKm(String distance) {
+    return '$distance km';
+  }
+
+  @override
+  String distanceMiles(String distance) {
+    return '$distance mi';
+  }
+
+  @override
   String get proTag => 'Pro';
 
   @override
   String get proAfterFirstTrip =>
       'Disponible avec Roulekm Pro, après votre premier trajet.';
+
+  @override
+  String get settingsAppSection => 'Roulekm';
 }

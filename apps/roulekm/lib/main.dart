@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:app_kit/app_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'l10n/roulekm_localizations.dart';
+import 'src/data/log_controller.dart';
 import 'src/data/logbook.dart';
+import 'src/vehicles/vehicles_screen.dart';
 
 /// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key, RevenueCat keys and App Store id stay
 /// empty until those exist: until then the app sends nothing and sells nothing.
@@ -26,29 +30,66 @@ final roulekmConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-/// The app. Its home is a placeholder until DAPP-144 to DAPP-147 bring the Designer's screens (DAPP-141).
+/// The app. Its home is a placeholder until DAPP-145 to DAPP-147 bring the Designer's screens (DAPP-141).
 Widget buildApp({
   CrashReporter crashReporter = const NoopCrashReporter(),
   required KitStateController kitState,
   required Analytics analytics,
   required RoulekmData data,
   Purchases? purchases,
-}) => KitApp(
-  config: roulekmConfig,
-  crashReporter: crashReporter,
-  kitState: kitState,
-  seedColor: const Color(0xFF8E4D31), // the site's accent (sites/roulekm/site.json) until the Designer's theme
-  localizationsDelegates: const [RoulekmLocalizations.delegate],
-  home: (context) => PlaceholderHome(
-    settings: (_) => SettingsScreen(
-      kitState: kitState,
-      analytics: analytics,
-      backup: data.backup,
-      purchases: purchases,
-      onBackupRestored: () => data.log.open().ignore(),
+}) {
+  // A log that can't be read is never shown as empty: the error goes to crash reporting and the screens wait.
+  final log = LogController(data.log);
+  unawaited(log.open());
+  final pro = purchases?.entitled ?? ValueNotifier(false);
+  return KitApp(
+    config: roulekmConfig,
+    crashReporter: crashReporter,
+    kitState: kitState,
+    seedColor: const Color(0xFF8E4D31), // the site's accent (sites/roulekm/site.json) until the Designer's theme
+    localizationsDelegates: const [RoulekmLocalizations.delegate],
+    home: (context) => PlaceholderHome(
+      settings: (context) => SettingsScreen(
+        kitState: kitState,
+        analytics: analytics,
+        backup: data.backup,
+        purchases: purchases,
+        onBackupRestored: () => unawaited(log.open()),
+        appSections: [
+          _SectionHeader(RoulekmLocalizations.of(context).settingsAppSection),
+          ListTile(
+            title: Text(RoulekmLocalizations.of(context).vehiclesTitle),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                // The paywall's hook stays empty until DAPP-148 connects it.
+                builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
+              ),
+            ),
+          ),
+        ],
+      ),
     ),
-  ),
-);
+  );
+}
+
+/// The kit settings' section header (primary `titleSmall`, a header for screen readers).
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+      child: Semantics(
+        header: true,
+        child: Text(text, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+      ),
+    );
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

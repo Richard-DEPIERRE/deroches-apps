@@ -33,6 +33,19 @@
   "vehicleArchived": "« {name} » est archivé.",
   "vehicleArchiveUndo": "Annuler",
   "vehicleSaveFailed": "Le véhicule n’a pas pu être enregistré. Réessayez.",
+  "vehiclesTitle": "Véhicules",
+  "vehiclesAdd": "Ajouter un véhicule",
+  "vehiclesSwapHint": "Vous changez de voiture ? Archivez l’ancienne : ses trajets restent, et la nouvelle est gratuite.",
+  "vehiclesArchived": "Archivés",
+  "vehiclesArchivedNote": "Ses trajets restent dans les relevés des années passées",
+  "vehiclesUnarchive": "Remettre en service",
+  "vehicleEngineFuel": "thermique",
+  "vehicleEngineElectric": "électrique",
+  "vehicleRatesUkShort": "barème HMRC",
+  "vehicleRatesUsShort": "barème IRS",
+  "distanceKm": "{distance} km",
+  "distanceMiles": "{distance} mi",
   "proTag": "Pro",
-  "proAfterFirstTrip": "Disponible avec Roulekm Pro, après votre premier trajet."
+  "proAfterFirstTrip": "Disponible avec Roulekm Pro, après votre premier trajet.",
+  "settingsAppSection": "Roulekm"
 }
