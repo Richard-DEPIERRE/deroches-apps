@@ -32,5 +32,7 @@
   "vehicleArchive": "Archiver ce véhicule",
   "vehicleArchived": "« {name} » est archivé.",
   "vehicleArchiveUndo": "Annuler",
-  "vehicleSaveFailed": "Le véhicule n’a pas pu être enregistré. Réessayez."
+  "vehicleSaveFailed": "Le véhicule n’a pas pu être enregistré. Réessayez.",
+  "proTag": "Pro",
+  "proAfterFirstTrip": "Disponible avec Roulekm Pro, après votre premier trajet."
 }

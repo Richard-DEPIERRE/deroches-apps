@@ -32,10 +32,12 @@ enum RateSystem {
       this == uk && (date.month < 4 || date.month == 4 && date.day < 6) ? date.year - 1 : date.year;
 }
 
-/// The HMRC rates in force on [date]: its tax year's, or the last year in the table when that one isn't in it yet.
+/// The HMRC rates in force on [date]: its tax year's, or the last year in the table when that one isn't in it yet
+/// (the first year, for a clock set before the table starts).
 HmrcYear hmrcYearOn(DateTime date) {
   final period = RateSystem.uk.periodOf(date);
-  return hmrcRates[period] ?? hmrcRates[hmrcRates.keys.where((y) => y < period).reduce(max)]!;
+  final years = hmrcRates.keys.where((y) => y <= period);
+  return hmrcRates[years.isEmpty ? hmrcRates.keys.reduce(min) : years.reduce(max)]!;
 }
 
 class Trip {

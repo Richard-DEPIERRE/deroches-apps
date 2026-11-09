@@ -298,6 +298,18 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'The vehicle couldn’t be saved. Try again.'**
   String get vehicleSaveFailed;
+
+  /// Small tag on a Pro action.
+  ///
+  /// In en, this message translates to:
+  /// **'Pro'**
+  String get proTag;
+
+  /// Snackbar on a Pro action before the first trip (DAPP-140 §1).
+  ///
+  /// In en, this message translates to:
+  /// **'Part of Roulekm Pro, once you’ve saved your first trip.'**
+  String get proAfterFirstTrip;
 }
 
 class _RoulekmLocalizationsDelegate

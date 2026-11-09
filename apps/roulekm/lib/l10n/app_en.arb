@@ -49,5 +49,9 @@
   "vehicleArchived": "“{name}” archived.",
   "@vehicleArchived": {"description": "Snackbar after archiving, with Undo.", "placeholders": {"name": {"type": "String"}}},
   "vehicleArchiveUndo": "Undo",
-  "vehicleSaveFailed": "The vehicle couldn’t be saved. Try again."
+  "vehicleSaveFailed": "The vehicle couldn’t be saved. Try again.",
+  "proTag": "Pro",
+  "@proTag": {"description": "Small tag on a Pro action."},
+  "proAfterFirstTrip": "Part of Roulekm Pro, once you’ve saved your first trip.",
+  "@proAfterFirstTrip": {"description": "Snackbar on a Pro action before the first trip (DAPP-140 §1)."}
 }

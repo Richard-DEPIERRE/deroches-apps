@@ -125,4 +125,11 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get vehicleSaveFailed => 'The vehicle couldn’t be saved. Try again.';
+
+  @override
+  String get proTag => 'Pro';
+
+  @override
+  String get proAfterFirstTrip =>
+      'Part of Roulekm Pro, once you’ve saved your first trip.';
 }
