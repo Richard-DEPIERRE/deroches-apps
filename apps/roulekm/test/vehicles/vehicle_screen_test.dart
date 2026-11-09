@@ -101,6 +101,7 @@ void main() {
     expect(find.text('Sur la carte grise, case P.6.'), findsOneWidget);
     expect(find.text('Le barème est majoré de 20\u00a0%.'), findsOneWidget);
 
+    expect(find.text('Pour le reconnaître\u00A0: «\u00A0Clio\u00A0», «\u00A0Utilitaire\u00A0»…'), findsOneWidget);
     await tester.enterText(find.widgetWithText(TextField, 'Nom'), 'Clio');
     await tapText(tester, '5\u00A0CV');
     await tapText(tester, 'Électrique');

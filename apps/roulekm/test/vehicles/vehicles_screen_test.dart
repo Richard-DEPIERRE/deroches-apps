@@ -53,10 +53,10 @@ void main() {
     await openList(tester, 'fr');
     expect(find.text('Véhicules'), findsOneWidget);
     expect(find.text('Clio'), findsOneWidget);
-    expect(find.text('Voiture · 5\u00A0CV · thermique'), findsOneWidget);
+    expect(find.text('Voiture\u00A0· 5\u00A0CV\u00A0· thermique'), findsOneWidget);
     expect(find.text('68\u00A0km'), findsOneWidget, reason: '34 km there and back, this year only');
     expect(find.text('43\u00A0€'), findsOneWidget, reason: '68 × 0,636 at the 2025 barème, the latest published');
-    expect(find.text('Voiture · barème IRS'), findsOneWidget);
+    expect(find.text('Voiture\u00A0· barème IRS'), findsOneWidget);
     expect(find.text('42\u00A0mi'), findsOneWidget);
     expect(find.text('32\u00A0\$'), findsOneWidget, reason: '42 miles × 76¢');
     expect(find.text('Ajouter un véhicule'), findsOneWidget);
@@ -76,9 +76,9 @@ void main() {
   testWidgets('in English: the same list', (tester) async {
     await openList(tester, 'en');
     expect(find.text('Vehicles'), findsOneWidget);
-    expect(find.text('Car or van · 5\u00A0CV · combustion'), findsOneWidget);
+    expect(find.text('Car or van\u00A0· 5\u00A0CV\u00A0· combustion'), findsOneWidget);
     expect(find.text('€43'), findsOneWidget);
-    expect(find.text('Car or van · IRS standard rate'), findsOneWidget);
+    expect(find.text('Car or van\u00A0· IRS standard rate'), findsOneWidget);
     expect(find.text('\$32'), findsOneWidget);
     expect(find.text('Add a vehicle'), findsOneWidget);
     expect(find.text('Changing cars? Archive the old one: its trips stay, and the new one is free.'), findsOneWidget);

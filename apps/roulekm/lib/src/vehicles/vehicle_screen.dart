@@ -50,7 +50,7 @@ String vehicleSummary(RoulekmLocalizations l10n, VehicleRecord v) => [
     RateSystem.uk => [l10n.vehicleRatesUkShort],
     RateSystem.us => [l10n.vehicleRatesUsShort],
   },
-].join(' · ');
+].join('\u00a0· '); // the dot stays at the end of a line
 
 class _VehicleScreenState extends State<VehicleScreen> {
   late final _name = TextEditingController(text: widget.vehicle?.name);
