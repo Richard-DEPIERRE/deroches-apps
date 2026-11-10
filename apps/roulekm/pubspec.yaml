@@ -1,7 +1,7 @@
 name: roulekm
 description: Roulekm, a private mileage log with the official rates (DAPP-132). Built on the app kit (ADR 0001).
 publish_to: none
-version: 0.1.0+1
+version: 1.0.0+1
 resolution: workspace
 
 environment:
