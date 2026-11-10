@@ -14,8 +14,15 @@ void main() {
     }
   });
 
-  test('Android: the app asks for no permission and runs no service or receiver of its own', () {
-    for (final tag in ['<uses-permission', '<service', '<receiver']) {
+  test('Android: the only permission is Play Billing, declared by the app itself', () {
+    // Play Console only lets Richard create the in-app products once an uploaded bundle declares it (DAPP-238).
+    final permissions = RegExp(r'<uses-permission\s+android:name="([^"]+)"').allMatches(manifest).map((m) => m.group(1));
+    expect(permissions, ['com.android.vending.BILLING']);
+    expect(RegExp('<uses-permission').allMatches(manifest), hasLength(1));
+  });
+
+  test('Android: no service or receiver of its own', () {
+    for (final tag in ['<service', '<receiver']) {
       expect(manifest, isNot(contains(tag)), reason: tag);
     }
   });
