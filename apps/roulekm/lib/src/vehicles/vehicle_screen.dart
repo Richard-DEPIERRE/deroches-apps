@@ -186,6 +186,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
           ? AppBar(title: Text(widget.vehicle == null ? l10n.vehicleNewTitle : l10n.vehicleEditTitle))
           : AppBar(
               automaticallyImplyLeading: false,
+              // "Later" lands where the onboarding's "Skip" was.
+              actionsPadding: const EdgeInsetsDirectional.only(end: 8),
               actions: [TextButton(onPressed: _saving ? null : firstVehicleDone, child: Text(l10n.firstVehicleLater))],
             ),
       body: SingleChildScrollView(
