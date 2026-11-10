@@ -206,9 +206,15 @@ void main() {
     });
 
     testWidgets('first launch: skip, then "${t.later}" leads home with nothing saved ($lang)', (tester) async {
+      tester.view
+        ..physicalSize = const Size(390, 844) * 3
+        ..devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       final data = await pumpApp(tester, device);
+      final skipEdge = tester.getTopRight(find.text(t.skip)).dx;
       await tapText(tester, t.skip);
       expect(find.text(t.title), findsOneWidget, reason: 'skipping the pages still asks for the vehicle');
+      expect(tester.getTopRight(find.text(t.later)).dx, skipEdge, reason: '"${t.later}" lands where "${t.skip}" was');
       await tapText(tester, t.later);
       expect(find.text(t.title), findsNothing);
       expect(find.byTooltip(t.settings), findsOneWidget);
