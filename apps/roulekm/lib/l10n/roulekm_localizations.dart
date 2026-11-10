@@ -388,6 +388,72 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Roulekm'**
   String get settingsAppSection;
+
+  /// Onboarding pages 1 to 3, word for word from DAPP-140 §3.
+  ///
+  /// In en, this message translates to:
+  /// **'Your miles, in money'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingBody1.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a trip in two taps. Roulekm applies the right rate to each vehicle (IRS or HMRC) and keeps the year’s total.'**
+  String get onboardingBody1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In en, this message translates to:
+  /// **'No account, no GPS'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingBody2.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to sign up for, nothing running in the background: no drained battery, no trips recorded from your couch. Your trips stay on your phone.'**
+  String get onboardingBody2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited trips. Pro, no subscription required'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingBody3.
+  ///
+  /// In en, this message translates to:
+  /// **'No trip limit, free or paid. Pro extras (PDF log, CSV, recurring trips, several vehicles) can be bought once and kept, or by the year or week if you prefer. No trial that turns into a subscription.'**
+  String get onboardingBody3;
+
+  /// The last onboarding page's button; it opens the first-vehicle step.
+  ///
+  /// In en, this message translates to:
+  /// **'Add my vehicle'**
+  String get onboardingDone;
+
+  /// The first-vehicle step after onboarding (DAPP-141 §6): title, line, app-bar button, save button.
+  ///
+  /// In en, this message translates to:
+  /// **'Your vehicle'**
+  String get firstVehicleTitle;
+
+  /// No description provided for @firstVehicleLine.
+  ///
+  /// In en, this message translates to:
+  /// **'So the right rate applies. You can add more later.'**
+  String get firstVehicleLine;
+
+  /// No description provided for @firstVehicleLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get firstVehicleLater;
+
+  /// No description provided for @firstVehicleDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get firstVehicleDone;
 }
 
 class _RoulekmLocalizationsDelegate

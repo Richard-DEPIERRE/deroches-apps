@@ -27,3 +27,15 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  # Barlow, SIL Open Font License 1.1 (assets/fonts/OFL.txt), from github.com/google/fonts ofl/barlow (DAPP-141 §0).
+  fonts:
+    - family: Barlow
+      fonts:
+        - asset: assets/fonts/Barlow-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Barlow-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Barlow-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Barlow-Bold.ttf
+          weight: 700
