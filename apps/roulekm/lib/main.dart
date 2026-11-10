@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'l10n/roulekm_localizations.dart';
 import 'src/data/log_controller.dart';
 import 'src/data/logbook.dart';
+import 'src/onboarding/first_launch.dart';
 import 'src/vehicles/vehicles_screen.dart';
 
 /// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key, RevenueCat keys and App Store id stay
@@ -46,27 +47,33 @@ Widget buildApp({
     config: roulekmConfig,
     crashReporter: crashReporter,
     kitState: kitState,
-    seedColor: const Color(0xFF8E4D31), // the site's accent (sites/roulekm/site.json) until the Designer's theme
+    seedColor: const Color(0xFFC4511A), // DAPP-141 §0
+    fontFamily: 'Barlow',
     localizationsDelegates: const [RoulekmLocalizations.delegate],
-    home: (context) => PlaceholderHome(
-      settings: (context) => SettingsScreen(
-        kitState: kitState,
-        analytics: analytics,
-        backup: data.backup,
-        purchases: purchases,
-        onBackupRestored: () => unawaited(log.open()),
-        appSections: [
-          _SectionHeader(RoulekmLocalizations.of(context).settingsAppSection),
-          ListTile(
-            title: Text(RoulekmLocalizations.of(context).vehiclesTitle),
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                // The paywall's hook stays empty until DAPP-148 connects it.
-                builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
+    home: (context) => FirstLaunch(
+      kitState: kitState,
+      analytics: analytics,
+      log: log,
+      home: PlaceholderHome(
+        settings: (context) => SettingsScreen(
+          kitState: kitState,
+          analytics: analytics,
+          backup: data.backup,
+          purchases: purchases,
+          onBackupRestored: () => unawaited(log.open()),
+          appSections: [
+            _SectionHeader(RoulekmLocalizations.of(context).settingsAppSection),
+            ListTile(
+              title: Text(RoulekmLocalizations.of(context).vehiclesTitle),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  // The paywall's hook stays empty until DAPP-148 connects it.
+                  builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );

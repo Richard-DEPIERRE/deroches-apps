@@ -41,4 +41,17 @@ void main() {
       expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
     }
   });
+
+  testWidgets('the first-vehicle step keeps its title, "Plus tard" and "C’est parti" at 2× on 360 × 640', (
+    tester,
+  ) async {
+    await tester.runAsync(loadRoboto);
+    await openForm(tester, const Locale('fr', 'FR'), size: const Size(360, 640), textScale: 2, firstVehicleDone: () {});
+    for (final text in ['Votre véhicule', 'Plus tard', 'C’est parti']) {
+      expect(find.text(text).hitTestable(), findsOneWidget, reason: text);
+    }
+    for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
+      expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
+    }
+  });
 }

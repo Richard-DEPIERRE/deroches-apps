@@ -19,6 +19,7 @@ Future<LogController> openForm(
   VehicleRecord? vehicle,
   Size size = const Size(390, 844),
   double textScale = 1,
+  VoidCallback? firstVehicleDone,
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_vehicle_');
   addTearDown(() => dir.deleteSync(recursive: true));
@@ -44,7 +45,7 @@ Future<LogController> openForm(
           body: TextButton(
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) => VehicleScreen(log: log, vehicle: vehicle),
+                builder: (_) => VehicleScreen(log: log, vehicle: vehicle, firstVehicleDone: firstVehicleDone),
               ),
             ),
             child: const Text('host'),

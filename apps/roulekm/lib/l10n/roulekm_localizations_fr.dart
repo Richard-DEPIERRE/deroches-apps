@@ -178,4 +178,42 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get settingsAppSection => 'Roulekm';
+
+  @override
+  String get onboardingTitle1 => 'Vos kilomètres, en euros';
+
+  @override
+  String get onboardingBody1 =>
+      'Notez un trajet en deux touches. Roulekm applique le barème kilométrique de votre véhicule (puissance fiscale, +20 % pour l’électrique) et tient le total de l’année.';
+
+  @override
+  String get onboardingTitle2 => 'Pas de compte, pas de GPS';
+
+  @override
+  String get onboardingBody2 =>
+      'Rien à créer, rien qui tourne en arrière-plan : pas de batterie vidée, pas de trajet enregistré depuis le canapé. Vos trajets restent sur votre téléphone.';
+
+  @override
+  String get onboardingTitle3 =>
+      'Trajets illimités, Pro sans abonnement obligatoire';
+
+  @override
+  String get onboardingBody3 =>
+      'Aucun quota de trajets, gratuit ou non. Les extras Pro (relevé PDF, CSV, trajets récurrents, plusieurs véhicules) s’achètent une fois pour toutes, ou à l’année ou à la semaine si vous préférez. Pas d’essai qui se transforme en abonnement.';
+
+  @override
+  String get onboardingDone => 'Ajouter mon véhicule';
+
+  @override
+  String get firstVehicleTitle => 'Votre véhicule';
+
+  @override
+  String get firstVehicleLine =>
+      'Pour appliquer le bon barème. Vous pourrez en ajouter d’autres ensuite.';
+
+  @override
+  String get firstVehicleLater => 'Plus tard';
+
+  @override
+  String get firstVehicleDone => 'C’est parti';
 }

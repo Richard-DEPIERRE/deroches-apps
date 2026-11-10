@@ -73,5 +73,19 @@
   "proAfterFirstTrip": "Part of Roulekm Pro, once you’ve saved your first trip.",
   "@proAfterFirstTrip": {"description": "Snackbar on a Pro action before the first trip (DAPP-140 §1)."},
   "settingsAppSection": "Roulekm",
-  "@settingsAppSection": {"description": "Header of the app's own section, first in Settings."}
+  "@settingsAppSection": {"description": "Header of the app's own section, first in Settings."},
+  "onboardingTitle1": "Your miles, in money",
+  "@onboardingTitle1": {"description": "Onboarding pages 1 to 3, word for word from DAPP-140 §3."},
+  "onboardingBody1": "Log a trip in two taps. Roulekm applies the right rate to each vehicle (IRS or HMRC) and keeps the year’s total.",
+  "onboardingTitle2": "No account, no GPS",
+  "onboardingBody2": "Nothing to sign up for, nothing running in the background: no drained battery, no trips recorded from your couch. Your trips stay on your phone.",
+  "onboardingTitle3": "Unlimited trips. Pro, no subscription required",
+  "onboardingBody3": "No trip limit, free or paid. Pro extras (PDF log, CSV, recurring trips, several vehicles) can be bought once and kept, or by the year or week if you prefer. No trial that turns into a subscription.",
+  "onboardingDone": "Add my vehicle",
+  "@onboardingDone": {"description": "The last onboarding page's button; it opens the first-vehicle step."},
+  "firstVehicleTitle": "Your vehicle",
+  "@firstVehicleTitle": {"description": "The first-vehicle step after onboarding (DAPP-141 §6): title, line, app-bar button, save button."},
+  "firstVehicleLine": "So the right rate applies. You can add more later.",
+  "firstVehicleLater": "Later",
+  "firstVehicleDone": "Done"
 }
