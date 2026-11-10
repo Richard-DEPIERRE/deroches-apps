@@ -47,5 +47,16 @@
   "distanceMiles": "{distance}\u00a0mi",
   "proTag": "Pro",
   "proAfterFirstTrip": "Disponible avec Roulekm Pro, après votre premier trajet.",
-  "settingsAppSection": "Roulekm"
+  "settingsAppSection": "Roulekm",
+  "onboardingTitle1": "Vos kilomètres, en euros",
+  "onboardingBody1": "Notez un trajet en deux touches. Roulekm applique le barème kilométrique de votre véhicule (puissance fiscale, +20\u00a0% pour l’électrique) et tient le total de l’année.",
+  "onboardingTitle2": "Pas de compte, pas de GPS",
+  "onboardingBody2": "Rien à créer, rien qui tourne en arrière-plan\u00a0: pas de batterie vidée, pas de trajet enregistré depuis le canapé. Vos trajets restent sur votre téléphone.",
+  "onboardingTitle3": "Trajets illimités, Pro sans abonnement obligatoire",
+  "onboardingBody3": "Aucun quota de trajets, gratuit ou non. Les extras Pro (relevé PDF, CSV, trajets récurrents, plusieurs véhicules) s’achètent une fois pour toutes, ou à l’année ou à la semaine si vous préférez. Pas d’essai qui se transforme en abonnement.",
+  "onboardingDone": "Ajouter mon véhicule",
+  "firstVehicleTitle": "Votre véhicule",
+  "firstVehicleLine": "Pour appliquer le bon barème. Vous pourrez en ajouter d’autres ensuite.",
+  "firstVehicleLater": "Plus tard",
+  "firstVehicleDone": "C’est parti"
 }

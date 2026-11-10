@@ -10,12 +10,16 @@ import '../rates/rates.dart';
 
 /// Add or edit a vehicle: its rate system, type, fiscal horsepower and electric flag (DAPP-141 §5).
 class VehicleScreen extends StatefulWidget {
-  const VehicleScreen({super.key, required this.log, this.vehicle});
+  const VehicleScreen({super.key, required this.log, this.vehicle, this.firstVehicleDone});
 
   final LogController log;
 
   /// The vehicle to edit; null adds a new one.
   final VehicleRecord? vehicle;
+
+  /// Set, the form is the first-vehicle step after onboarding (DAPP-141 §6): a title and a line on top, "Later" in
+  /// the app bar, and this called after "Later" or a save, in place of closing the form.
+  final VoidCallback? firstVehicleDone;
 
   @override
   State<VehicleScreen> createState() => _VehicleScreenState();
@@ -23,6 +27,13 @@ class VehicleScreen extends StatefulWidget {
 
 /// The chips follow the latest barème's bands.
 final _bareme = frenchBaremes[frenchBaremes.keys.reduce(max)]!;
+
+/// The rate system the phone's region suggests: France, the UK's HMRC, else the IRS.
+RateSystem regionRates() => switch (WidgetsBinding.instance.platformDispatcher.locales.firstOrNull?.countryCode) {
+  'FR' => RateSystem.france,
+  'GB' => RateSystem.uk,
+  _ => RateSystem.us,
+};
 
 String vehicleTypeLabel(RoulekmLocalizations l10n, VehicleType type) => switch (type) {
   VehicleType.car => l10n.vehicleTypeCar,
@@ -54,18 +65,12 @@ String vehicleSummary(RoulekmLocalizations l10n, VehicleRecord v) => [
 
 class _VehicleScreenState extends State<VehicleScreen> {
   late final _name = TextEditingController(text: widget.vehicle?.name);
-  late RateSystem _rates = widget.vehicle?.rates ?? _regionRates();
+  late RateSystem _rates = widget.vehicle?.rates ?? regionRates();
   late VehicleType _type = widget.vehicle?.type ?? VehicleType.car;
   late int? _horsepower = widget.vehicle?.horsepower;
   late bool _electric = widget.vehicle?.electric ?? false;
   bool _checked = false;
   bool _saving = false;
-
-  RateSystem _regionRates() => switch (WidgetsBinding.instance.platformDispatcher.locales.firstOrNull?.countryCode) {
-    'FR' => RateSystem.france,
-    'GB' => RateSystem.uk,
-    _ => RateSystem.us,
-  };
 
   bool get _hasHorsepower => _rates == RateSystem.france && _type != VehicleType.moped;
   List<HorsepowerBand> get _bands => _bareme.bands[_type]!;
@@ -83,7 +88,11 @@ class _VehicleScreenState extends State<VehicleScreen> {
       await change();
       if (!mounted) return;
       done?.call();
-      Navigator.of(context).pop();
+      if (widget.firstVehicleDone case final firstVehicleDone?) {
+        firstVehicleDone();
+      } else {
+        Navigator.of(context).pop();
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
@@ -170,13 +179,32 @@ class _VehicleScreenState extends State<VehicleScreen> {
       ],
     );
 
+    final firstVehicleDone = widget.firstVehicleDone;
+    final side = firstVehicleDone == null ? 16.0 : 24.0;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.vehicle == null ? l10n.vehicleNewTitle : l10n.vehicleEditTitle)),
+      appBar: firstVehicleDone == null
+          ? AppBar(title: Text(widget.vehicle == null ? l10n.vehicleNewTitle : l10n.vehicleEditTitle))
+          : AppBar(
+              automaticallyImplyLeading: false,
+              actions: [TextButton(onPressed: _saving ? null : firstVehicleDone, child: Text(l10n.firstVehicleLater))],
+            ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        padding: EdgeInsets.fromLTRB(side, firstVehicleDone == null ? 8 : 0, side, 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (firstVehicleDone != null) ...[
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.firstVehicleTitle,
+                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(l10n.firstVehicleLine, style: theme.textTheme.bodyLarge),
+              const SizedBox(height: 20),
+            ],
             TextField(
               controller: _name,
               textCapitalization: TextCapitalization.sentences,
@@ -262,11 +290,11 @@ class _VehicleScreenState extends State<VehicleScreen> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          padding: EdgeInsets.fromLTRB(side, 8, side, 16),
           child: FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
             onPressed: _saving ? null : _save,
-            child: Text(l10n.vehicleSave),
+            child: Text(firstVehicleDone == null ? l10n.vehicleSave : l10n.firstVehicleDone),
           ),
         ),
       ),

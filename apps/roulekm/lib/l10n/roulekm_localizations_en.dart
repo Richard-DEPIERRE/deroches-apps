@@ -176,4 +176,42 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get settingsAppSection => 'Roulekm';
+
+  @override
+  String get onboardingTitle1 => 'Your miles, in money';
+
+  @override
+  String get onboardingBody1 =>
+      'Log a trip in two taps. Roulekm applies the right rate to each vehicle (IRS or HMRC) and keeps the year’s total.';
+
+  @override
+  String get onboardingTitle2 => 'No account, no GPS';
+
+  @override
+  String get onboardingBody2 =>
+      'Nothing to sign up for, nothing running in the background: no drained battery, no trips recorded from your couch. Your trips stay on your phone.';
+
+  @override
+  String get onboardingTitle3 =>
+      'Unlimited trips. Pro, no subscription required';
+
+  @override
+  String get onboardingBody3 =>
+      'No trip limit, free or paid. Pro extras (PDF log, CSV, recurring trips, several vehicles) can be bought once and kept, or by the year or week if you prefer. No trial that turns into a subscription.';
+
+  @override
+  String get onboardingDone => 'Add my vehicle';
+
+  @override
+  String get firstVehicleTitle => 'Your vehicle';
+
+  @override
+  String get firstVehicleLine =>
+      'So the right rate applies. You can add more later.';
+
+  @override
+  String get firstVehicleLater => 'Later';
+
+  @override
+  String get firstVehicleDone => 'Done';
 }
