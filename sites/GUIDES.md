@@ -12,10 +12,15 @@ needed. The `siteUrl` is the app's own domain only; the `customerId` is typed fr
 copied anywhere.
 
 ```
-gum read searchconsole.searchanalytics.query --args '{"siteUrl":"sc-domain:<domain>","startDate":"<28 days before the end>","endDate":"<3 days ago>","dimensions":["query"],"rowLimit":250}'
-gum read searchconsole.searchanalytics.query --args '{"siteUrl":"sc-domain:<domain>","startDate":"<same>","endDate":"<same>","dimensions":["query","page"],"rowLimit":250}'
+gum read searchconsole.searchanalytics.query --args '{"siteUrl":"sc-domain:<domain>","body":{"startDate":"<28 days before the end>","endDate":"<3 days ago>","dimensions":["query"],"rowLimit":250}}'
+gum read searchconsole.searchanalytics.query --args '{"siteUrl":"sc-domain:<domain>","body":{"startDate":"<same>","endDate":"<same>","dimensions":["query","page"],"rowLimit":250}}'
 gum read googleads.keywordPlanIdeas.generateKeywordHistoricalMetrics --args '{"customerId":"<manager account id>","keywords":["<query 1>","<query 2>"],"geoTargetConstants":["2250"],"language":"1002"}'
 ```
+
+`siteUrl` stays at the top level and everything else in the query goes under `body`. gum refuses `startDate`, `endDate`,
+`dimensions` and `rowLimit` at the top level as unknown args (`INVALID_ARGS`), checked 2026-11-10. The `customerId` is the
+manager account itself, with no `loginCustomerId`. The client account listed under it in the `google-ads` document
+answers HTTP 403 (not enabled), checked 2026-11-10.
 
 Shortlist queries with at least 30 impressions, at most 1 click and a position over 10; check demand and season in
 Keyword Planner. If one of our pages already ranks 11–20 for the query, improve that page instead (a correction, not a
@@ -84,9 +89,13 @@ npx wrangler deploy
 Then check the live page (canonical, hreflang, store buttons) and:
 
 ```
-gum read searchconsole.urlInspection.index.inspect --args '{"inspectionUrl":"https://<domain>/guides/<file-slug>/","siteUrl":"sc-domain:<domain>"}'
 gum read searchconsole.sitemaps.list --args '{"siteUrl":"sc-domain:<domain>"}'
 ```
+
+URL Inspection (`searchconsole.urlInspection.index.inspect`) can't run for now, checked 2026-11-10. gum wants
+`inspectionUrl` and `siteUrl` under `body` and refuses them at the top level (`INVALID_ARGS`). The guard accepts
+`siteUrl` only at the top level, so it blocks the `body` shape. Until Richard changes the guard, check the sitemap
+above and look for the page in the `query, page` report from section 1.
 
 A new URL is unknown to Google at first; look again over the next days. Richard submits the sitemap; ask him
 (`needs-richard`) only if it is missing, or has errors or was never fetched 7 days after the site went live.
