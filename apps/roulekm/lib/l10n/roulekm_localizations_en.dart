@@ -256,22 +256,22 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String homeRuleUkFirst(int pence) {
-    return 'First 10,000 business miles: ${pence}p a mile';
+    return 'First 10,000 business miles: ${pence}p a mile';
   }
 
   @override
   String homeRuleUkAbove(int pence) {
-    return 'Above 10,000 business miles: ${pence}p a mile';
+    return 'Above 10,000 business miles: ${pence}p a mile';
   }
 
   @override
   String homeRuleUkFlat(int pence) {
-    return 'HMRC rate: ${pence}p a mile';
+    return 'HMRC rate: ${pence}p a mile';
   }
 
   @override
   String homeRuleUs(String cents) {
-    return 'IRS standard rate: $cents¢ a business mile';
+    return 'IRS standard rate: $cents¢ a business mile';
   }
 
   @override

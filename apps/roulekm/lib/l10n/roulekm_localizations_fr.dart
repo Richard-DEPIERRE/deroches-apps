@@ -258,22 +258,22 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String homeRuleUkFirst(int pence) {
-    return '10 000 premiers miles professionnels : $pence p par mile';
+    return '10 000 premiers miles professionnels : $pence p par mile';
   }
 
   @override
   String homeRuleUkAbove(int pence) {
-    return 'Au-delà de 10 000 miles professionnels : $pence p par mile';
+    return 'Au-delà de 10 000 miles professionnels : $pence p par mile';
   }
 
   @override
   String homeRuleUkFlat(int pence) {
-    return 'Taux HMRC : $pence p par mile';
+    return 'Taux HMRC : $pence p par mile';
   }
 
   @override
   String homeRuleUs(String cents) {
-    return 'Taux standard IRS : $cents ¢ par mile professionnel';
+    return 'Taux standard IRS : $cents ¢ par mile professionnel';
   }
 
   @override

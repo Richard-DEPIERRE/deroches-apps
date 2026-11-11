@@ -83,7 +83,10 @@ void main() {
     await change(tester, () => log.saveTrip(trip('c', 400, [clio], 't2')));
     expect(find.text('3 251 €'), findsOneWidget);
     expect(find.text('5 200 km cette année'), findsOneWidget);
-    expect(find.text('Tranche 5 001 – 20 000 km : (d\u00a0×\u00a00,357) + 1 395 €'), findsOneWidget);
+    expect(
+      find.text('Tranche 5 001\u00a0–\u00a020 000 km : (d\u00a0×\u00a00,357)\u00a0+\u00a01 395 €'),
+      findsOneWidget,
+    );
 
     // Edited down to 100 km, then deleted: back under 5 000 km.
     await change(tester, () => log.saveTrip(trip('c', 100, [clio], 't2')));
@@ -107,20 +110,20 @@ void main() {
     expect(find.widgetWithText(AppBar, '2026–27'), findsOneWidget);
     expect(find.text('2026–27 tax year: £5,390'), findsOneWidget, reason: '9,800 × 55p');
     expect(find.text('9,800 mi this tax year'), findsOneWidget);
-    expect(find.text('First 10,000 business miles: 55p a mile'), findsOneWidget);
+    expect(find.text('First 10,000 business miles: 55p a\u00a0mile'), findsOneWidget);
     expect(find.text('HMRC approved mileage rates, 2026–27 · source: gov.uk'), findsOneWidget);
     expect(find.text('trip'), findsOneWidget);
 
     // 10,000 × 55p + 200 × 25p = £5,550
     await change(tester, () => log.saveTrip(trip('g', 400, [golf], 't2')));
     expect(find.text('£5,550'), findsOneWidget);
-    expect(find.text('Above 10,000 business miles: 25p a mile'), findsOneWidget);
+    expect(find.text('Above 10,000 business miles: 25p a\u00a0mile'), findsOneWidget);
   });
 
   testWidgets('in English: a US car has one rate and no bar', (tester) async {
     await openHome(tester, 'en', [civic], {'u': 1000});
     expect(find.text('2026 mileage deduction: \$760'), findsOneWidget);
-    expect(find.text('IRS standard rate: 76¢ a business mile'), findsOneWidget);
+    expect(find.text('IRS standard rate: 76¢ a\u00a0business\u00a0mile'), findsOneWidget);
     expect(find.text('IRS standard mileage rate for 2026 · source: irs.gov'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsNothing);
     expect(find.textContaining('0 – '), findsNothing);
@@ -152,20 +155,24 @@ void main() {
   testWidgets('at 2× text, the icons beside text grow with it up to 1.5×', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await openHome(tester, 'fr', [clio], {'c': 100});
+    await openHome(tester, 'fr', [zoe], {'z': 100});
     expect(tester.getSize(find.byIcon(vehicleIcon(VehicleType.car))), const Size.square(30));
     expect(tester.getSize(find.byIcon(Icons.add)), const Size.square(42));
+    expect(tester.getSize(find.byIcon(Icons.info_outline)), const Size.square(24));
+    expect(tester.getSize(find.byIcon(Icons.bolt)), const Size.square(21));
   });
 
-  testWidgets('two rate systems: each total line sits at 16 dp, the second 24 dp under the first group', (
+  testWidgets('two rate systems: total and source lines sit at 16 dp, the second group 24 dp under the first', (
     tester,
   ) async {
     await openHome(tester, 'en', [clio, golf]);
     final france = find.text('2026 mileage expenses: €0');
     final uk = find.text('2026–27 tax year: £0');
+    final source = find.byIcon(Icons.info_outline).first;
     expect(tester.getTopLeft(france).dx, 16);
     expect(tester.getTopLeft(uk).dx, 16);
-    final clioCard = find.ancestor(of: find.text('Clio'), matching: find.byType(Card));
-    expect(tester.getTopLeft(uk).dy - tester.getBottomLeft(clioCard).dy, 24);
+    expect(tester.getTopLeft(source).dx, 16);
+    final sourceLine = find.ancestor(of: source, matching: find.byType(Row)).first;
+    expect(tester.getTopLeft(uk).dy - tester.getBottomLeft(sourceLine).dy, 24 + 6);
   });
 }

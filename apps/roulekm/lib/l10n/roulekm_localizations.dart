@@ -506,25 +506,25 @@ abstract class RoulekmLocalizations {
   /// No description provided for @homeRuleUkFirst.
   ///
   /// In en, this message translates to:
-  /// **'First 10,000 business miles: {pence}p a mile'**
+  /// **'First 10,000 business miles: {pence}p a mile'**
   String homeRuleUkFirst(int pence);
 
   /// No description provided for @homeRuleUkAbove.
   ///
   /// In en, this message translates to:
-  /// **'Above 10,000 business miles: {pence}p a mile'**
+  /// **'Above 10,000 business miles: {pence}p a mile'**
   String homeRuleUkAbove(int pence);
 
   /// Motorcycles and bicycles: one rate.
   ///
   /// In en, this message translates to:
-  /// **'HMRC rate: {pence}p a mile'**
+  /// **'HMRC rate: {pence}p a mile'**
   String homeRuleUkFlat(int pence);
 
   /// Cents already formatted: “72.5”.
   ///
   /// In en, this message translates to:
-  /// **'IRS standard rate: {cents}¢ a business mile'**
+  /// **'IRS standard rate: {cents}¢ a business mile'**
   String homeRuleUs(String cents);
 
   /// The rates' year and the site they come from. latest is “yes” while this year's rates aren't out and the latest published apply.

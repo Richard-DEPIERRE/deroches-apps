@@ -109,13 +109,17 @@ class HomeScreen extends StatelessWidget {
         ),
       if (rates != null)
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 1),
-                child: Icon(Icons.info_outline, size: 16, color: theme.colorScheme.onSurfaceVariant),
+                padding: EdgeInsets.only(top: _iconSize(context, 1)),
+                child: Icon(
+                  Icons.info_outline,
+                  size: _iconSize(context, 16),
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(width: 6),
               Expanded(child: Text(_source(l10n, system, rates), style: note)),
@@ -183,12 +187,13 @@ class _VehicleCard extends StatelessWidget {
         final range = switch (rule.index) {
           0 => l10n.homeRangeUpTo(_distance(l10n, system, lang, rule.limits.first)),
           final i when i == rule.limits.length => l10n.homeRangeOver(_distance(l10n, system, lang, rule.limits.last)),
-          final i => '${_number(lang, rule.limits[i - 1] + 1)} – ${_distance(l10n, system, lang, rule.limits[i])}',
+          final i =>
+            '${_number(lang, rule.limits[i - 1] + 1)}\u00a0–\u00a0${_distance(l10n, system, lang, rule.limits[i])}',
         };
         final fixed = _money(system, lang, rule.fixedEuros * 100);
         return l10n.homeRuleFrance(
           range,
-          rule.fixedEuros == 0 ? 'd\u00a0×\u00a0$rate' : '(d\u00a0×\u00a0$rate) + $fixed',
+          rule.fixedEuros == 0 ? 'd\u00a0×\u00a0$rate' : '(d\u00a0×\u00a0$rate)\u00a0+\u00a0$fixed',
         );
       case RateSystem.uk:
         final pence = rule.rateMilli ~/ 10;
@@ -360,7 +365,7 @@ class _ElectricTag extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.bolt, size: 14, color: scheme.onTertiaryContainer),
+            Icon(Icons.bolt, size: _iconSize(context, 14), color: scheme.onTertiaryContainer),
             Text(text, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: scheme.onTertiaryContainer)),
           ],
         ),
