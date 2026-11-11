@@ -6,6 +6,7 @@ import 'package:app_kit/app_kit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:roulekm/src/data/log_controller.dart';
 import 'package:roulekm/src/data/logbook.dart';
+import 'package:roulekm/src/rates/distance.dart';
 import 'package:roulekm/src/rates/french_bareme.dart';
 import 'package:roulekm/src/rates/rates.dart';
 
@@ -97,6 +98,32 @@ void main() {
     await second;
     expect(held.logbook!.vehicles.map((v) => v.name), ['Kangoo']);
     expect(store.saved.last, held.logbook!.toJson(), reason: 'what is on disk is what is shown');
+  });
+
+  test('a trip is added, edited in place and deleted, and saved each time', () async {
+    await log.saveVehicle(clio);
+    final trip = TripRecord(
+      id: 't1',
+      date: DateTime.utc(2026, 11, 3),
+      route: const TripRoute(
+        from: 'A',
+        to: 'B',
+        purpose: 'P',
+        distance: Distance(34, DistanceUnit.km),
+        vehicleId: 'v1',
+      ),
+    );
+    await log.saveTrip(trip);
+    final edited = TripRecord(id: 't1', date: trip.date, route: trip.route, odometerStart: 10, odometerEnd: 44);
+    await log.saveTrip(edited);
+    expect(log.logbook!.trips, [edited]);
+    final reopened = LogController(RoulekmData(dir).log);
+    await reopened.open();
+    expect(reopened.logbook!.trips, [edited]);
+
+    await log.deleteTrip('t1');
+    expect(log.logbook!.trips, isEmpty);
+    expect(log.logbook!.vehicles, [clio]);
   });
 
   test('new ids are unique', () {
