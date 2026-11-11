@@ -25,24 +25,35 @@ class LogController extends ChangeNotifier {
   List<VehicleRecord> get inUse => [...?logbook?.vehicles.where((v) => !v.archived)];
 
   /// Adds [vehicle], or replaces the one with its id in place.
-  Future<void> saveVehicle(VehicleRecord vehicle) => _save((vehicles) {
-    final i = vehicles.indexWhere((v) => v.id == vehicle.id);
-    return i < 0 ? [...vehicles, vehicle] : (List.of(vehicles)..[i] = vehicle);
-  });
+  Future<void> saveVehicle(VehicleRecord vehicle) =>
+      _save(vehicles: (vehicles) => _put(vehicles, vehicle, (v) => v.id));
 
   /// Archiving keeps the vehicle's trips and totals; `archived: false` brings it back (Undo).
   Future<void> archiveVehicle(String id, {bool archived = true}) =>
-      _save((vehicles) => [for (final v in vehicles) v.id == id ? v.copyWith(archived: archived) : v]);
+      _save(vehicles: (vehicles) => [for (final v in vehicles) v.id == id ? v.copyWith(archived: archived) : v]);
+
+  /// Adds [trip], or replaces the one with its id in place.
+  Future<void> saveTrip(TripRecord trip) => _save(trips: (trips) => _put(trips, trip, (t) => t.id));
+
+  Future<void> deleteTrip(String id) => _save(trips: (trips) => [...trips.where((t) => t.id != id)]);
+
+  static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
+    final i = items.indexWhere((e) => id(e) == id(item));
+    return i < 0 ? [...items, item] : (List.of(items)..[i] = item);
+  }
 
   /// The last save in line: the next one starts once it is done, so a rollback never undoes a later change.
   Future<void> _saving = Future.value();
 
-  Future<void> _save(List<VehicleRecord> Function(List<VehicleRecord>) change) {
+  Future<void> _save({
+    List<VehicleRecord> Function(List<VehicleRecord>)? vehicles,
+    List<TripRecord> Function(List<TripRecord>)? trips,
+  }) {
     final done = _saving.then((_) async {
       final previous = logbook!;
       final next = Logbook(
-        vehicles: change(previous.vehicles),
-        trips: previous.trips,
+        vehicles: vehicles?.call(previous.vehicles) ?? previous.vehicles,
+        trips: trips?.call(previous.trips) ?? previous.trips,
         favourites: previous.favourites,
         recurring: previous.recurring,
       );
