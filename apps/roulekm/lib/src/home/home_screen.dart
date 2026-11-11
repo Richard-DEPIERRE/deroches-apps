@@ -7,14 +7,15 @@ import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
 import '../rates/distance.dart';
+import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
 import '../vehicles/vehicle_screen.dart';
 import '../vehicles/vehicles_screen.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
-/// The first screen (DAPP-141 §1): per rate system in use, the year's total and one card per vehicle in use (amount
-/// and distance); then the big "+ trajet" button.
+/// The first screen (DAPP-141 §1): per rate system in use, the year's total, one card per vehicle in use (amount,
+/// distance, bracket and its rule) and the rates' source; then the big "+ trajet" button.
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.log, required this.settings, this.addTrip, this.now = DateTime.now});
 
@@ -62,15 +63,17 @@ class HomeScreen extends StatelessWidget {
     },
   );
 
-  /// The total line and the cards of the vehicles in use counted at [system].
+  /// The total line, the cards and the source line of the vehicles in use counted at [system].
   List<Widget> _system(BuildContext context, RateSystem system, Logbook logbook, DateTime today) {
     final l10n = RoulekmLocalizations.of(context);
     final theme = Theme.of(context);
     final lang = Localizations.localeOf(context).languageCode;
     final totals = vehicleTotals(logbook, today);
     final vehicles = [...log.inUse.where((v) => v.rates == system)];
+    final rates = ratesFor(system, today);
     final year = _periodLabel(system, today);
     final sum = _money(system, lang, vehicles.fold(0, (a, v) => a + (totals[v.id]!.cents ?? 0)));
+    final note = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return [
       Padding(
         padding: const EdgeInsets.fromLTRB(20, 4, 20, 6),
@@ -90,13 +93,44 @@ class HomeScreen extends StatelessWidget {
         _VehicleCard(
           vehicle: v,
           total: totals[v.id]!,
+          rule: vehicleRule(v, logbook, totals, today),
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute<void>(
               builder: (_) => VehicleScreen(log: log, vehicle: v),
             ),
           ),
         ),
+      if (rates != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 6, 20, 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 1),
+                child: Icon(Icons.info_outline, size: 16, color: theme.colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(width: 6),
+              Expanded(child: Text(_source(l10n, system, rates), style: note)),
+            ],
+          ),
+        ),
     ];
+  }
+
+  static String _source(
+    RoulekmLocalizations l10n,
+    RateSystem system,
+    ({int period, int year, BaremeSource source}) rates,
+  ) {
+    final year = _yearLabel(system, rates.year);
+    final latest = rates.year == rates.period ? 'no' : 'yes';
+    final site = Uri.parse(rates.source.url).host.replaceFirst(RegExp(r'^www\d*\.'), '');
+    return switch (system) {
+      RateSystem.france => l10n.homeSourceFrance(year, latest, site),
+      RateSystem.uk => l10n.homeSourceUk(year, latest, site),
+      RateSystem.us => l10n.homeSourceUs(year, latest, site),
+    };
   }
 }
 
@@ -123,11 +157,36 @@ String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int 
     system.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d)) : l10n.distanceMiles(_number(lang, d));
 
 class _VehicleCard extends StatelessWidget {
-  const _VehicleCard({required this.vehicle, required this.total, required this.onTap});
+  const _VehicleCard({required this.vehicle, required this.total, required this.rule, required this.onTap});
 
   final VehicleRecord vehicle;
   final VehicleTotal total;
+  final VehicleRule? rule;
   final VoidCallback onTap;
+
+  String _rule(RoulekmLocalizations l10n, String lang, VehicleRule rule) {
+    final system = vehicle.rates;
+    switch (system) {
+      case RateSystem.france:
+        final rate = NumberFormat.decimalPatternDigits(locale: lang, decimalDigits: 3).format(rule.rateMilli / 1000);
+        final range = switch (rule.index) {
+          0 => l10n.homeRangeUpTo(_distance(l10n, system, lang, rule.limits.first)),
+          final i when i == rule.limits.length => l10n.homeRangeOver(_distance(l10n, system, lang, rule.limits.last)),
+          final i => '${_number(lang, rule.limits[i - 1] + 1)} – ${_distance(l10n, system, lang, rule.limits[i])}',
+        };
+        final fixed = _money(system, lang, rule.fixedEuros * 100);
+        return l10n.homeRuleFrance(
+          range,
+          rule.fixedEuros == 0 ? 'd\u00a0×\u00a0$rate' : '(d\u00a0×\u00a0$rate) + $fixed',
+        );
+      case RateSystem.uk:
+        final pence = rule.rateMilli ~/ 10;
+        if (rule.limits.isEmpty) return l10n.homeRuleUkFlat(pence);
+        return rule.index == 0 ? l10n.homeRuleUkFirst(pence) : l10n.homeRuleUkAbove(pence);
+      case RateSystem.us:
+        return l10n.homeRuleUs(_number(lang, rule.rateMilli / 10));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +216,7 @@ class _VehicleCard extends StatelessWidget {
                   Text(vehicle.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                   if (vehicle.rates == RateSystem.france && vehicle.horsepower != null)
                     Text(l10n.vehicleHorsepowerOne(vehicle.horsepower!), style: muted),
+                  if (vehicle.rates == RateSystem.france && vehicle.electric) _ElectricTag(l10n.homeElectric),
                 ],
               ),
               if (total.cents case final cents?) ...[
@@ -182,8 +242,116 @@ class _VehicleCard extends StatelessWidget {
                 vehicle.rates == RateSystem.uk ? l10n.homeThisTaxYear(distance) : l10n.homeThisYear(distance),
                 style: muted,
               ),
+              if (rule case final rule?) ...[
+                const SizedBox(height: 12),
+                if (rule.limits.isNotEmpty) ...[_BracketBar(rule, lang), const SizedBox(height: 8)],
+                Text(
+                  _rule(l10n, lang, rule),
+                  style: theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant, fontFeatures: _tabular),
+                ),
+              ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Equal-width segments, the ones before the year's full and its own filled to where the year sits. Above 1.3× text
+/// the labels hide: the rule line under it already names the bracket.
+class _BracketBar extends StatelessWidget {
+  const _BracketBar(this.rule, this.lang);
+
+  final VehicleRule rule;
+  final String lang;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final small = theme.textTheme.labelSmall?.copyWith(color: scheme.onSurfaceVariant, fontFeatures: _tabular);
+    final limits = rule.limits;
+    final labels = [
+      for (var i = 0; i <= limits.length; i++)
+        i == limits.length
+            ? '+ ${_number(lang, limits.last)}'
+            : '${_number(lang, i == 0 ? 0 : limits[i - 1] + 1)} – ${_number(lang, limits[i])}',
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              if (i > 0) const SizedBox(width: 3),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(3),
+                  child: SizedBox(
+                    height: 6,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ColoredBox(color: i < rule.index ? scheme.primary : scheme.surfaceContainerHighest),
+                        if (i == rule.index)
+                          FractionallySizedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            widthFactor: rule.fill,
+                            child: ColoredBox(color: scheme.primary),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+        if (MediaQuery.textScalerOf(context).scale(1) <= 1.3) ...[
+          const SizedBox(height: 4),
+          ExcludeSemantics(
+            child: Row(
+              children: [
+                for (var i = 0; i < labels.length; i++)
+                  Expanded(
+                    child: Text(
+                      labels[i],
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      softWrap: false,
+                      style: i == rule.index
+                          ? small?.copyWith(color: scheme.onSurface, fontWeight: FontWeight.w600)
+                          : small,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ElectricTag extends StatelessWidget {
+  const _ElectricTag(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return DecoratedBox(
+      decoration: BoxDecoration(color: scheme.tertiaryContainer, borderRadius: BorderRadius.circular(6)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(6, 2, 8, 2),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.bolt, size: 14, color: scheme.onTertiaryContainer),
+            Text(text, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: scheme.onTertiaryContainer)),
+          ],
         ),
       ),
     );

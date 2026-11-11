@@ -237,6 +237,71 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   }
 
   @override
+  String get homeElectric => 'electric +20%';
+
+  @override
+  String homeRuleFrance(String range, String formula) {
+    return 'Band $range: $formula';
+  }
+
+  @override
+  String homeRangeUpTo(String limit) {
+    return 'up to $limit';
+  }
+
+  @override
+  String homeRangeOver(String limit) {
+    return 'over $limit';
+  }
+
+  @override
+  String homeRuleUkFirst(int pence) {
+    return 'First 10,000 business miles: ${pence}p a mile';
+  }
+
+  @override
+  String homeRuleUkAbove(int pence) {
+    return 'Above 10,000 business miles: ${pence}p a mile';
+  }
+
+  @override
+  String homeRuleUkFlat(int pence) {
+    return 'HMRC rate: ${pence}p a mile';
+  }
+
+  @override
+  String homeRuleUs(String cents) {
+    return 'IRS standard rate: $cents¢ a business mile';
+  }
+
+  @override
+  String homeSourceFrance(String year, String latest, String site) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'Barème kilométrique $year$_temp0 · source: $site';
+  }
+
+  @override
+  String homeSourceUk(String year, String latest, String site) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'HMRC approved mileage rates, $year$_temp0 · source: $site';
+  }
+
+  @override
+  String homeSourceUs(String year, String latest, String site) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'IRS standard mileage rate for $year$_temp0 · source: $site';
+  }
+
+  @override
   String get homeAddTrip => 'trip';
 
   @override
