@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'l10n/roulekm_localizations.dart';
 import 'src/data/log_controller.dart';
 import 'src/data/logbook.dart';
+import 'src/home/home_screen.dart';
 import 'src/onboarding/first_launch.dart';
 import 'src/vehicles/vehicles_screen.dart';
 
@@ -31,7 +32,7 @@ final roulekmConfig = AppConfig(
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
 );
 
-/// The app. Its home is a placeholder until DAPP-145 to DAPP-147 bring the Designer's screens (DAPP-141).
+/// The app: onboarding on the first launch, then the home screen (DAPP-141).
 Widget buildApp({
   CrashReporter crashReporter = const NoopCrashReporter(),
   required KitStateController kitState,
@@ -54,7 +55,8 @@ Widget buildApp({
       kitState: kitState,
       analytics: analytics,
       log: log,
-      home: PlaceholderHome(
+      home: HomeScreen(
+        log: log,
         settings: (context) => SettingsScreen(
           kitState: kitState,
           analytics: analytics,
@@ -121,34 +123,4 @@ Future<void> main() async {
       purchases: purchases,
     ),
   );
-}
-
-/// Never ships: the app's name, one line, and the kit's settings (language, backup, legal links, support).
-class PlaceholderHome extends StatelessWidget {
-  const PlaceholderHome({super.key, required this.settings});
-
-  final WidgetBuilder settings;
-
-  @override
-  Widget build(BuildContext context) {
-    final lang = Localizations.localeOf(context).languageCode;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(KitScope.of(context).config.names[lang]!),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings_outlined),
-            tooltip: KitLocalizations.of(context).settingsTitle,
-            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: settings)),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(RoulekmLocalizations.of(context).roulekmPlaceholderBody),
-        ),
-      ),
-    );
-  }
 }

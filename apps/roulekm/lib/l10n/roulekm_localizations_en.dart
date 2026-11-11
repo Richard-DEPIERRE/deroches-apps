@@ -9,10 +9,6 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   RoulekmLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get roulekmPlaceholderBody =>
-      'Roulekm’s screens are coming soon. This page never ships.';
-
-  @override
   String get vehicleNewTitle => 'New vehicle';
 
   @override
@@ -214,4 +210,38 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get firstVehicleDone => 'Done';
+
+  @override
+  String homeTotalFrance(String year, String amount) {
+    return '$year mileage expenses: $amount';
+  }
+
+  @override
+  String homeTotalUk(String year, String amount) {
+    return '$year tax year: $amount';
+  }
+
+  @override
+  String homeTotalUs(String year, String amount) {
+    return '$year mileage deduction: $amount';
+  }
+
+  @override
+  String homeThisYear(String distance) {
+    return '$distance this year';
+  }
+
+  @override
+  String homeThisTaxYear(String distance) {
+    return '$distance this tax year';
+  }
+
+  @override
+  String get homeAddTrip => 'trip';
+
+  @override
+  String get homeAddTripLabel => 'Add a trip';
+
+  @override
+  String get homeNoVehicle => 'Add your vehicle to see your mileage costs';
 }
