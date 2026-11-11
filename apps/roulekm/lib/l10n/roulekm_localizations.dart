@@ -479,6 +479,72 @@ abstract class RoulekmLocalizations {
   /// **'{distance} this tax year'**
   String homeThisTaxYear(String distance);
 
+  /// Tag on a French-barème electric vehicle's card.
+  ///
+  /// In en, this message translates to:
+  /// **'electric +20%'**
+  String get homeElectric;
+
+  /// The barème bracket the year sits in and its formula, d being the year's km: “(d × 0.357) + €1,395”.
+  ///
+  /// In en, this message translates to:
+  /// **'Band {range}: {formula}'**
+  String homeRuleFrance(String range, String formula);
+
+  /// No description provided for @homeRangeUpTo.
+  ///
+  /// In en, this message translates to:
+  /// **'up to {limit}'**
+  String homeRangeUpTo(String limit);
+
+  /// No description provided for @homeRangeOver.
+  ///
+  /// In en, this message translates to:
+  /// **'over {limit}'**
+  String homeRangeOver(String limit);
+
+  /// No description provided for @homeRuleUkFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'First 10,000 business miles: {pence}p a mile'**
+  String homeRuleUkFirst(int pence);
+
+  /// No description provided for @homeRuleUkAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Above 10,000 business miles: {pence}p a mile'**
+  String homeRuleUkAbove(int pence);
+
+  /// Motorcycles and bicycles: one rate.
+  ///
+  /// In en, this message translates to:
+  /// **'HMRC rate: {pence}p a mile'**
+  String homeRuleUkFlat(int pence);
+
+  /// Cents already formatted: “72.5”.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS standard rate: {cents}¢ a business mile'**
+  String homeRuleUs(String cents);
+
+  /// The rates' year and the site they come from. latest is “yes” while this year's rates aren't out and the latest published apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Barème kilométrique {year}{latest, select, yes{, the latest published} other{}} · source: {site}'**
+  String homeSourceFrance(String year, String latest, String site);
+
+  /// No description provided for @homeSourceUk.
+  ///
+  /// In en, this message translates to:
+  /// **'HMRC approved mileage rates, {year}{latest, select, yes{, the latest published} other{}} · source: {site}'**
+  String homeSourceUk(String year, String latest, String site);
+
+  /// No description provided for @homeSourceUs.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS standard mileage rate for {year}{latest, select, yes{, the latest published} other{}} · source: {site}'**
+  String homeSourceUs(String year, String latest, String site);
+
   /// The big button's label after its + icon: it reads “+ trip”.
   ///
   /// In en, this message translates to:
