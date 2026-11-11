@@ -127,7 +127,7 @@ citations:
   - claim: 'For each business use of a car, the IRS asks for the date, the business destination, the business purpose and the miles, plus the total miles driven in the car for the year; for car expenses, also the cost of the car and improvements and the date it started being used for business.'
     topic: tax
     period: no figure (Pub 463, 2025 edition; 26 CFR 1.274-5T as of 2026-11-09)
-    sources: [1, 2]
+    sources: [1, 2]  # 2 supports miles, total, date and purpose; destination and car cost are Pub 463 only
     recheck: 2027-03-01 (Pub 463, 2026 edition)
     checked: 2026-11-11 by content-editor
   - claim: 'Estimated or approximated amounts are not deductible.'
@@ -214,7 +214,8 @@ some cases. The details, a worked example and what counts as commuting are below
 ## What each entry needs to show
 
 IRS Publication 463 (2025 edition, for 2025 returns) sums up the records for car use in its Table 5-1. The regulation
-behind it, 26 CFR 1.274-5T, lists the same elements:
+behind it, 26 CFR 1.274-5T, asks for the miles of each business use and the year's total, the date and the business
+purpose; the destination comes from the publication's table:
 
 | What to prove | What the log records |
 | ------------- | -------------------- |
