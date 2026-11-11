@@ -11,7 +11,13 @@ import 'package:roulekm/main.dart';
 import 'package:roulekm/src/data/logbook.dart';
 
 /// Launches the app on a device in [deviceLocale]: its first launch, or a later one once [onboarded].
-Future<RoulekmData> pumpApp(WidgetTester tester, Locale deviceLocale, {bool onboarded = false}) async {
+/// With [sells], the app sells Pro on this platform (the kit's fake store).
+Future<RoulekmData> pumpApp(
+  WidgetTester tester,
+  Locale deviceLocale, {
+  bool onboarded = false,
+  bool sells = false,
+}) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_app_');
   addTearDown(() => dir.deleteSync(recursive: true));
   final kitState = KitStateController(directory: dir, appId: roulekmConfig.slug);
@@ -21,7 +27,10 @@ Future<RoulekmData> pumpApp(WidgetTester tester, Locale deviceLocale, {bool onbo
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
   final analytics = Analytics(kitState: kitState, appId: roulekmConfig.slug, appVersion: '0.1.0', locale: () => 'en');
   final data = RoulekmData(dir, files: FakeBackupFiles());
-  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, data: data));
+  final purchases = sells
+      ? Purchases(backend: FakePurchasesBackend(), analytics: analytics, plans: roulekmConfig.plans)
+      : null;
+  await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, data: data, purchases: purchases));
   await tester.pumpAndSettle();
   return data;
 }
@@ -76,8 +85,12 @@ void main() {
 
   testWidgets('Roulekm loads in French, settings with backup included', (tester) async {
     await pumpApp(tester, const Locale('fr', 'FR'), onboarded: true);
-    expect(find.text('Roulekm – frais kilométriques'), findsOneWidget);
-    expect(find.textContaining('arrivent bientôt'), findsOneWidget);
+    expect(
+      find.widgetWithText(AppBar, '${DateTime.now().year}'),
+      findsOneWidget,
+      reason: "the home's title is the year",
+    );
+    expect(find.text('Ajoutez votre véhicule pour voir vos frais'), findsOneWidget, reason: 'the home, no vehicle yet');
     expect(find.text('Vos kilomètres, en euros'), findsNothing, reason: 'onboarding shows once');
     expect(find.text('Votre véhicule'), findsNothing, reason: 'so does the first-vehicle step');
 
@@ -94,8 +107,8 @@ void main() {
 
   testWidgets('Roulekm loads in English, settings with backup included', (tester) async {
     await pumpApp(tester, const Locale('en', 'GB'), onboarded: true);
-    expect(find.text('Roulekm – Mileage Log'), findsOneWidget);
-    expect(find.textContaining('coming soon'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, '${DateTime.now().year}'), findsOneWidget);
+    expect(find.text('Add your vehicle to see your mileage costs'), findsOneWidget);
 
     await tester.tap(find.byTooltip('Settings'));
     await tester.pumpAndSettle();
@@ -117,6 +130,23 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.widgetWithText(AppBar, title), findsOneWidget);
       expect(find.byType(OutlinedButton), findsOneWidget, reason: 'the add button, free with no vehicle in use');
+    });
+  }
+
+  // DAPP-223: Play's reviewer reaches Settings › Purchases › Restore purchases right after onboarding.
+  for (final (device, settings, restore) in [
+    (const Locale('fr', 'FR'), 'Réglages', 'Restaurer les achats'),
+    (const Locale('en', 'GB'), 'Settings', 'Restore purchases'),
+  ]) {
+    testWidgets('the gear opens Settings on an empty logbook, with Restore purchases (${device.languageCode})', (
+      tester,
+    ) async {
+      await pumpApp(tester, device, onboarded: true, sells: true);
+      await tester.tap(find.widgetWithIcon(IconButton, Icons.settings_outlined));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(AppBar, settings), findsOneWidget);
+      await tester.scrollUntilVisible(find.text(restore), 100, scrollable: find.byType(Scrollable).first);
+      expect(find.text(restore), findsOneWidget);
     });
   }
 

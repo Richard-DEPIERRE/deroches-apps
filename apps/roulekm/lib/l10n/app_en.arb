@@ -1,9 +1,5 @@
 {
   "@@locale": "en",
-  "roulekmPlaceholderBody": "Roulekm’s screens are coming soon. This page never ships.",
-  "@roulekmPlaceholderBody": {
-    "description": "Placeholder home until the app's own screens land (DAPP-144 to DAPP-147). Never shipped."
-  },
   "vehicleNewTitle": "New vehicle",
   "vehicleEditTitle": "Edit vehicle",
   "vehicleName": "Name",
@@ -87,5 +83,23 @@
   "@firstVehicleTitle": {"description": "The first-vehicle step after onboarding (DAPP-141 §6): title, line, app-bar button, save button."},
   "firstVehicleLine": "So the right rate applies. You can add more later.",
   "firstVehicleLater": "Later",
-  "firstVehicleDone": "Done"
+  "firstVehicleDone": "Done",
+  "homeTotalFrance": "{year} mileage expenses: {amount}",
+  "@homeTotalFrance": {
+    "description": "Home (DAPP-141 §1): the year's total of the vehicles in use, for the French barème, the UK's HMRC rates and the US IRS rate. Amount already formatted.",
+    "placeholders": {"year": {"type": "String"}, "amount": {"type": "String"}}
+  },
+  "homeTotalUk": "{year} tax year: {amount}",
+  "@homeTotalUk": {"placeholders": {"year": {"type": "String"}, "amount": {"type": "String"}}},
+  "homeTotalUs": "{year} mileage deduction: {amount}",
+  "@homeTotalUs": {"placeholders": {"year": {"type": "String"}, "amount": {"type": "String"}}},
+  "homeThisYear": "{distance} this year",
+  "@homeThisYear": {"description": "Under a vehicle's amount; the UK says tax year.", "placeholders": {"distance": {"type": "String"}}},
+  "homeThisTaxYear": "{distance} this tax year",
+  "@homeThisTaxYear": {"placeholders": {"distance": {"type": "String"}}},
+  "homeAddTrip": "trip",
+  "@homeAddTrip": {"description": "The big button's label after its + icon: it reads “+ trip”."},
+  "homeAddTripLabel": "Add a trip",
+  "@homeAddTripLabel": {"description": "What screen readers say for the big button."},
+  "homeNoVehicle": "Add your vehicle to see your mileage costs"
 }

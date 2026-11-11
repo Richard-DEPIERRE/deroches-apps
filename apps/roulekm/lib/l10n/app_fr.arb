@@ -1,6 +1,5 @@
 {
   "@@locale": "fr",
-  "roulekmPlaceholderBody": "Les écrans de Roulekm arrivent bientôt. Cette page n’est jamais publiée.",
   "vehicleNewTitle": "Nouveau véhicule",
   "vehicleEditTitle": "Modifier le véhicule",
   "vehicleName": "Nom",
@@ -58,5 +57,13 @@
   "firstVehicleTitle": "Votre véhicule",
   "firstVehicleLine": "Pour appliquer le bon barème. Vous pourrez en ajouter d’autres ensuite.",
   "firstVehicleLater": "Plus tard",
-  "firstVehicleDone": "C’est parti"
+  "firstVehicleDone": "C’est parti",
+  "homeTotalFrance": "Frais kilométriques {year}\u00a0: {amount}",
+  "homeTotalUk": "Année fiscale {year}\u00a0: {amount}",
+  "homeTotalUs": "Déduction kilométrique {year}\u00a0: {amount}",
+  "homeThisYear": "{distance} cette année",
+  "homeThisTaxYear": "{distance} cette année fiscale",
+  "homeAddTrip": "trajet",
+  "homeAddTripLabel": "Ajouter un trajet",
+  "homeNoVehicle": "Ajoutez votre véhicule pour voir vos frais"
 }

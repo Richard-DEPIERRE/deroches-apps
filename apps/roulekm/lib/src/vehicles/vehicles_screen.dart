@@ -12,6 +12,13 @@ import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
 import 'vehicle_screen.dart';
 
+IconData vehicleIcon(VehicleType type) => switch (type) {
+  VehicleType.car => Icons.directions_car_outlined,
+  VehicleType.motorbike => Icons.two_wheeler,
+  VehicleType.moped => Icons.moped_outlined,
+  VehicleType.bicycle => Icons.pedal_bike,
+};
+
 /// The vehicles in use with their year so far, the add button, then the archived ones (DAPP-141 §5). A vehicle added
 /// or put back in use while another is in use is Pro (`second_vehicle`).
 class VehiclesScreen extends StatelessWidget {
@@ -73,12 +80,7 @@ class VehiclesScreen extends StatelessWidget {
     Widget avatar(VehicleRecord v) => CircleAvatar(
       backgroundColor: v.archived ? theme.colorScheme.surfaceContainerHighest : null,
       foregroundColor: v.archived ? theme.colorScheme.onSurfaceVariant : null,
-      child: Icon(switch (v.type) {
-        VehicleType.car => Icons.directions_car_outlined,
-        VehicleType.motorbike => Icons.two_wheeler,
-        VehicleType.moped => Icons.moped_outlined,
-        VehicleType.bicycle => Icons.pedal_bike,
-      }),
+      child: Icon(vehicleIcon(v.type)),
     );
 
     /// [left], then [right] at the end of the line; each line grows with large text (a tile's trailing can't).

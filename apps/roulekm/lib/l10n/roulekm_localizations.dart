@@ -101,12 +101,6 @@ abstract class RoulekmLocalizations {
     Locale('fr'),
   ];
 
-  /// Placeholder home until the app's own screens land (DAPP-144 to DAPP-147). Never shipped.
-  ///
-  /// In en, this message translates to:
-  /// **'Roulekm’s screens are coming soon. This page never ships.'**
-  String get roulekmPlaceholderBody;
-
   /// No description provided for @vehicleNewTitle.
   ///
   /// In en, this message translates to:
@@ -454,6 +448,54 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Done'**
   String get firstVehicleDone;
+
+  /// Home (DAPP-141 §1): the year's total of the vehicles in use, for the French barème, the UK's HMRC rates and the US IRS rate. Amount already formatted.
+  ///
+  /// In en, this message translates to:
+  /// **'{year} mileage expenses: {amount}'**
+  String homeTotalFrance(String year, String amount);
+
+  /// No description provided for @homeTotalUk.
+  ///
+  /// In en, this message translates to:
+  /// **'{year} tax year: {amount}'**
+  String homeTotalUk(String year, String amount);
+
+  /// No description provided for @homeTotalUs.
+  ///
+  /// In en, this message translates to:
+  /// **'{year} mileage deduction: {amount}'**
+  String homeTotalUs(String year, String amount);
+
+  /// Under a vehicle's amount; the UK says tax year.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} this year'**
+  String homeThisYear(String distance);
+
+  /// No description provided for @homeThisTaxYear.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} this tax year'**
+  String homeThisTaxYear(String distance);
+
+  /// The big button's label after its + icon: it reads “+ trip”.
+  ///
+  /// In en, this message translates to:
+  /// **'trip'**
+  String get homeAddTrip;
+
+  /// What screen readers say for the big button.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a trip'**
+  String get homeAddTripLabel;
+
+  /// No description provided for @homeNoVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your vehicle to see your mileage costs'**
+  String get homeNoVehicle;
 }
 
 class _RoulekmLocalizationsDelegate

@@ -9,10 +9,6 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   RoulekmLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
-  String get roulekmPlaceholderBody =>
-      'Les écrans de Roulekm arrivent bientôt. Cette page n’est jamais publiée.';
-
-  @override
   String get vehicleNewTitle => 'Nouveau véhicule';
 
   @override
@@ -216,4 +212,38 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get firstVehicleDone => 'C’est parti';
+
+  @override
+  String homeTotalFrance(String year, String amount) {
+    return 'Frais kilométriques $year : $amount';
+  }
+
+  @override
+  String homeTotalUk(String year, String amount) {
+    return 'Année fiscale $year : $amount';
+  }
+
+  @override
+  String homeTotalUs(String year, String amount) {
+    return 'Déduction kilométrique $year : $amount';
+  }
+
+  @override
+  String homeThisYear(String distance) {
+    return '$distance cette année';
+  }
+
+  @override
+  String homeThisTaxYear(String distance) {
+    return '$distance cette année fiscale';
+  }
+
+  @override
+  String get homeAddTrip => 'trajet';
+
+  @override
+  String get homeAddTripLabel => 'Ajouter un trajet';
+
+  @override
+  String get homeNoVehicle => 'Ajoutez votre véhicule pour voir vos frais';
 }
