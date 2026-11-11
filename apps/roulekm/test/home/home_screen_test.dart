@@ -10,6 +10,7 @@ import 'package:roulekm/src/home/home_screen.dart';
 import 'package:roulekm/src/rates/distance.dart';
 import 'package:roulekm/src/rates/french_bareme.dart';
 import 'package:roulekm/src/rates/rates.dart';
+import 'package:roulekm/src/vehicles/vehicles_screen.dart';
 
 /// The home in [lang] on a 2026-11-11 clock, over [vehicles] and one trip per entry of [trips] (vehicle id, distance).
 Future<LogController> openHome(
@@ -109,5 +110,25 @@ void main() {
     await tester.tap(find.text('Clio'));
     await tester.pumpAndSettle();
     expect(find.text('Edit vehicle'), findsOneWidget);
+  });
+
+  testWidgets('at 2× text, the icons beside text grow with it up to 1.5×', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await openHome(tester, 'fr', [clio], {'c': 100});
+    expect(tester.getSize(find.byIcon(vehicleIcon(VehicleType.car))), const Size.square(30));
+    expect(tester.getSize(find.byIcon(Icons.add)), const Size.square(42));
+  });
+
+  testWidgets('two rate systems: each total line sits at 16 dp, the second 24 dp under the first group', (
+    tester,
+  ) async {
+    await openHome(tester, 'en', [clio, golf]);
+    final france = find.text('2026 mileage expenses: €0');
+    final uk = find.text('2026–27 tax year: £0');
+    expect(tester.getTopLeft(france).dx, 16);
+    expect(tester.getTopLeft(uk).dx, 16);
+    final clioCard = find.ancestor(of: find.text('Clio'), matching: find.byType(Card));
+    expect(tester.getTopLeft(uk).dy - tester.getBottomLeft(clioCard).dy, 24);
   });
 }

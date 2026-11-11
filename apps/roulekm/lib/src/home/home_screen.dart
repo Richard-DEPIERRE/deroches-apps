@@ -54,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 16),
                 children: [
                   if (inUse.isEmpty) _NoVehicle(log: log),
-                  for (final system in systems) ..._system(context, system, logbook, today),
+                  for (final (i, system) in systems.indexed) ..._system(context, system, logbook, today, first: i == 0),
                   _AddTripButton(onPressed: addTrip, label: l10n.homeAddTrip, semantics: l10n.homeAddTripLabel),
                 ],
               ),
@@ -63,7 +63,13 @@ class HomeScreen extends StatelessWidget {
   );
 
   /// The total line and the cards of the vehicles in use counted at [system].
-  List<Widget> _system(BuildContext context, RateSystem system, Logbook logbook, DateTime today) {
+  List<Widget> _system(
+    BuildContext context,
+    RateSystem system,
+    Logbook logbook,
+    DateTime today, {
+    required bool first,
+  }) {
     final l10n = RoulekmLocalizations.of(context);
     final theme = Theme.of(context);
     final lang = Localizations.localeOf(context).languageCode;
@@ -73,7 +79,8 @@ class HomeScreen extends StatelessWidget {
     final sum = _money(system, lang, vehicles.fold(0, (a, v) => a + (totals[v.id]!.cents ?? 0)));
     return [
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 6),
+        // Lined up with the card edge; a later group starts well clear of the one above.
+        padding: EdgeInsets.fromLTRB(16, first ? 4 : 24, 16, 6),
         child: Text(
           switch (system) {
             RateSystem.france => l10n.homeTotalFrance(year, sum),
@@ -117,6 +124,10 @@ String _money(RateSystem system, String lang, int cents) => NumberFormat.simpleC
   decimalDigits: 0,
 ).format((cents + 50) ~/ 100);
 
+/// An icon beside text grows with it, up to the same 1.5× as the amount.
+double _iconSize(BuildContext context, double size) =>
+    MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(size);
+
 String _number(String lang, num n) => NumberFormat.decimalPattern(lang).format(n);
 
 String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int d) =>
@@ -153,7 +164,7 @@ class _VehicleCard extends StatelessWidget {
                 runSpacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(vehicleIcon(vehicle.type), size: 20, color: scheme.onSurfaceVariant),
+                  Icon(vehicleIcon(vehicle.type), size: _iconSize(context, 20), color: scheme.onSurfaceVariant),
                   Text(vehicle.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
                   if (vehicle.rates == RateSystem.france && vehicle.horsepower != null)
                     Text(l10n.vehicleHorsepowerOne(vehicle.horsepower!), style: muted),
@@ -243,7 +254,7 @@ class _AddTripButton extends StatelessWidget {
           textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         onPressed: onPressed,
-        icon: const Icon(Icons.add, size: 28),
+        icon: Icon(Icons.add, size: _iconSize(context, 28)),
         label: Text(label),
       ),
     ),
