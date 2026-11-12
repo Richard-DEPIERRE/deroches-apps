@@ -311,4 +311,49 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get homeNoVehicle => 'Ajoutez votre véhicule pour voir vos frais';
+
+  @override
+  String get sourcesTitle => 'Sources des barèmes';
+
+  @override
+  String sourcesFrance(String year) {
+    return 'Barème kilométrique $year';
+  }
+
+  @override
+  String sourcesFranceCovers(String year) {
+    return 'Pour les revenus $year, publié par l’administration fiscale. Voitures et motos selon la puissance fiscale, cyclomoteurs, par tranches de kilomètres de l’année ; +20 % pour l’électrique.';
+  }
+
+  @override
+  String sourcesUk(String year) {
+    return 'Indemnités kilométriques HMRC, $year';
+  }
+
+  @override
+  String get sourcesUkCovers =>
+      'Miles professionnels de l’année fiscale, du 6 avril au 5 avril : voitures et utilitaires, à un taux plus bas après les 10 000 premiers miles ; motos ; vélos.';
+
+  @override
+  String sourcesUs(String year) {
+    return 'Taux kilométrique standard IRS, $year';
+  }
+
+  @override
+  String get sourcesUsCovers =>
+      'Usage professionnel d’une voiture, d’un van, d’un pick-up ou d’une camionnette, électrique ou non : un taux par mile, qui peut changer en cours d’année.';
+
+  @override
+  String sourcesLink(String title, String site, String date) {
+    return '$title · $site, lu le $date';
+  }
+
+  @override
+  String sourcesNextYear(String period, String next) {
+    return 'Le barème des trajets de $period paraît début $next. D’ici là, Roulekm applique le dernier publié, puis recalcule vos totaux quand le nouveau sort.';
+  }
+
+  @override
+  String get sourcesFooter =>
+      'Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration ; ils ne sont pas un conseil fiscal.';
 }

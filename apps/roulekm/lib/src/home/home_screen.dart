@@ -9,6 +9,7 @@ import '../data/totals.dart';
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
+import '../sources/sources_screen.dart';
 import '../vehicles/vehicle_screen.dart';
 import '../vehicles/vehicles_screen.dart';
 
@@ -108,22 +109,29 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       if (rates != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: _iconSize(context, 1)),
-                child: Icon(
-                  Icons.info_outline,
-                  size: _iconSize(context, 16),
-                  color: theme.colorScheme.onSurfaceVariant,
+        InkWell(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(
+              builder: (_) => SourcesScreen(log: log, now: now),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: _iconSize(context, 1)),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: _iconSize(context, 16),
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 6),
-              Expanded(child: Text(_source(l10n, system, rates), style: note)),
-            ],
+                const SizedBox(width: 6),
+                Expanded(child: Text(_source(l10n, system, rates), style: note)),
+              ],
+            ),
           ),
         ),
     ];
@@ -134,9 +142,9 @@ class HomeScreen extends StatelessWidget {
     RateSystem system,
     ({int period, int year, BaremeSource source}) rates,
   ) {
-    final year = _yearLabel(system, rates.year);
+    final year = system.label(rates.year);
     final latest = rates.year == rates.period ? 'no' : 'yes';
-    final site = Uri.parse(rates.source.url).host.replaceFirst(RegExp(r'^www\d*\.'), '');
+    final site = rates.source.site;
     return switch (system) {
       RateSystem.france => l10n.homeSourceFrance(year, latest, site),
       RateSystem.uk => l10n.homeSourceUk(year, latest, site),
@@ -145,11 +153,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// "2026", or the UK's tax year "2026–27".
-String _yearLabel(RateSystem system, int year) =>
-    system == RateSystem.uk ? '$year–${'${(year + 1) % 100}'.padLeft(2, '0')}' : '$year';
-
-String _periodLabel(RateSystem system, DateTime now) => _yearLabel(system, system.periodOf(now));
+String _periodLabel(RateSystem system, DateTime now) => system.label(system.periodOf(now));
 
 /// Whole euros, pounds or dollars, as on every screen (cents only in the PDF).
 String _money(RateSystem system, String lang, int cents) => NumberFormat.simpleCurrency(

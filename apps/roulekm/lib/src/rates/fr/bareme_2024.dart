@@ -14,6 +14,7 @@ const bareme2024 = FrenchBareme(
     title: 'Brochure pratique 2025, Déclaration des revenus 2024 (DGFiP)',
     url: 'https://www.impots.gouv.fr/www2/fichiers/documentation/brochure/ir_2025/pdf_integral/Brochure-IR-2025.pdf',
     publishedOn: '2025-03-20',
+    readOn: '2026-11-05',
   ),
   bands: bands2024,
   electricBands: electricBands2024,

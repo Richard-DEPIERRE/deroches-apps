@@ -76,5 +76,15 @@
   "homeSourceUs": "Taux kilométrique standard IRS pour {year}{latest, select, yes{, le dernier publié} other{}} · source\u00a0: {site}",
   "homeAddTrip": "trajet",
   "homeAddTripLabel": "Ajouter un trajet",
-  "homeNoVehicle": "Ajoutez votre véhicule pour voir vos frais"
+  "homeNoVehicle": "Ajoutez votre véhicule pour voir vos frais",
+  "sourcesTitle": "Sources des barèmes",
+  "sourcesFrance": "Barème kilométrique {year}",
+  "sourcesFranceCovers": "Pour les revenus {year}, publié par l’administration fiscale. Voitures et motos selon la puissance fiscale, cyclomoteurs, par tranches de kilomètres de l’année\u00a0; +20\u00a0% pour l’électrique.",
+  "sourcesUk": "Indemnités kilométriques HMRC, {year}",
+  "sourcesUkCovers": "Miles professionnels de l’année fiscale, du 6 avril au 5 avril\u00a0: voitures et utilitaires, à un taux plus bas après les 10\u202f000 premiers miles\u00a0; motos\u00a0; vélos.",
+  "sourcesUs": "Taux kilométrique standard IRS, {year}",
+  "sourcesUsCovers": "Usage professionnel d’une voiture, d’un van, d’un pick-up ou d’une camionnette, électrique ou non\u00a0: un taux par mile, qui peut changer en cours d’année.",
+  "sourcesLink": "{title} · {site}, lu le {date}",
+  "sourcesNextYear": "Le barème des trajets de {period} paraît début {next}. D’ici là, Roulekm applique le dernier publié, puis recalcule vos totaux quand le nouveau sort.",
+  "sourcesFooter": "Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration\u00a0; ils ne sont pas un conseil fiscal."
 }
