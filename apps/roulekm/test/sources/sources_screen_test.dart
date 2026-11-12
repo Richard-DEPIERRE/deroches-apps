@@ -30,6 +30,7 @@ final _copy = {
     nextYear: 'Le barème des trajets de 2026 paraît début 2027. D’ici là, Roulekm applique le dernier publié, puis recalcule vos totaux quand le nouveau sort.',
     footer: 'Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration ; ils ne sont pas un conseil fiscal.',
     homeSource: 'Barème kilométrique 2025, le dernier publié · source : impots.gouv.fr',
+    linkFailed: 'La page n’a pas pu s’ouvrir. Réessayez plus tard.',
   ),
   'en': (
     title: 'Where the rates come from',
@@ -47,6 +48,7 @@ final _copy = {
     nextYear: 'The barème for 2026 trips comes out early in 2027. Until then, Roulekm uses the latest one published, then works out your totals again when the new one is out.',
     footer: 'Roulekm is not affiliated with any tax authority. These amounts help you prepare your return; they are not tax advice.',
     homeSource: 'Barème kilométrique 2025, the latest published · source: impots.gouv.fr',
+    linkFailed: 'The page couldn’t be opened. Try again later.',
   ),
 };
 // dart format on
@@ -102,6 +104,31 @@ void main() {
       expect(find.text(t.cards[1].$1), findsNothing);
       expect(find.text(t.nextYear), findsNothing);
       expect(find.text(t.footer), findsOneWidget);
+    });
+
+    testWidgets('a link that doesn’t open says so, like the kit’s Settings ($lang)', (tester) async {
+      final log = await openHome(tester, lang, [civic]);
+      var opens = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: Locale(lang),
+          localizationsDelegates: const [...RoulekmLocalizations.localizationsDelegates, KitLocalizations.delegate],
+          supportedLocales: RoulekmLocalizations.supportedLocales,
+          home: SourcesScreen(log: log, now: () => DateTime(2026, 11, 11), openLink: (_) async => opens),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t.cards[2].$3));
+      await tester.pumpAndSettle();
+      final bar = tester.widget<SnackBar>(find.widgetWithText(SnackBar, t.linkFailed));
+      expect((bar.behavior, bar.showCloseIcon), (SnackBarBehavior.floating, true));
+
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.pumpAndSettle();
+      opens = true;
+      await tester.tap(find.text(t.cards[2].$3));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
     });
 
     testWidgets('the home’s source line, a button, opens it ($lang)', (tester) async {

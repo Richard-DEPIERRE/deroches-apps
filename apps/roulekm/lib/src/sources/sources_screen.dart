@@ -1,3 +1,4 @@
+import 'package:app_kit/app_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -32,51 +33,69 @@ class SourcesScreen extends StatelessWidget {
     // With no vehicle in use yet, every table the app knows.
     final systems = inUse.isEmpty ? RateSystem.values : inUse;
     final france = systems.contains(RateSystem.france) ? ratesFor(RateSystem.france, today) : null;
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.sourcesTitle)),
-      body: ListView(
-        padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 24),
-        children: [
-          for (final system in systems)
-            if (ratesFor(system, today) case final rates?)
-              _SourceCard(
-                name: switch (system) {
-                  RateSystem.france => l10n.sourcesFrance(system.label(rates.year)),
-                  // A word joiner keeps "2026–27" on one line.
-                  RateSystem.uk => l10n.sourcesUk(system.label(rates.year).replaceAll('–', '–\u2060')),
-                  RateSystem.us => l10n.sourcesUs(system.label(rates.year)),
-                },
-                covers: switch (system) {
-                  RateSystem.france => l10n.sourcesFranceCovers('${rates.year}'),
-                  RateSystem.uk => l10n.sourcesUkCovers,
-                  RateSystem.us => l10n.sourcesUsCovers,
-                },
-                link: l10n.sourcesLink(
-                  rates.source.title,
-                  rates.source.site,
-                  // Kept on one line. The kit gives only "en": the UK card reads "5 Nov 2026", the US one "Nov 5, 2026".
-                  (system == RateSystem.uk && lang == 'en' ? DateFormat('d MMM y', 'en') : DateFormat.yMMMd(lang))
-                      .format(DateTime.parse(rates.source.readOn))
-                      .replaceAll(' ', '\u00a0'),
+    // Its own messenger, like the kit's Settings: a message leaves with the screen.
+    return ScaffoldMessenger(
+      child: Scaffold(
+        appBar: AppBar(title: Text(l10n.sourcesTitle)),
+        body: ListView(
+          padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 24),
+          children: [
+            for (final system in systems)
+              if (ratesFor(system, today) case final rates?)
+                _SourceCard(
+                  name: switch (system) {
+                    RateSystem.france => l10n.sourcesFrance(system.label(rates.year)),
+                    // A word joiner keeps "2026–27" on one line.
+                    RateSystem.uk => l10n.sourcesUk(system.label(rates.year).replaceAll('–', '–\u2060')),
+                    RateSystem.us => l10n.sourcesUs(system.label(rates.year)),
+                  },
+                  covers: switch (system) {
+                    RateSystem.france => l10n.sourcesFranceCovers('${rates.year}'),
+                    RateSystem.uk => l10n.sourcesUkCovers,
+                    RateSystem.us => l10n.sourcesUsCovers,
+                  },
+                  link: l10n.sourcesLink(
+                    rates.source.title,
+                    rates.source.site,
+                    // Kept on one line. The kit gives only "en": the UK card reads "5 Nov 2026", the US one "Nov 5, 2026".
+                    (system == RateSystem.uk && lang == 'en' ? DateFormat('d MMM y', 'en') : DateFormat.yMMMd(lang))
+                        .format(DateTime.parse(rates.source.readOn))
+                        .replaceAll(' ', '\u00a0'),
+                  ),
+                  open: () => openLink(Uri.parse(rates.source.url)),
                 ),
-                onTap: () => openLink(Uri.parse(rates.source.url)),
-              ),
-          if (france != null && france.year != france.period)
-            _Paragraph(l10n.sourcesNextYear('${france.period}', '${france.period + 1}'), theme.textTheme.bodyMedium),
-          _Paragraph(l10n.sourcesFooter, theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
-        ],
+            if (france != null && france.year != france.period)
+              _Paragraph(l10n.sourcesNextYear('${france.period}', '${france.period + 1}'), theme.textTheme.bodyMedium),
+            _Paragraph(l10n.sourcesFooter, theme.textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+          ],
+        ),
       ),
     );
   }
 }
 
 class _SourceCard extends StatelessWidget {
-  const _SourceCard({required this.name, required this.covers, required this.link, required this.onTap});
+  const _SourceCard({required this.name, required this.covers, required this.link, required this.open});
 
   final String name;
   final String covers;
   final String link;
-  final VoidCallback onTap;
+  final Future<bool> Function() open;
+
+  /// Opens the page; if nothing opened it, says so as the kit's Settings does.
+  Future<void> _onTap(BuildContext context) async {
+    if (await open() || !context.mounted) return;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text(KitLocalizations.of(context).settingsLinkFailed),
+          duration: const Duration(seconds: 8),
+          showCloseIcon: true,
+        ),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +116,7 @@ class _SourceCard extends StatelessWidget {
             Semantics(
               link: true,
               child: InkWell(
-                onTap: onTap,
+                onTap: () => _onTap(context),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
