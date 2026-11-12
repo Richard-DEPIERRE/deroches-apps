@@ -42,7 +42,8 @@ class SourcesScreen extends StatelessWidget {
               _SourceCard(
                 name: switch (system) {
                   RateSystem.france => l10n.sourcesFrance(system.label(rates.year)),
-                  RateSystem.uk => l10n.sourcesUk(system.label(rates.year)),
+                  // A word joiner keeps "2026–27" on one line.
+                  RateSystem.uk => l10n.sourcesUk(system.label(rates.year).replaceAll('–', '–\u2060')),
                   RateSystem.us => l10n.sourcesUs(system.label(rates.year)),
                 },
                 covers: switch (system) {
@@ -53,7 +54,8 @@ class SourcesScreen extends StatelessWidget {
                 link: l10n.sourcesLink(
                   rates.source.title,
                   rates.source.site,
-                  DateFormat.yMMMd(lang).format(DateTime.parse(rates.source.readOn)),
+                  // One line: "5 nov. 2026" never breaks.
+                  DateFormat.yMMMd(lang).format(DateTime.parse(rates.source.readOn)).replaceAll(' ', '\u00a0'),
                 ),
                 onTap: () => openLink(Uri.parse(rates.source.url)),
               ),
