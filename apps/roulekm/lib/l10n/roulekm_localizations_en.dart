@@ -320,7 +320,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String sourcesFranceCovers(String year) {
-    return 'For $year income, published by the French tax office. Cars and motorbikes by fiscal horsepower, mopeds, in brackets of the year’s kilometres; +20% for electric.';
+    return 'For $year income, published by the French tax office. Cars and motorbikes by fiscal horsepower, and mopeds, in brackets of kilometres driven in the year; +20% for electric.';
   }
 
   @override
@@ -330,7 +330,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get sourcesUkCovers =>
-      'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.';
+      'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.';
 
   @override
   String sourcesUs(String year) {
@@ -343,7 +343,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String sourcesLink(String title, String site, String date) {
-    return '$title · $site, read $date';
+    return '$title · $site, read $date';
   }
 
   @override

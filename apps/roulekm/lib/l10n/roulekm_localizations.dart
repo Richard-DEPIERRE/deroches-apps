@@ -578,7 +578,7 @@ abstract class RoulekmLocalizations {
   /// No description provided for @sourcesFranceCovers.
   ///
   /// In en, this message translates to:
-  /// **'For {year} income, published by the French tax office. Cars and motorbikes by fiscal horsepower, mopeds, in brackets of the year’s kilometres; +20% for electric.'**
+  /// **'For {year} income, published by the French tax office. Cars and motorbikes by fiscal horsepower, and mopeds, in brackets of kilometres driven in the year; +20% for electric.'**
   String sourcesFranceCovers(String year);
 
   /// No description provided for @sourcesUk.
@@ -590,7 +590,7 @@ abstract class RoulekmLocalizations {
   /// No description provided for @sourcesUkCovers.
   ///
   /// In en, this message translates to:
-  /// **'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.'**
+  /// **'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.'**
   String get sourcesUkCovers;
 
   /// No description provided for @sourcesUs.
@@ -608,7 +608,7 @@ abstract class RoulekmLocalizations {
   /// The official page (a link): its own title, its site and the day it was checked.
   ///
   /// In en, this message translates to:
-  /// **'{title} · {site}, read {date}'**
+  /// **'{title} · {site}, read {date}'**
   String sourcesLink(String title, String site, String date);
 
   /// No description provided for @sourcesNextYear.

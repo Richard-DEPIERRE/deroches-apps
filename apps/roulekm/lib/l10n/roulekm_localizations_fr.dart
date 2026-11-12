@@ -322,21 +322,21 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String sourcesFranceCovers(String year) {
-    return 'Pour les revenus $year, publié par l’administration fiscale. Voitures et motos selon la puissance fiscale, cyclomoteurs, par tranches de kilomètres de l’année ; +20 % pour l’électrique.';
+    return 'Pour les revenus $year, publié par l’administration fiscale. Voitures et motos selon leur puissance fiscale, et cyclomoteurs, par tranches de kilomètres parcourus dans l’année ; +20 % pour l’électrique.';
   }
 
   @override
   String sourcesUk(String year) {
-    return 'Indemnités kilométriques HMRC, $year';
+    return 'Indemnités kilométriques HMRC $year';
   }
 
   @override
   String get sourcesUkCovers =>
-      'Miles professionnels de l’année fiscale, du 6 avril au 5 avril : voitures et utilitaires, à un taux plus bas après les 10 000 premiers miles ; motos ; vélos.';
+      'Miles professionnels de l’année fiscale, du 6 avril au 5 avril : voitures et utilitaires, à un taux plus bas après les 10 000 premiers miles ; motos ; vélos.';
 
   @override
   String sourcesUs(String year) {
-    return 'Taux kilométrique standard IRS, $year';
+    return 'Taux kilométrique standard IRS $year';
   }
 
   @override
@@ -345,7 +345,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String sourcesLink(String title, String site, String date) {
-    return '$title · $site, lu le $date';
+    return '$title · $site, lu le $date';
   }
 
   @override

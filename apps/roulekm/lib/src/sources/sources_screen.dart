@@ -54,8 +54,10 @@ class SourcesScreen extends StatelessWidget {
                 link: l10n.sourcesLink(
                   rates.source.title,
                   rates.source.site,
-                  // One line: "5 nov. 2026" never breaks.
-                  DateFormat.yMMMd(lang).format(DateTime.parse(rates.source.readOn)).replaceAll(' ', '\u00a0'),
+                  // Kept on one line. The kit gives only "en": the UK card reads "5 Nov 2026", the US one "Nov 5, 2026".
+                  (system == RateSystem.uk && lang == 'en' ? DateFormat('d MMM y', 'en') : DateFormat.yMMMd(lang))
+                      .format(DateTime.parse(rates.source.readOn))
+                      .replaceAll(' ', '\u00a0'),
                 ),
                 onTap: () => openLink(Uri.parse(rates.source.url)),
               ),
@@ -135,7 +137,7 @@ class _Paragraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+    padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
     child: Text(text, style: style),
   );
 }

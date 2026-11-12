@@ -109,28 +109,32 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
       if (rates != null)
-        InkWell(
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (_) => SourcesScreen(log: log, now: now),
+        // Opens a screen in the app: a button for screen readers.
+        Semantics(
+          button: true,
+          child: InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => SourcesScreen(log: log, now: now),
+              ),
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: _iconSize(context, 1)),
-                  child: Icon(
-                    Icons.info_outline,
-                    size: _iconSize(context, 16),
-                    color: theme.colorScheme.onSurfaceVariant,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: _iconSize(context, 1)),
+                    child: Icon(
+                      Icons.info_outline,
+                      size: _iconSize(context, 16),
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(child: Text(_source(l10n, system, rates), style: note)),
-              ],
+                  const SizedBox(width: 6),
+                  Expanded(child: Text(_source(l10n, system, rates), style: note)),
+                ],
+              ),
             ),
           ),
         ),
