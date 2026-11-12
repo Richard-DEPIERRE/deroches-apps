@@ -9,6 +9,7 @@ import 'src/data/log_controller.dart';
 import 'src/data/logbook.dart';
 import 'src/home/home_screen.dart';
 import 'src/onboarding/first_launch.dart';
+import 'src/sources/sources_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
 
 /// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key, RevenueCat keys and App Store id stay
@@ -73,6 +74,10 @@ Widget buildApp({
                   builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
                 ),
               ),
+            ),
+            ListTile(
+              title: Text(RoulekmLocalizations.of(context).sourcesTitle),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => SourcesScreen(log: log))),
             ),
           ],
         ),

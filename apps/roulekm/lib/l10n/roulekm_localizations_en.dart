@@ -309,4 +309,49 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get homeNoVehicle => 'Add your vehicle to see your mileage costs';
+
+  @override
+  String get sourcesTitle => 'Where the rates come from';
+
+  @override
+  String sourcesFrance(String year) {
+    return 'French barème kilométrique, $year';
+  }
+
+  @override
+  String sourcesFranceCovers(String year) {
+    return 'For $year income, published by the French tax office. Cars and motorbikes by fiscal horsepower, and mopeds, in brackets of kilometres driven in the year; +20% for electric.';
+  }
+
+  @override
+  String sourcesUk(String year) {
+    return 'HMRC approved mileage allowance payments, $year';
+  }
+
+  @override
+  String get sourcesUkCovers =>
+      'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.';
+
+  @override
+  String sourcesUs(String year) {
+    return 'IRS standard mileage rate, $year';
+  }
+
+  @override
+  String get sourcesUsCovers =>
+      'Business use of a car, van, pickup or panel truck, electric or not: one rate per mile, which can change during the year.';
+
+  @override
+  String sourcesLink(String title, String site, String date) {
+    return '$title · $site, read $date';
+  }
+
+  @override
+  String sourcesNextYear(String period, String next) {
+    return 'The barème for $period trips comes out early in $next. Until then, Roulekm uses the latest one published, then works out your totals again when the new one is out.';
+  }
+
+  @override
+  String get sourcesFooter =>
+      'Roulekm is not affiliated with any tax authority. These amounts help you prepare your return; they are not tax advice.';
 }

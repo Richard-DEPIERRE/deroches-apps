@@ -133,6 +133,21 @@ void main() {
     });
   }
 
+  for (final (device, row) in [
+    (const Locale('fr', 'FR'), 'Sources des barèmes'),
+    (const Locale('en', 'GB'), 'Where the rates come from'),
+  ]) {
+    testWidgets('Settings → Roulekm → $row opens the sources (${device.languageCode})', (tester) async {
+      await pumpApp(tester, device, onboarded: true);
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(row));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(AppBar, row), findsOneWidget);
+      expect(find.byIcon(Icons.open_in_new), findsWidgets, reason: 'every table, with no vehicle in use yet');
+    });
+  }
+
   // DAPP-223: Play's reviewer reaches Settings › Purchases › Restore purchases right after onboarding.
   for (final (device, settings, restore) in [
     (const Locale('fr', 'FR'), 'Réglages', 'Restaurer les achats'),

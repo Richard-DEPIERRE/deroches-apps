@@ -26,7 +26,7 @@ class Vehicle {
 }
 
 class BaremeSource {
-  const BaremeSource({required this.title, required this.url, required this.publishedOn});
+  const BaremeSource({required this.title, required this.url, required this.publishedOn, required this.readOn});
 
   /// The official text's own title, shown as is.
   final String title;
@@ -34,6 +34,12 @@ class BaremeSource {
 
   /// ISO date (yyyy-mm-dd) of the official text.
   final String publishedOn;
+
+  /// ISO date the fact-check read it on (DAPP-137's `rate-tables`).
+  final String readOn;
+
+  /// The site it is on: "impots.gouv.fr", "gov.uk", "irs.gov".
+  String get site => Uri.parse(url).host.replaceFirst(RegExp(r'^www\d*\.'), '');
 }
 
 /// One formula, `km × rate + fixed`, for distances up to [upToKm] (inclusive; null = no limit).

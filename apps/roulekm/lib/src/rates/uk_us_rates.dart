@@ -21,6 +21,7 @@ const hmrcSource = BaremeSource(
   url:
       'https://www.gov.uk/government/publications/rates-and-allowances-travel-mileage-and-fuel-allowances/travel-mileage-and-fuel-rates-and-allowances',
   publishedOn: '2026-05-21',
+  readOn: '2026-11-05',
 );
 
 /// By the year the tax year starts in: 2026 is 2026-27.
@@ -45,6 +46,7 @@ const irsSource = BaremeSource(
   title: 'Standard mileage rates (IRS)',
   url: 'https://www.irs.gov/tax-professionals/standard-mileage-rates',
   publishedOn: '2026-07-28',
+  readOn: '2026-11-05',
 );
 
 /// By calendar year; a year may change rate mid-year, as 2026 did.

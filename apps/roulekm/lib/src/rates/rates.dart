@@ -30,6 +30,9 @@ enum RateSystem {
   /// in the UK (2026 is 2026-27), the calendar year in the US.
   int periodOf(DateTime date) =>
       this == uk && (date.month < 4 || date.month == 4 && date.day < 6) ? date.year - 1 : date.year;
+
+  /// [period] as people write it: "2026", or the UK's tax year "2026–27".
+  String label(int period) => this == uk ? '$period–${'${(period + 1) % 100}'.padLeft(2, '0')}' : '$period';
 }
 
 /// The HMRC rates in force on [date]: its tax year's, or the last year in the table when that one isn't in it yet

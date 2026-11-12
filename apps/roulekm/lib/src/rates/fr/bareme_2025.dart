@@ -11,6 +11,7 @@ const bareme2025 = FrenchBareme(
     title: 'Brochure pratique 2026, Déclaration des revenus 2025 (DGFiP)',
     url: 'https://www.impots.gouv.fr/www2/fichiers/documentation/brochure/ir_2026/pdf_integral/Brochure-IR-2026.pdf',
     publishedOn: '2026-03-17',
+    readOn: '2026-11-05',
   ),
   bands: bands2024,
   electricBands: electricBands2024,

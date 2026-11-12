@@ -562,6 +562,66 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Add your vehicle to see your mileage costs'**
   String get homeNoVehicle;
+
+  /// Title of the sources page, and its row in Settings' Roulekm section.
+  ///
+  /// In en, this message translates to:
+  /// **'Where the rates come from'**
+  String get sourcesTitle;
+
+  /// No description provided for @sourcesFrance.
+  ///
+  /// In en, this message translates to:
+  /// **'French barème kilométrique, {year}'**
+  String sourcesFrance(String year);
+
+  /// No description provided for @sourcesFranceCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'For {year} income, published by the French tax office. Cars and motorbikes by fiscal horsepower, and mopeds, in brackets of kilometres driven in the year; +20% for electric.'**
+  String sourcesFranceCovers(String year);
+
+  /// No description provided for @sourcesUk.
+  ///
+  /// In en, this message translates to:
+  /// **'HMRC approved mileage allowance payments, {year}'**
+  String sourcesUk(String year);
+
+  /// No description provided for @sourcesUkCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Business miles in the tax year, 6 April to 5 April: cars and vans, at a lower rate after the first 10,000 miles; motorcycles; bicycles.'**
+  String get sourcesUkCovers;
+
+  /// No description provided for @sourcesUs.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS standard mileage rate, {year}'**
+  String sourcesUs(String year);
+
+  /// No description provided for @sourcesUsCovers.
+  ///
+  /// In en, this message translates to:
+  /// **'Business use of a car, van, pickup or panel truck, electric or not: one rate per mile, which can change during the year.'**
+  String get sourcesUsCovers;
+
+  /// The official page (a link): its own title, its site and the day it was checked.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} · {site}, read {date}'**
+  String sourcesLink(String title, String site, String date);
+
+  /// No description provided for @sourcesNextYear.
+  ///
+  /// In en, this message translates to:
+  /// **'The barème for {period} trips comes out early in {next}. Until then, Roulekm uses the latest one published, then works out your totals again when the new one is out.'**
+  String sourcesNextYear(String period, String next);
+
+  /// No description provided for @sourcesFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Roulekm is not affiliated with any tax authority. These amounts help you prepare your return; they are not tax advice.'**
+  String get sourcesFooter;
 }
 
 class _RoulekmLocalizationsDelegate
