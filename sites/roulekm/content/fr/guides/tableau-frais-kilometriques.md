@@ -7,6 +7,7 @@ published: 2026-11-10
 updated: 2026-11-10
 factCheck: DAPP-233
 download: Roulekm tient ce tableau sur votre téléphone et applique le barème de chaque véhicule.
+related: [justificatif-frais-kilometriques]
 sources:
   - title: Frais de transport
     publisher: Direction générale des Finances publiques (impots.gouv.fr)
@@ -210,7 +211,8 @@ déplacement a été nécessaire et **le type de véhicule utilisé**. Chaque co
 
 Le tableau ne remplace pas les autres pièces : la carte grise, les factures d’entretien ou le contrat d’assurance
 peuvent aussi être demandés. Ces justificatifs ne se joignent pas à la déclaration : ils se conservent au moins trois
-ans.
+ans. Notre guide sur [les justificatifs de frais kilométriques](/guides/justificatif-frais-kilometriques/) détaille
+chaque pièce, ce que le service des impôts peut demander et jusqu’à quand les garder.
 
 ## Exemple : quelques lignes et le total de l’année
 
