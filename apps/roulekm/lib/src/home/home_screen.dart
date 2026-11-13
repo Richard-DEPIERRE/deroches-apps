@@ -38,7 +38,7 @@ class HomeScreen extends StatelessWidget {
   /// Opens "Add a trip" (DAPP-146); the button is off until then.
   final VoidCallback? addTrip;
 
-  /// "Gérer" beside the favourites, and "Tout voir" beside the recent trips (the Year screen, DAPP-147): off until
+  /// "Gérer" beside the favourites, and "Tout voir" beside the recent trips (the Year screen, DAPP-147): hidden until
   /// their screens exist.
   final VoidCallback? editFavourites;
   final VoidCallback? openYear;
@@ -477,7 +477,7 @@ class _Header extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 4, 0),
+      padding: const EdgeInsets.fromLTRB(16, 24, 4, 0),
       child: Row(
         children: [
           Expanded(
@@ -486,12 +486,19 @@ class _Header extends StatelessWidget {
               child: Text(title, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
             ),
           ),
-          // No 64 dp minimum width: a short label ("Edit") ends on the same 16 dp edge as the rows.
-          TextButton(
-            style: TextButton.styleFrom(minimumSize: const Size.square(48)),
-            onPressed: onPressed,
-            child: Text(action),
-          ),
+          // Hidden until its screen exists. No 64 dp minimum width, and the same 12 dp padding at any text size: a
+          // short label ("Edit") ends on the rows' 16 dp edge.
+          if (onPressed != null)
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: const Size.square(48),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              onPressed: onPressed,
+              child: Text(action),
+            )
+          else
+            const SizedBox(height: 48),
         ],
       ),
     );
@@ -514,7 +521,8 @@ class _Route extends StatelessWidget {
       child: Text.rich(
         TextSpan(
           children: [
-            TextSpan(text: route.from),
+            // A word joiner keeps the arrow with the place before it: a line never starts with it.
+            TextSpan(text: '${route.from}\u2060'),
             // Grows with the text, as a WidgetSpan does.
             WidgetSpan(
               alignment: PlaceholderAlignment.middle,
@@ -544,6 +552,7 @@ class _FavouriteRow extends StatelessWidget {
     return MergeSemantics(
       child: ListTile(
         contentPadding: _rowPadding,
+        titleAlignment: ListTileTitleAlignment.titleHeight,
         leading: Icon(Icons.star, color: scheme.primary, size: _iconSize(context, 22)),
         title: _Route(route),
         subtitle: Text(route.roundTrip ? l10n.homeRoundTrip(distance) : distance),
@@ -568,13 +577,14 @@ class _TripRow extends StatelessWidget {
     return MergeSemantics(
       child: ListTile(
         contentPadding: _rowPadding,
+        titleAlignment: ListTileTitleAlignment.titleHeight,
         title: _Route(trip.route),
         subtitle: Text(
           [
             _day(lang, vehicle?.rates, trip.date),
             ?vehicle?.name,
             trip.route.purpose,
-          ].where((s) => s.isNotEmpty).join(' · '),
+          ].where((s) => s.isNotEmpty).join('\u00a0· '),
         ),
         trailing: Text(
           _typed(l10n, lang, trip.route.counted),

@@ -324,7 +324,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String homeRoundTrip(String distance) {
-    return '$distance · round trip';
+    return '$distance · round trip';
   }
 
   @override

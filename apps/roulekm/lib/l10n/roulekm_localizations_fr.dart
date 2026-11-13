@@ -323,7 +323,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String homeRoundTrip(String distance) {
-    return '$distance · aller-retour';
+    return '$distance · aller-retour';
   }
 
   @override

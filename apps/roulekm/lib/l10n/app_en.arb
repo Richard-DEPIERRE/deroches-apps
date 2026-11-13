@@ -134,7 +134,7 @@
   "@homeFavourites": {"description": "Header of the home's favourite trips; yes when the home's vehicles use HMRC rates (UK spelling).", "placeholders": {"uk": {"type": "String"}}},
   "homeFavouritesEdit": "Edit",
   "@homeFavouritesEdit": {"description": "Text button beside the favourites' header: manage them."},
-  "homeRoundTrip": "{distance} · round trip",
+  "homeRoundTrip": "{distance}\u00a0· round trip",
   "@homeRoundTrip": {"description": "Under a favourite's route: its one-way distance, then that it counts both ways.", "placeholders": {"distance": {"type": "String"}}},
   "homeRecent": "Recent trips",
   "homeSeeAll": "See all",

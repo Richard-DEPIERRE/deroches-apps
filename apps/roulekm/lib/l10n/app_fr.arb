@@ -79,7 +79,7 @@
   "homeNoVehicle": "Ajoutez votre véhicule pour voir vos frais",
   "homeFavourites": "{uk, select, other{Favoris}}",
   "homeFavouritesEdit": "Gérer",
-  "homeRoundTrip": "{distance} · aller-retour",
+  "homeRoundTrip": "{distance}\u00a0· aller-retour",
   "homeRecent": "Derniers trajets",
   "homeSeeAll": "Tout voir",
   "homeRoute": "{from} vers {to}",

@@ -578,7 +578,7 @@ abstract class RoulekmLocalizations {
   /// Under a favourite's route: its one-way distance, then that it counts both ways.
   ///
   /// In en, this message translates to:
-  /// **'{distance} · round trip'**
+  /// **'{distance} · round trip'**
   String homeRoundTrip(String distance);
 
   /// No description provided for @homeRecent.
