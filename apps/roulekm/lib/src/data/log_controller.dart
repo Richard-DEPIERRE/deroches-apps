@@ -37,6 +37,13 @@ class LogController extends ChangeNotifier {
 
   Future<void> deleteTrip(String id) => _save(trips: (trips) => [...trips.where((t) => t.id != id)]);
 
+  /// Adds [favourite], or replaces the one with its id in place.
+  Future<void> saveFavourite(FavouriteTrip favourite) =>
+      _save(favourites: (favourites) => _put(favourites, favourite, (f) => f.id));
+
+  Future<void> deleteFavourite(String id) =>
+      _save(favourites: (favourites) => [...favourites.where((f) => f.id != id)]);
+
   static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
     final i = items.indexWhere((e) => id(e) == id(item));
     return i < 0 ? [...items, item] : (List.of(items)..[i] = item);
@@ -48,13 +55,14 @@ class LogController extends ChangeNotifier {
   Future<void> _save({
     List<VehicleRecord> Function(List<VehicleRecord>)? vehicles,
     List<TripRecord> Function(List<TripRecord>)? trips,
+    List<FavouriteTrip> Function(List<FavouriteTrip>)? favourites,
   }) {
     final done = _saving.then((_) async {
       final previous = logbook!;
       final next = Logbook(
         vehicles: vehicles?.call(previous.vehicles) ?? previous.vehicles,
         trips: trips?.call(previous.trips) ?? previous.trips,
-        favourites: previous.favourites,
+        favourites: favourites?.call(previous.favourites) ?? previous.favourites,
         recurring: previous.recurring,
       );
       logbook = next;

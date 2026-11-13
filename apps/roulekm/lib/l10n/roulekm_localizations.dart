@@ -563,6 +563,42 @@ abstract class RoulekmLocalizations {
   /// **'Add your vehicle to see your mileage costs'**
   String get homeNoVehicle;
 
+  /// Header of the home's favourite trips; yes when the home's vehicles use HMRC rates (UK spelling).
+  ///
+  /// In en, this message translates to:
+  /// **'{uk, select, yes{Favourites} other{Favorites}}'**
+  String homeFavourites(String uk);
+
+  /// Text button beside the favourites' header: manage them.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get homeFavouritesEdit;
+
+  /// Under a favourite's route: its one-way distance, then that it counts both ways.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} · round trip'**
+  String homeRoundTrip(String distance);
+
+  /// No description provided for @homeRecent.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent trips'**
+  String get homeRecent;
+
+  /// Text button beside the recent trips' header: opens the Year screen.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get homeSeeAll;
+
+  /// What screen readers say for a route, drawn as “from → to”.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String homeRoute(String from, String to);
+
   /// Title of the sources page, and its row in Settings' Roulekm section.
   ///
   /// In en, this message translates to:
