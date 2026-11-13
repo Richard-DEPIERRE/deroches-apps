@@ -7,7 +7,7 @@ published: 2026-11-10
 updated: 2026-11-10
 factCheck: DAPP-233
 download: Roulekm tient ce tableau sur votre téléphone et applique le barème de chaque véhicule.
-related: [justificatif-frais-kilometriques]
+related: [justificatif-frais-kilometriques, frais-reels-voiture-electrique]
 sources:
   - title: Frais de transport
     publisher: Direction générale des Finances publiques (impots.gouv.fr)
@@ -257,7 +257,8 @@ Dans l’exemple, 8 000 km avec une voiture de 5 CV tombent dans la tranche de 5
 **(8 000 × 0,357) + 1 395 = 2 856 + 1 395 = 4 251 €** de frais kilométriques pour 2025.
 
 Pour une voiture **100 % électrique**, le barème est majoré de 20 % : la même distance donnerait 4 251 × 1,20 =
-**5 101,20 €**.
+**5 101,20 €**. Notre guide sur [les frais réels d’une voiture électrique](/guides/frais-reels-voiture-electrique/)
+explique cette majoration, la puissance à lire sur la carte grise et ce que le barème couvre déjà.
 
 Dans un tableur, la formule pour une voiture de 5 CV, avec le total des kilomètres en cellule E2, s’écrit :
 
