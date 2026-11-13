@@ -313,6 +313,31 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get homeNoVehicle => 'Ajoutez votre véhicule pour voir vos frais';
 
   @override
+  String homeFavourites(String uk) {
+    String _temp0 = intl.Intl.selectLogic(uk, {'other': 'Favoris'});
+    return '$_temp0';
+  }
+
+  @override
+  String get homeFavouritesEdit => 'Gérer';
+
+  @override
+  String homeRoundTrip(String distance) {
+    return '$distance · aller-retour';
+  }
+
+  @override
+  String get homeRecent => 'Derniers trajets';
+
+  @override
+  String get homeSeeAll => 'Tout voir';
+
+  @override
+  String homeRoute(String from, String to) {
+    return '$from vers $to';
+  }
+
+  @override
   String get sourcesTitle => 'Sources des barèmes';
 
   @override

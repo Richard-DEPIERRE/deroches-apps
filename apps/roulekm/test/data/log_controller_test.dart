@@ -129,6 +129,17 @@ void main() {
   test('new ids are unique', () {
     expect({for (var i = 0; i < 100; i++) newId()}, hasLength(100));
   });
+
+  test('a favourite saved is still there when the log is opened again, and a deleted one is gone', () async {
+    const route = TripRoute(from: 'A', to: 'B', purpose: 'P', distance: Distance(3, DistanceUnit.km), vehicleId: 'v1');
+    await log.saveFavourite(const FavouriteTrip(id: 'f1', route: route));
+    await log.saveFavourite(const FavouriteTrip(id: 'f2', route: route));
+    await log.deleteFavourite('f1');
+
+    final reopened = LogController(RoulekmData(dir).log);
+    await reopened.open();
+    expect(reopened.logbook!.favourites, [const FavouriteTrip(id: 'f2', route: route)]);
+  });
 }
 
 /// Holds each save until the test completes it.

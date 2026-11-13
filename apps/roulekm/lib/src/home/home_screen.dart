@@ -15,16 +15,33 @@ import '../vehicles/vehicles_screen.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
+/// The rows' trailing icon and distance end on the same 16 dp edge as the cards (Material 3's default is 24).
+const _rowPadding = EdgeInsets.symmetric(horizontal: 16);
+
 /// The first screen (DAPP-141 §1): per rate system in use, the year's total, one card per vehicle in use (amount,
-/// distance, bracket and its rule) and the rates' source; then the big "+ trajet" button.
+/// distance, bracket and its rule) and the rates' source; then the big "+ trajet" button, the favourites and the last
+/// three trips.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.log, required this.settings, this.addTrip, this.now = DateTime.now});
+  const HomeScreen({
+    super.key,
+    required this.log,
+    required this.settings,
+    this.addTrip,
+    this.editFavourites,
+    this.openYear,
+    this.now = DateTime.now,
+  });
 
   final LogController log;
   final WidgetBuilder settings;
 
   /// Opens "Add a trip" (DAPP-146); the button is off until then.
   final VoidCallback? addTrip;
+
+  /// "Gérer" beside the favourites, and "Tout voir" beside the recent trips (the Year screen, DAPP-147): off until
+  /// their screens exist.
+  final VoidCallback? editFavourites;
+  final VoidCallback? openYear;
   final DateTime Function() now;
 
   @override
@@ -58,6 +75,19 @@ class HomeScreen extends StatelessWidget {
                   if (inUse.isEmpty) _NoVehicle(log: log),
                   for (final (i, system) in systems.indexed) ..._system(context, system, logbook, today, first: i == 0),
                   _AddTripButton(onPressed: addTrip, label: l10n.homeAddTrip, semantics: l10n.homeAddTripLabel),
+                  if (logbook.favourites.isNotEmpty) ...[
+                    _Header(
+                      l10n.homeFavourites(systems.firstOrNull == RateSystem.uk ? 'yes' : 'no'),
+                      l10n.homeFavouritesEdit,
+                      editFavourites,
+                    ),
+                    // Tap = the quick-add sheet (DAPP-146).
+                    for (final f in logbook.favourites) _FavouriteRow(f.route),
+                  ],
+                  if (logbook.trips.isNotEmpty) ...[
+                    _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),
+                    for (final t in _recent(logbook)) _TripRow(t, logbook.vehicles),
+                  ],
                 ],
               ),
       );
@@ -157,6 +187,13 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
+/// The last three trips, latest day first; on the same day, the one added last first.
+List<TripRecord> _recent(Logbook logbook) {
+  final trips = [...logbook.trips.indexed]
+    ..sort((a, b) => a.$2.date == b.$2.date ? b.$1 - a.$1 : b.$2.date.compareTo(a.$2.date));
+  return [for (final (_, t) in trips.take(3)) t];
+}
+
 String _periodLabel(RateSystem system, DateTime now) => system.label(system.periodOf(now));
 
 /// Whole euros, pounds or dollars, as on every screen (cents only in the PDF).
@@ -177,7 +214,21 @@ double _iconSize(BuildContext context, double size) =>
 String _number(String lang, num n) => NumberFormat.decimalPattern(lang).format(n);
 
 String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int d) =>
-    system.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d)) : l10n.distanceMiles(_number(lang, d));
+    _typed(l10n, lang, Distance(d, system.unit));
+
+/// A distance in the unit it was typed in.
+String _typed(RoulekmLocalizations l10n, String lang, Distance d) =>
+    d.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d.value)) : l10n.distanceMiles(_number(lang, d.value));
+
+/// "Mer. 5 nov.", "Wed, Nov 5", and "Wed 5 Nov" for an HMRC vehicle; never broken across lines.
+String _day(String lang, RateSystem? system, DateTime day) {
+  final text = switch (lang) {
+    'fr' => DateFormat.MMMEd('fr').format(day),
+    _ when system == RateSystem.uk => DateFormat('EEE d MMM', 'en').format(day),
+    _ => DateFormat.MMMEd('en').format(day),
+  };
+  return '${text[0].toUpperCase()}${text.substring(1)}'.replaceAll(' ', '\u00a0');
+}
 
 class _VehicleCard extends StatelessWidget {
   const _VehicleCard({required this.vehicle, required this.total, required this.rule, required this.onTap});
@@ -408,6 +459,126 @@ class _NoVehicle extends StatelessWidget {
               child: Text(l10n.onboardingDone),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// A section's title (as the settings' section headers), and its text button lined up with the screen edge (−12 dp).
+class _Header extends StatelessWidget {
+  const _Header(this.title, this.action, this.onPressed);
+
+  final String title;
+  final String action;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 4, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              header: true,
+              child: Text(title, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+            ),
+          ),
+          // No 64 dp minimum width: a short label ("Edit") ends on the same 16 dp edge as the rows.
+          TextButton(
+            style: TextButton.styleFrom(minimumSize: const Size.square(48)),
+            onPressed: onPressed,
+            child: Text(action),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Domicile → Chantier Bron": the arrow is an icon (Barlow has no glyph for U+2192), read "Domicile vers Chantier
+/// Bron".
+class _Route extends StatelessWidget {
+  const _Route(this.route);
+
+  final TripRoute route;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = DefaultTextStyle.of(context).style;
+    return Semantics(
+      label: RoulekmLocalizations.of(context).homeRoute(route.from, route.to),
+      excludeSemantics: true,
+      child: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(text: route.from),
+            // Grows with the text, as a WidgetSpan does.
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Icon(Icons.arrow_forward, size: (style.fontSize ?? 16) * 0.9, color: style.color),
+              ),
+            ),
+            TextSpan(text: route.to),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FavouriteRow extends StatelessWidget {
+  const _FavouriteRow(this.route);
+
+  final TripRoute route;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = RoulekmLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final distance = _typed(l10n, Localizations.localeOf(context).languageCode, route.distance);
+    return MergeSemantics(
+      child: ListTile(
+        contentPadding: _rowPadding,
+        leading: Icon(Icons.star, color: scheme.primary, size: _iconSize(context, 22)),
+        title: _Route(route),
+        subtitle: Text(route.roundTrip ? l10n.homeRoundTrip(distance) : distance),
+        trailing: Icon(Icons.add_circle_outline, color: scheme.primary, size: _iconSize(context, 22)),
+      ),
+    );
+  }
+}
+
+class _TripRow extends StatelessWidget {
+  const _TripRow(this.trip, this.vehicles);
+
+  final TripRecord trip;
+  final List<VehicleRecord> vehicles;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = RoulekmLocalizations.of(context);
+    final theme = Theme.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
+    final vehicle = vehicles.where((v) => v.id == trip.route.vehicleId).firstOrNull;
+    return MergeSemantics(
+      child: ListTile(
+        contentPadding: _rowPadding,
+        title: _Route(trip.route),
+        subtitle: Text(
+          [
+            _day(lang, vehicle?.rates, trip.date),
+            ?vehicle?.name,
+            trip.route.purpose,
+          ].where((s) => s.isNotEmpty).join(' · '),
+        ),
+        trailing: Text(
+          _typed(l10n, lang, trip.route.counted),
+          style: theme.textTheme.bodyMedium?.copyWith(fontFeatures: _tabular),
         ),
       ),
     );
