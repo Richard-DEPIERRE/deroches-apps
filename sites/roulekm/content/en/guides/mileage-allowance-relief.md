@@ -310,7 +310,7 @@ citations:
 ---
 
 **Mileage allowance relief** (MAR) is income tax relief for UK employees who use their own car, van, motorcycle or
-bicycle for business travel and whose employer pays them less than HMRC's approved mileage rate, or nothing at all. The
+bicycle for business travel and whose employer pays them less than HMRC's approved mileage rates allow, or nothing at all. The
 relief is on the difference between the **approved amount** (business miles × the approved rate) and what the employer
 paid for those miles. For cars and vans the approved rate is **55p a mile for the first 10,000 business miles from the
 2026 to 2027 tax year** (45p up to 5 April 2026), then 25p a mile. It is claimed from HMRC, online or on form P87, or on
@@ -418,8 +418,8 @@ whether the employer paid anything towards them, with evidence of how much.
 
 On how long to keep them: HMRC's guide 490 (chapter 12) says employees who claim tax relief keep their records for **at
 least 22 months after the end of the tax year** they apply to. gov.uk's page on keeping records says the same for a
-Self Assessment return sent on time, and at least 15 months after sending a return sent late. The same page says there
-are no rules on how records are kept: on paper, digitally or in software. HMRC adds that employees must be able to back
+Self Assessment return sent on time, and at least 15 months after sending a return sent late. The same gov.uk guide says
+there are no rules on how records are kept: on paper, digitally or in software. HMRC adds that employees must be able to back
 up what they claim, and that it recovers relief that was overstated, with interest and, where appropriate, penalties.
 
 If you'd rather keep the log on your phone, Roulekm (coming soon to iPhone and Android) keeps each business trip with its
