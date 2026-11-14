@@ -137,6 +137,13 @@ void main() {
     expect(find.text('Nouveau véhicule'), findsOneWidget);
   });
 
+  testWidgets('the big button opens a new trip, even before any vehicle', (tester) async {
+    await openHome(tester, 'fr', const []);
+    await tester.tap(find.bySemanticsLabel('Ajouter un trajet'));
+    await tester.pumpAndSettle();
+    expect(find.text('Nouveau trajet'), findsOneWidget);
+  });
+
   testWidgets('a vehicle card opens its form', (tester) async {
     await openHome(tester, 'en', [clio]);
     await tester.tap(find.text('Clio'));

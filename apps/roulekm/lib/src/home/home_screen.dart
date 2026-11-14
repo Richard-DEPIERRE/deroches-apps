@@ -10,6 +10,7 @@ import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
 import '../sources/sources_screen.dart';
+import '../trips/trip_screen.dart';
 import '../vehicles/vehicle_screen.dart';
 import '../vehicles/vehicles_screen.dart';
 
@@ -26,7 +27,7 @@ class HomeScreen extends StatelessWidget {
     super.key,
     required this.log,
     required this.settings,
-    this.addTrip,
+    this.tripSaved,
     this.editFavourites,
     this.openYear,
     this.now = DateTime.now,
@@ -35,8 +36,8 @@ class HomeScreen extends StatelessWidget {
   final LogController log;
   final WidgetBuilder settings;
 
-  /// Opens "Add a trip" (DAPP-146); the button is off until then.
-  final VoidCallback? addTrip;
+  /// Runs after each trip saved: the first one is the app's first useful moment (`markFirstValue()`).
+  final Future<void> Function()? tripSaved;
 
   /// "Gérer" beside the favourites, and "Tout voir" beside the recent trips (the Year screen, DAPP-147): hidden until
   /// their screens exist.
@@ -74,7 +75,11 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   if (inUse.isEmpty) _NoVehicle(log: log),
                   for (final (i, system) in systems.indexed) ..._system(context, system, logbook, today, first: i == 0),
-                  _AddTripButton(onPressed: addTrip, label: l10n.homeAddTrip, semantics: l10n.homeAddTripLabel),
+                  _AddTripButton(
+                    onPressed: () => openTripScreen(context, log, tripSaved: tripSaved, now: now),
+                    label: l10n.homeAddTrip,
+                    semantics: l10n.homeAddTripLabel,
+                  ),
                   if (logbook.favourites.isNotEmpty) ...[
                     _Header(
                       l10n.homeFavourites(systems.firstOrNull == RateSystem.uk ? 'yes' : 'no'),
@@ -207,10 +212,10 @@ double _iconSize(BuildContext context, double size) =>
 String _number(String lang, num n) => NumberFormat.decimalPattern(lang).format(n);
 
 String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int d) =>
-    _typed(l10n, lang, Distance(d, system.unit));
+    typedDistance(l10n, lang, Distance(d, system.unit));
 
 /// A distance in the unit it was typed in.
-String _typed(RoulekmLocalizations l10n, String lang, Distance d) =>
+String typedDistance(RoulekmLocalizations l10n, String lang, Distance d) =>
     d.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d.value)) : l10n.distanceMiles(_number(lang, d.value));
 
 /// "Mer. 5 nov.", "Wed, Nov 5", and "Wed 5 Nov" for an HMRC vehicle; never broken across lines.
@@ -541,7 +546,7 @@ class _FavouriteRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = RoulekmLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final distance = _typed(l10n, Localizations.localeOf(context).languageCode, route.distance);
+    final distance = typedDistance(l10n, Localizations.localeOf(context).languageCode, route.distance);
     return MergeSemantics(
       child: ListTile(
         contentPadding: _rowPadding,
@@ -580,7 +585,7 @@ class _TripRow extends StatelessWidget {
           ].where((s) => s.isNotEmpty).join('\u00a0· '),
         ),
         trailing: Text(
-          _typed(l10n, lang, trip.route.counted),
+          typedDistance(l10n, lang, trip.route.counted),
           style: theme.textTheme.bodyMedium?.copyWith(fontFeatures: _tabular),
         ),
       ),

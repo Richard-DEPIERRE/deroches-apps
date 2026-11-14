@@ -58,6 +58,7 @@ Widget buildApp({
       log: log,
       home: HomeScreen(
         log: log,
+        tripSaved: PaywallGate(kitState).markFirstValue,
         settings: (context) => SettingsScreen(
           kitState: kitState,
           analytics: analytics,

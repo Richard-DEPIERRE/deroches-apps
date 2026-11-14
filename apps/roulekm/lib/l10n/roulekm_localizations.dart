@@ -658,6 +658,96 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Roulekm is not affiliated with any tax authority. These amounts help you prepare your return; they are not tax advice.'**
   String get sourcesFooter;
+
+  /// No description provided for @tripNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New trip'**
+  String get tripNewTitle;
+
+  /// No description provided for @tripDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get tripDate;
+
+  /// No description provided for @tripFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get tripFrom;
+
+  /// No description provided for @tripTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get tripTo;
+
+  /// No description provided for @tripPurpose.
+  ///
+  /// In en, this message translates to:
+  /// **'Business purpose'**
+  String get tripPurpose;
+
+  /// The distance field; a round trip counts it twice.
+  ///
+  /// In en, this message translates to:
+  /// **'One-way distance'**
+  String get tripDistance;
+
+  /// No description provided for @tripRoundTrip.
+  ///
+  /// In en, this message translates to:
+  /// **'Round trip'**
+  String get tripRoundTrip;
+
+  /// Under “Round trip”: the distance it counts, both ways.
+  ///
+  /// In en, this message translates to:
+  /// **'Counts {distance}'**
+  String tripCounts(String distance);
+
+  /// No description provided for @tripVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle'**
+  String get tripVehicle;
+
+  /// yes when the trip's vehicle uses HMRC rates (UK spelling).
+  ///
+  /// In en, this message translates to:
+  /// **'{uk, select, yes{Save as a favourite} other{Save as a favorite}}'**
+  String tripFavourite(String uk);
+
+  /// The pinned save button, with the distance the trip counts (both ways for a round trip).
+  ///
+  /// In en, this message translates to:
+  /// **'Save · {distance}'**
+  String tripSave(String distance);
+
+  /// No description provided for @tripSaveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The trip couldn’t be saved. Try again.'**
+  String get tripSaveFailed;
+
+  /// No description provided for @tripFromMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter where the trip started'**
+  String get tripFromMissing;
+
+  /// No description provided for @tripToMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter where it ended'**
+  String get tripToMissing;
+
+  /// No description provided for @tripDistanceMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the distance'**
+  String get tripDistanceMissing;
 }
 
 class _RoulekmLocalizationsDelegate

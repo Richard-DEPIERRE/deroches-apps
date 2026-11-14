@@ -381,4 +381,57 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   @override
   String get sourcesFooter =>
       'Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration ; ils ne sont pas un conseil fiscal.';
+
+  @override
+  String get tripNewTitle => 'Nouveau trajet';
+
+  @override
+  String get tripDate => 'Date';
+
+  @override
+  String get tripFrom => 'Départ';
+
+  @override
+  String get tripTo => 'Arrivée';
+
+  @override
+  String get tripPurpose => 'Motif';
+
+  @override
+  String get tripDistance => 'Distance aller';
+
+  @override
+  String get tripRoundTrip => 'Aller-retour';
+
+  @override
+  String tripCounts(String distance) {
+    return 'Compte $distance';
+  }
+
+  @override
+  String get tripVehicle => 'Véhicule';
+
+  @override
+  String tripFavourite(String uk) {
+    String _temp0 = intl.Intl.selectLogic(uk, {'other': 'Garder comme favori'});
+    return '$_temp0';
+  }
+
+  @override
+  String tripSave(String distance) {
+    return 'Enregistrer · $distance';
+  }
+
+  @override
+  String get tripSaveFailed =>
+      'Le trajet n’a pas pu être enregistré. Réessayez.';
+
+  @override
+  String get tripFromMissing => 'Indiquez le lieu de départ';
+
+  @override
+  String get tripToMissing => 'Indiquez le lieu d’arrivée';
+
+  @override
+  String get tripDistanceMissing => 'Indiquez la distance';
 }
