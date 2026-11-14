@@ -55,7 +55,7 @@ Future<void> save(WidgetTester tester, RoulekmData data, String label) async {
 }
 
 void main() {
-  test('the config is app-setup A1, with no key until the services exist', () {
+  test('the config is app-setup A1, with the iOS RevenueCat key and no other key yet', () {
     expect(roulekmConfig.problems, isEmpty);
     expect(roulekmConfig.slug, 'roulekm');
     expect(roulekmConfig.slug, roulekmAppId, reason: 'the data documents carry the same app id');
@@ -72,10 +72,11 @@ void main() {
       'https://roulekm.fr/en/privacy/',
       'https://roulekm.fr/en/terms/',
     ]);
+    expect(roulekmConfig.entitlementId, 'pro');
+    expect(roulekmConfig.revenueCatAppleKey, 'appl_MKQismejHtyMcwoHnZPrpSOUgDj');
     for (final key in [
       roulekmConfig.sentryDsn,
       roulekmConfig.postHogKey,
-      roulekmConfig.revenueCatAppleKey,
       roulekmConfig.revenueCatGoogleKey,
       roulekmConfig.appStoreId,
     ]) {
