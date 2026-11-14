@@ -419,7 +419,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String tripSave(String distance) {
-    return 'Enregistrer · $distance';
+    return 'Enregistrer · $distance';
   }
 
   @override

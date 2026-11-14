@@ -78,11 +78,18 @@ void main() {
     expect(find.text('Nouveau trajet'), findsOneWidget);
     expect(find.text('Jeudi 5 novembre 2026'), findsOneWidget);
     expect(find.text('Véhicule'), findsNothing, reason: 'one vehicle in use: no vehicle chips');
+    expect(find.byIcon(Icons.calendar_today_outlined), findsOneWidget);
+    expect(tester.getSemantics(find.text('Jeudi 5 novembre 2026')), isSemantics(isButton: true));
+    expect(
+      tester.getCenter(find.byType(Checkbox)).dx,
+      greaterThan(tester.getCenter(find.text('Garder comme favori')).dx),
+      reason: 'the favourite box sits at the end, like the round-trip switch',
+    );
     await type(tester, 'Départ', ' Domicile ');
     await type(tester, 'Arrivée', 'Chantier Bron');
     await type(tester, 'Motif', 'Suivi de chantier');
     await type(tester, 'Distance aller', '34');
-    await tapSave(tester, 'Enregistrer · 34\u00a0km');
+    await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
 
     expect(find.text('Nouveau trajet'), findsNothing, reason: 'the form closes');
     final trip = log.logbook!.trips.single;
@@ -110,7 +117,7 @@ void main() {
     await tester.tap(find.text('Round trip'));
     await tester.pump();
     expect(find.text('Counts 42 mi'), findsOneWidget);
-    await tapSave(tester, 'Save · 42 mi');
+    await tapSave(tester, 'Save\u00a0· 42 mi');
 
     final route = log.logbook!.trips.single.route;
     expect([route.distance.value, route.distance.unit], [21, DistanceUnit.mile]);
@@ -139,7 +146,7 @@ void main() {
     await type(tester, 'To', 'Bank');
     await type(tester, 'One-way distance', '3');
     await tester.tap(find.text('Save as a favorite'));
-    await tapSave(tester, 'Save · 3 mi');
+    await tapSave(tester, 'Save\u00a0· 3 mi');
 
     final trip = log.logbook!.trips.single;
     expect(trip.route.vehicleId, 'v3');
@@ -152,7 +159,7 @@ void main() {
     await type(tester, 'From', 'Office');
     await type(tester, 'To', 'Bank');
     await type(tester, 'One-way distance', '3');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save · 3 mi'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save\u00a0· 3 mi'));
     await tester.pumpAndSettle();
     await type(tester, 'Name', 'Pickup');
     await tapSave(tester, 'Save');

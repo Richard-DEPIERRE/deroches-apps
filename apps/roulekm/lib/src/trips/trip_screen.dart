@@ -145,11 +145,17 @@ class _TripScreenState extends State<TripScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 16,
           children: [
-            InkWell(
-              onTap: _pickDate,
-              child: InputDecorator(
-                decoration: InputDecoration(labelText: l10n.tripDate),
-                child: Text('${date[0].toUpperCase()}${date.substring(1)}'),
+            Semantics(
+              button: true,
+              child: InkWell(
+                onTap: _pickDate,
+                child: InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: l10n.tripDate,
+                    suffixIcon: const Icon(Icons.calendar_today_outlined),
+                  ),
+                  child: Text('${date[0].toUpperCase()}${date.substring(1)}', style: theme.textTheme.bodyLarge),
+                ),
               ),
             ),
             field(_from, l10n.tripFrom, error: missing(_from, l10n.tripFromMissing)),
@@ -173,30 +179,39 @@ class _TripScreenState extends State<TripScreen> {
               value: _roundTrip,
               onChanged: (on) => setState(() => _roundTrip = on),
             ),
-            if (vehicles.length > 1) ...[
-              Semantics(
-                header: true,
-                child: Text(
-                  l10n.tripVehicle,
-                  style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+            if (vehicles.length > 1)
+              // 24 above and 8 below, like the vehicle form's headers: the column already gives 16 above.
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 8,
+                  children: [
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.tripVehicle,
+                        style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+                      ),
+                    ),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        for (final v in vehicles)
+                          ChoiceChip(
+                            label: FittedBox(fit: BoxFit.scaleDown, child: Text(v.name)),
+                            selected: v.id == _vehicleId,
+                            onSelected: (_) => setState(() => _vehicleId = v.id),
+                          ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final v in vehicles)
-                    ChoiceChip(
-                      label: FittedBox(fit: BoxFit.scaleDown, child: Text(v.name)),
-                      selected: v.id == _vehicleId,
-                      onSelected: (_) => setState(() => _vehicleId = v.id),
-                    ),
-                ],
-              ),
-            ],
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
-              controlAffinity: ListTileControlAffinity.leading,
+              controlAffinity: ListTileControlAffinity.trailing,
               title: Text(l10n.tripFavourite(_vehicle?.rates == RateSystem.uk ? 'yes' : 'no')),
               value: _favourite,
               onChanged: (on) => setState(() => _favourite = on ?? false),

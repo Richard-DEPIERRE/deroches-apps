@@ -722,7 +722,7 @@ abstract class RoulekmLocalizations {
   /// The pinned save button, with the distance the trip counts (both ways for a round trip).
   ///
   /// In en, this message translates to:
-  /// **'Save · {distance}'**
+  /// **'Save · {distance}'**
   String tripSave(String distance);
 
   /// No description provided for @tripSaveFailed.

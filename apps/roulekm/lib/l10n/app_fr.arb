@@ -103,7 +103,7 @@
   "tripCounts": "Compte {distance}",
   "tripVehicle": "Véhicule",
   "tripFavourite": "{uk, select, other{Garder comme favori}}",
-  "tripSave": "Enregistrer · {distance}",
+  "tripSave": "Enregistrer\u00a0· {distance}",
   "tripSaveFailed": "Le trajet n’a pas pu être enregistré. Réessayez.",
   "tripFromMissing": "Indiquez le lieu de départ",
   "tripToMissing": "Indiquez le lieu d’arrivée",

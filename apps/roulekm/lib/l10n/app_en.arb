@@ -171,7 +171,7 @@
   "tripVehicle": "Vehicle",
   "tripFavourite": "{uk, select, yes{Save as a favourite} other{Save as a favorite}}",
   "@tripFavourite": {"description": "yes when the trip's vehicle uses HMRC rates (UK spelling).", "placeholders": {"uk": {"type": "String"}}},
-  "tripSave": "Save · {distance}",
+  "tripSave": "Save\u00a0· {distance}",
   "@tripSave": {"description": "The pinned save button, with the distance the trip counts (both ways for a round trip).", "placeholders": {"distance": {"type": "String"}}},
   "tripSaveFailed": "The trip couldn’t be saved. Try again.",
   "tripFromMissing": "Enter where the trip started",
