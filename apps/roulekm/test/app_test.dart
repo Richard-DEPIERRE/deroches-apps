@@ -55,7 +55,7 @@ Future<void> save(WidgetTester tester, RoulekmData data, String label) async {
 }
 
 void main() {
-  test('the config is app-setup A1, with the iOS RevenueCat key and no other key yet', () {
+  test('the config is app-setup A1, with both RevenueCat keys and no other key yet', () {
     expect(roulekmConfig.problems, isEmpty);
     expect(roulekmConfig.slug, 'roulekm');
     expect(roulekmConfig.slug, roulekmAppId, reason: 'the data documents carry the same app id');
@@ -74,10 +74,10 @@ void main() {
     ]);
     expect(roulekmConfig.entitlementId, 'pro');
     expect(roulekmConfig.revenueCatAppleKey, 'appl_MKQismejHtyMcwoHnZPrpSOUgDj');
+    expect(roulekmConfig.revenueCatGoogleKey, 'goog_GMsmpEWzeohPOsCRmxEhgzjuBZt');
     for (final key in [
       roulekmConfig.sentryDsn,
       roulekmConfig.postHogKey,
-      roulekmConfig.revenueCatGoogleKey,
       roulekmConfig.appStoreId,
     ]) {
       expect(key, isNull);
