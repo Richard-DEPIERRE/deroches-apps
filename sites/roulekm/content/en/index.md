@@ -1,7 +1,7 @@
 ---
 title: Roulekm – a mileage log with no account and no GPS
 description: Roulekm, coming soon to iPhone and Android, keeps your business mileage log at each vehicle’s IRS or HMRC rate. No account, no GPS, no trip limit.
-updated: 2026-11-12
+updated: 2026-11-15
 ---
 
 # Roulekm
@@ -15,3 +15,7 @@ phone.
 Keeping your log on paper or in a spreadsheet? Our guide to [the IRS mileage log
 requirements](/en/guides/irs-mileage-log-requirements/) lists what each entry needs to show for a US tax deduction,
 what counts as commuting and how long to keep the log.
+
+Driving your own car for work in the UK, and paid less than HMRC’s approved rate? Our guide to [mileage allowance
+relief, the UK rule for employees](/en/guides/mileage-allowance-relief/) gives the rates by tax year, a worked example
+and how to claim from HMRC.
