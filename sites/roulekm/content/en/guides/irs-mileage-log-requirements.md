@@ -347,6 +347,8 @@ In the example: 1,700 × $0.725 = $1,232.50, plus 1,780 × $0.76 = $1,352.80, wh
 the standard rate. Business-related parking fees and tolls can be deducted in addition to the standard rate; parking
 at your place of work is commuting. For comparison, the 2025 rate was 70 cents a mile. These are the 2026 rates as
 the IRS published them, checked on November 11, 2026; for driving in 2027, check the IRS standard mileage rates page.
+Driving for work in the UK as an employee? HMRC sets its own rates and rules: see our guide to [mileage allowance
+relief, the UK rule for employees](/en/guides/mileage-allowance-relief/).
 
 This example shows the method only. It doesn't say whether the standard rate or actual expenses fits a given car. The
 IRS sets conditions for using the standard rate (Publication 463, chapter 4).
