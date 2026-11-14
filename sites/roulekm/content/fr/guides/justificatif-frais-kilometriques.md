@@ -7,7 +7,7 @@ published: 2026-11-13
 updated: 2026-11-13
 factCheck: DAPP-264
 download: Roulekm date chaque trajet avec son motif et sa distance, et tient le total de l’année par véhicule.
-related: [tableau-frais-kilometriques]
+related: [tableau-frais-kilometriques, frais-reels-voiture-electrique]
 sources:
   - title: Frais de transport
     publisher: Direction générale des Finances publiques (impots.gouv.fr)
@@ -244,6 +244,10 @@ place de stationnement…).
 | **Tickets de péage et de parking** | Les frais que vous ajoutez au barème : ils n’y sont pas compris et se déduisent en plus, sur justificatifs |
 | **Factures du véhicule** (achat, entretien, réparations) **et contrat d’assurance** | Le véhicule utilisé et son usage : le service peut les demander si vous appliquez le barème |
 | **Note explicative**, si votre domicile est à plus de 40 km du travail | Les raisons de cet éloignement : elle, au contraire, se joint à la déclaration |
+
+Vous roulez en voiture 100 % électrique ? Notre guide sur [les frais réels d’une voiture
+électrique](/guides/frais-reels-voiture-electrique/) montre où lire sa puissance sur la carte grise et comment le
+barème s’applique à ce véhicule.
 
 Quelques points écrits sur les pages officielles :
 
