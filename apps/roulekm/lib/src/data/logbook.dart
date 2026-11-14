@@ -88,6 +88,28 @@ class Logbook extends _Value {
     'recurring': [for (final r in recurring) r.toJson()],
   };
 
+  /// The trips, latest day first; on the same day, the one added last first.
+  List<TripRecord> get latestFirst => [
+    for (final (_, t) in [
+      ...trips.indexed,
+    ]..sort((a, b) => b.$2.date == a.$2.date ? b.$1 - a.$1 : b.$2.date.compareTo(a.$2.date)))
+      t,
+  ];
+
+  /// The places the user has typed, latest first, each once: the trip form's suggestions (on the phone only).
+  List<String> get places => _distinct([
+    for (final t in latestFirst) ...[t.route.from, t.route.to],
+    for (final f in favourites) ...[f.route.from, f.route.to],
+  ]);
+
+  /// The purposes the user has typed, latest first, each once.
+  List<String> get purposes => _distinct([for (final t in latestFirst) t.route.purpose]);
+
+  static List<String> _distinct(Iterable<String> texts) => {
+    for (final s in texts.map((s) => s.trim()))
+      if (s.isNotEmpty) s,
+  }.toList();
+
   /// Every record, for the data-upgrade test's count and item checks.
   List<Object> get items => [...vehicles, ...trips, ...favourites, ...recurring];
 
@@ -231,6 +253,9 @@ class TripRecord extends _Value {
   List<Object?> get props => [id, date, route, odometerStart, odometerEnd];
 }
 
+/// The distance between two odometer readings; null until the arrival reading is above the departure one.
+int? odometerDistance(int? start, int? end) => start != null && end != null && end > start ? end - start : null;
+
 class FavouriteTrip extends _Value {
   const FavouriteTrip({required this.id, required this.route});
 
@@ -267,6 +292,28 @@ class RecurringTrip extends _Value {
   /// The last day already confirmed or skipped; null when none was yet.
   final DateTime? checkedThrough;
   final bool paused;
+
+  /// The days waiting for the user's confirmation, oldest first: from [startDate], after [checkedThrough], through
+  /// [now]'s day, on [weekdays] only; none while [paused]. Calendar days, so a clock change never adds or drops one.
+  List<DateTime> waitingDays(DateTime now) {
+    if (paused) return const [];
+    final today = DateTime.utc(now.year, now.month, now.day);
+    final after = checkedThrough;
+    final first = after == null || after.isBefore(startDate) ? startDate : after.add(const Duration(days: 1));
+    return [
+      for (var d = first; !d.isAfter(today); d = d.add(const Duration(days: 1)))
+        if (weekdays.contains(d.weekday)) d,
+    ];
+  }
+
+  RecurringTrip copyWith({DateTime? checkedThrough}) => RecurringTrip(
+    id: id,
+    route: route,
+    weekdays: weekdays,
+    startDate: startDate,
+    checkedThrough: checkedThrough ?? this.checkedThrough,
+    paused: paused,
+  );
 
   factory RecurringTrip.fromJson(Map<String, Object?> json) => RecurringTrip(
     id: json['id']! as String,

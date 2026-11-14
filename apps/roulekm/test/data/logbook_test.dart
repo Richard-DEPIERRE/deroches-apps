@@ -59,4 +59,43 @@ void main() {
     expect(schema1Logbook.trips.first.toJson()['date'], '2026-01-12');
     expect(TripRecord.fromJson(schema1Logbook.trips.first.toJson()).date, DateTime.utc(2026, 1, 12));
   });
+
+  test('the distance from two odometer readings is arrival minus departure, and none until arrival is above it', () {
+    expect(odometerDistance(32580, 32614), 34);
+    expect(odometerDistance(32614, 32580), isNull);
+    expect(odometerDistance(32580, 32580), isNull);
+    expect(odometerDistance(32580, null), isNull);
+    expect(odometerDistance(null, 32614), isNull);
+  });
+
+  test('trips latest day first; on the same day, the one added last first', () {
+    TripRecord trip(String id, int day) =>
+        TripRecord(id: id, date: DateTime.utc(2026, 11, day), route: schema1Logbook.trips.first.route);
+    final log = Logbook(trips: [trip('a', 3), trip('b', 5), trip('c', 3), trip('d', 4)]);
+    expect([for (final t in log.latestFirst) t.id], ['b', 'd', 'c', 'a']);
+  });
+
+  test("the form's suggestions are the user's own places and purposes, latest first, each once", () {
+    expect(schema1Logbook.places, [
+      'Office',
+      'Warehouse',
+      'Bureau',
+      'Client Martin, Lyon',
+      'Domicile',
+      'Chantier Durand',
+    ]);
+    expect(schema1Logbook.purposes, ['Delivery', 'Rendez-vous client', 'Suivi de chantier']);
+    const blank = TripRoute(
+      from: ' ',
+      to: 'Gare',
+      purpose: '',
+      distance: Distance(3, DistanceUnit.km),
+      vehicleId: 'v1',
+    );
+    final log = Logbook(
+      trips: [TripRecord(id: 'x', date: DateTime.utc(2026), route: blank)],
+    );
+    expect(log.places, ['Gare']);
+    expect(log.purposes, isEmpty);
+  });
 }

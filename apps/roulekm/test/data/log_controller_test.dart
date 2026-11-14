@@ -140,6 +140,75 @@ void main() {
     await reopened.open();
     expect(reopened.logbook!.favourites, [const FavouriteTrip(id: 'f2', route: route)]);
   });
+
+  group('a recurring pattern', () {
+    const route = TripRoute(from: 'A', to: 'B', purpose: 'P', distance: Distance(34, DistanceUnit.km), vehicleId: 'v1');
+    final weekdays = RecurringTrip(
+      id: 'r1',
+      route: route,
+      weekdays: const [1, 2, 3, 4, 5],
+      startDate: DateTime.utc(2026, 11, 2),
+    );
+
+    test('is saved, replaced in place and deleted, and fills nothing by itself', () async {
+      await log.saveRecurring(weekdays);
+      final paused = RecurringTrip(
+        id: 'r1',
+        route: route,
+        weekdays: const [1],
+        startDate: weekdays.startDate,
+        paused: true,
+      );
+      await log.saveRecurring(paused);
+      final reopened = LogController(RoulekmData(dir).log);
+      await reopened.open();
+      expect(reopened.logbook!.recurring, [paused]);
+      expect(reopened.logbook!.trips, isEmpty);
+
+      await log.deleteRecurring('r1');
+      expect(log.logbook!.recurring, isEmpty);
+    });
+
+    test('confirming adds one trip per day picked, skips the others, and offers no day twice', () async {
+      await log.saveRecurring(weekdays);
+      final friday = DateTime(2026, 11, 6, 18);
+      final waiting = log.logbook!.recurring.single.waitingDays(friday);
+      expect(waiting, hasLength(5));
+
+      // Wednesday was a day off.
+      await log.confirmRecurring('r1', [waiting[0], waiting[1], waiting[3], waiting[4]], through: waiting.last);
+      final trips = log.logbook!.trips;
+      expect([for (final t in trips) t.date.day], [2, 3, 5, 6]);
+      expect(trips.every((t) => t.route == route && t.odometerStart == null), isTrue);
+      expect({for (final t in trips) t.id}, hasLength(4));
+      expect(log.logbook!.recurring.single.checkedThrough, DateTime.utc(2026, 11, 6));
+      expect(log.logbook!.recurring.single.waitingDays(friday), isEmpty);
+
+      final reopened = LogController(RoulekmData(dir).log);
+      await reopened.open();
+      expect(reopened.logbook, log.logbook, reason: 'trips and the checked-through day are saved together');
+    });
+
+    test('skipping every day adds no trip and the days never come back', () async {
+      await log.saveRecurring(weekdays);
+      await log.confirmRecurring('r1', const [], through: DateTime.utc(2026, 11, 6));
+      expect(log.logbook!.trips, isEmpty);
+      expect(log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 9)), [DateTime.utc(2026, 11, 9)]);
+    });
+  });
+
+  test('there is no trip limit: a year of daily trips at once, then one more', () async {
+    final daily = RecurringTrip(
+      id: 'r1',
+      route: const TripRoute(from: 'A', to: 'B', purpose: 'P', distance: Distance(5, DistanceUnit.km), vehicleId: 'v1'),
+      weekdays: const [1, 2, 3, 4, 5, 6, 7],
+      startDate: DateTime.utc(2026),
+    );
+    await log.saveRecurring(daily);
+    await log.confirmRecurring('r1', daily.waitingDays(DateTime(2026, 12, 31)), through: DateTime.utc(2026, 12, 31));
+    await log.saveTrip(TripRecord(id: 'last', date: DateTime.utc(2027), route: daily.route));
+    expect(log.logbook!.trips, hasLength(366));
+  });
 }
 
 /// Holds each save until the test completes it.

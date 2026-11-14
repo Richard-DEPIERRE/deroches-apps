@@ -44,6 +44,22 @@ class LogController extends ChangeNotifier {
   Future<void> deleteFavourite(String id) =>
       _save(favourites: (favourites) => [...favourites.where((f) => f.id != id)]);
 
+  /// Adds [pattern], or replaces the one with its id in place. It fills nothing by itself: see [confirmRecurring].
+  Future<void> saveRecurring(RecurringTrip pattern) =>
+      _save(recurring: (recurring) => _put(recurring, pattern, (r) => r.id));
+
+  Future<void> deleteRecurring(String id) => _save(recurring: (recurring) => [...recurring.where((r) => r.id != id)]);
+
+  /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
+  /// one save: a confirmed or skipped day is never offered again.
+  Future<void> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) {
+    final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
+    return _save(
+      trips: (trips) => [...trips, for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)],
+      recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(checkedThrough: through) : r],
+    );
+  }
+
   static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
     final i = items.indexWhere((e) => id(e) == id(item));
     return i < 0 ? [...items, item] : (List.of(items)..[i] = item);
@@ -56,6 +72,7 @@ class LogController extends ChangeNotifier {
     List<VehicleRecord> Function(List<VehicleRecord>)? vehicles,
     List<TripRecord> Function(List<TripRecord>)? trips,
     List<FavouriteTrip> Function(List<FavouriteTrip>)? favourites,
+    List<RecurringTrip> Function(List<RecurringTrip>)? recurring,
   }) {
     final done = _saving.then((_) async {
       final previous = logbook!;
@@ -63,7 +80,7 @@ class LogController extends ChangeNotifier {
         vehicles: vehicles?.call(previous.vehicles) ?? previous.vehicles,
         trips: trips?.call(previous.trips) ?? previous.trips,
         favourites: favourites?.call(previous.favourites) ?? previous.favourites,
-        recurring: previous.recurring,
+        recurring: recurring?.call(previous.recurring) ?? previous.recurring,
       );
       logbook = next;
       notifyListeners();
