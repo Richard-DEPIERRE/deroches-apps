@@ -430,6 +430,11 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   }
 
   @override
+  String tripVehicleArchived(String name) {
+    return '$name (archived)';
+  }
+
+  @override
   String get tripDelete => 'Delete trip';
 
   @override

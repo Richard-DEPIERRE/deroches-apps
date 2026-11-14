@@ -241,7 +241,7 @@ void main() {
       trips: [bron],
       trip: bron,
     );
-    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Clio')).selected, isTrue);
+    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Clio (archivé)')).selected, isTrue);
     expect(find.widgetWithText(ChoiceChip, 'Pickup'), findsOneWidget);
     await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
 

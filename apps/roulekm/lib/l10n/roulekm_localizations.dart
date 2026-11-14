@@ -731,6 +731,12 @@ abstract class RoulekmLocalizations {
   /// **'Save · {distance}'**
   String tripSave(String distance);
 
+  /// The chip of a trip's vehicle that was archived since.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (archived)'**
+  String tripVehicleArchived(String name);
+
   /// No description provided for @tripDelete.
   ///
   /// In en, this message translates to:

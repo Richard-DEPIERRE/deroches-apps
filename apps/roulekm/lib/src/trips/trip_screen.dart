@@ -239,7 +239,10 @@ class _TripScreenState extends State<TripScreen> {
                       children: [
                         for (final v in vehicles)
                           ChoiceChip(
-                            label: FittedBox(fit: BoxFit.scaleDown, child: Text(v.name)),
+                            label: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(v.archived ? l10n.tripVehicleArchived(v.name) : v.name),
+                            ),
                             selected: v.id == _vehicleId,
                             onSelected: (_) => setState(() => _vehicleId = v.id),
                           ),

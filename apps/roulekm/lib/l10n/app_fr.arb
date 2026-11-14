@@ -105,6 +105,7 @@
   "tripVehicle": "Véhicule",
   "tripFavourite": "{uk, select, other{Garder comme favori}}",
   "tripSave": "Enregistrer\u00a0· {distance}",
+  "tripVehicleArchived": "{name} (archivé)",
   "tripDelete": "Supprimer le trajet",
   "tripDeleted": "Trajet supprimé.",
   "tripSaveFailed": "Le trajet n’a pas pu être enregistré. Réessayez.",
