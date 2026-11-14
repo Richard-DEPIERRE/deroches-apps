@@ -91,7 +91,8 @@ class HomeScreen extends StatelessWidget {
                   ],
                   if (logbook.trips.isNotEmpty) ...[
                     _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),
-                    for (final t in logbook.latestFirst.take(3)) _TripRow(t, logbook.vehicles),
+                    for (final t in logbook.latestFirst.take(3))
+                      _TripRow(t, logbook.vehicles, () => openTripScreen(context, log, trip: t, tripSaved: tripSaved)),
                   ],
                 ],
               ),
@@ -561,10 +562,11 @@ class _FavouriteRow extends StatelessWidget {
 }
 
 class _TripRow extends StatelessWidget {
-  const _TripRow(this.trip, this.vehicles);
+  const _TripRow(this.trip, this.vehicles, this.onTap);
 
   final TripRecord trip;
   final List<VehicleRecord> vehicles;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -576,6 +578,7 @@ class _TripRow extends StatelessWidget {
       child: ListTile(
         contentPadding: _rowPadding,
         titleAlignment: ListTileTitleAlignment.titleHeight,
+        onTap: onTap,
         title: _Route(trip.route),
         subtitle: Text(
           [

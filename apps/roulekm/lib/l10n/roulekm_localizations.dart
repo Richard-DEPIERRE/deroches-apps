@@ -665,6 +665,12 @@ abstract class RoulekmLocalizations {
   /// **'New trip'**
   String get tripNewTitle;
 
+  /// No description provided for @tripEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit trip'**
+  String get tripEditTitle;
+
   /// No description provided for @tripDate.
   ///
   /// In en, this message translates to:
@@ -724,6 +730,24 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Save · {distance}'**
   String tripSave(String distance);
+
+  /// The chip of a trip's vehicle that was archived since.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} (archived)'**
+  String tripVehicleArchived(String name);
+
+  /// No description provided for @tripDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete trip'**
+  String get tripDelete;
+
+  /// Snackbar after deleting a trip, with Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip deleted.'**
+  String get tripDeleted;
 
   /// No description provided for @tripSaveFailed.
   ///

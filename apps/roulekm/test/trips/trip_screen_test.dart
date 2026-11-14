@@ -19,13 +19,15 @@ Future<LogController> openTrip(
   WidgetTester tester,
   Locale device, {
   List<VehicleRecord> vehicles = const [clio],
+  List<TripRecord> trips = const [],
+  TripRecord? trip,
   List<int>? saved,
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_trip_');
   addTearDown(() => dir.deleteSync(recursive: true));
   final data = RoulekmData(dir);
   final log = LogController(data.log);
-  await tester.runAsync(() => data.log.replace(Logbook(vehicles: vehicles).toJson()));
+  await tester.runAsync(() => data.log.replace(Logbook(vehicles: vehicles, trips: trips).toJson()));
   await tester.runAsync(log.open);
   tester.platformDispatcher.localesTestValue = [device];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -40,7 +42,8 @@ Future<LogController> openTrip(
       home: Builder(
         builder: (context) => Scaffold(
           body: TextButton(
-            onPressed: () => openTripScreen(context, log, tripSaved: () async => saved?.add(1), now: () => today),
+            onPressed: () =>
+                openTripScreen(context, log, trip: trip, tripSaved: () async => saved?.add(1), now: () => today),
             child: const Text('host'),
           ),
         ),
@@ -70,6 +73,22 @@ Future<void> settle(WidgetTester tester) async {
   }
   await tester.pumpAndSettle();
 }
+
+/// A 34 km trip in the Clio on 3 November, measured on the odometer.
+final bron = TripRecord(
+  id: 't1',
+  date: DateTime.utc(2026, 11, 3),
+  route: const TripRoute(
+    from: 'Domicile',
+    to: 'Chantier Bron',
+    purpose: 'Suivi',
+    distance: Distance(34, DistanceUnit.km),
+    vehicleId: 'v1',
+  ),
+  odometerStart: 12000,
+  odometerEnd: 12034,
+);
+final later = TripRecord(id: 't2', date: DateTime.utc(2026, 11, 4), route: bron.route);
 
 void main() {
   testWidgets('a typed trip in French is saved with its day, places, purpose and distance', (tester) async {
@@ -167,5 +186,65 @@ void main() {
     final vehicle = log.inUse.single;
     expect(log.logbook!.trips.single.route.vehicleId, vehicle.id);
     expect(find.text('New trip'), findsNothing);
+  });
+
+  testWidgets('editing in French: prefilled, replaced in place, readings kept while the distance stays', (
+    tester,
+  ) async {
+    final log = await openTrip(tester, const Locale('fr', 'FR'), trips: [bron, later], trip: bron);
+    expect(find.text('Modifier le trajet'), findsOneWidget);
+    expect(find.text('Mardi 3 novembre 2026'), findsOneWidget);
+    for (final text in ['Domicile', 'Chantier Bron', 'Suivi', '34']) {
+      expect(find.widgetWithText(TextField, text), findsOneWidget, reason: text);
+    }
+    expect(find.text('Supprimer le trajet'), findsOneWidget);
+    await type(tester, 'Motif', 'Réunion');
+    await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
+
+    expect(find.text('Modifier le trajet'), findsNothing, reason: 'the form closes');
+    final trips = log.logbook!.trips;
+    expect(trips.map((t) => t.id), ['t1', 't2'], reason: 'same id, same place');
+    expect([trips.first.date, trips.first.route.purpose], [bron.date, 'Réunion']);
+    expect([trips.first.odometerStart, trips.first.odometerEnd], [12000, 12034]);
+  });
+
+  testWidgets('editing in English: a new distance drops the odometer readings', (tester) async {
+    final log = await openTrip(tester, const Locale('en', 'GB'), trips: [bron], trip: bron);
+    expect(find.text('Edit trip'), findsOneWidget);
+    await type(tester, 'One-way distance', '36');
+    await tapSave(tester, 'Save\u00a0· 36\u00a0km');
+
+    final trip = log.logbook!.trips.single;
+    expect([trip.id, trip.route.distance.value, trip.odometerStart, trip.odometerEnd], ['t1', 36, null, null]);
+  });
+
+  testWidgets('Delete trip closes the form; Undo puts the trip back', (tester) async {
+    final saved = <int>[];
+    final log = await openTrip(tester, const Locale('en', 'US'), trips: [bron], trip: bron, saved: saved);
+    await tester.tap(find.text('Delete trip'));
+    await settle(tester);
+
+    expect(find.text('Edit trip'), findsNothing, reason: 'the form closes');
+    expect(log.logbook!.trips, isEmpty);
+    expect(find.text('Trip deleted.'), findsOneWidget);
+    await tester.tap(find.text('Undo'));
+    await settle(tester);
+    expect(log.logbook!.trips.single, bron);
+    expect(saved, isEmpty, reason: 'deleting is not a useful moment');
+  });
+
+  testWidgets('a trip whose vehicle was archived since still shows and keeps it', (tester) async {
+    final log = await openTrip(
+      tester,
+      const Locale('fr', 'FR'),
+      vehicles: [clio.copyWith(archived: true), pickup],
+      trips: [bron],
+      trip: bron,
+    );
+    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Clio (archivé)')).selected, isTrue);
+    expect(find.widgetWithText(ChoiceChip, 'Pickup'), findsOneWidget);
+    await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
+
+    expect(log.logbook!.trips.single.route.vehicleId, 'v1');
   });
 }

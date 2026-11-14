@@ -387,6 +387,9 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String get tripNewTitle => 'New trip';
 
   @override
+  String get tripEditTitle => 'Edit trip';
+
+  @override
   String get tripDate => 'Date';
 
   @override
@@ -425,6 +428,17 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String tripSave(String distance) {
     return 'Save · $distance';
   }
+
+  @override
+  String tripVehicleArchived(String name) {
+    return '$name (archived)';
+  }
+
+  @override
+  String get tripDelete => 'Delete trip';
+
+  @override
+  String get tripDeleted => 'Trip deleted.';
 
   @override
   String get tripSaveFailed => 'The trip couldn’t be saved. Try again.';
