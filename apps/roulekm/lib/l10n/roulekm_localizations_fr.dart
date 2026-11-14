@@ -386,6 +386,9 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get tripNewTitle => 'Nouveau trajet';
 
   @override
+  String get tripEditTitle => 'Modifier le trajet';
+
+  @override
   String get tripDate => 'Date';
 
   @override
@@ -421,6 +424,12 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String tripSave(String distance) {
     return 'Enregistrer · $distance';
   }
+
+  @override
+  String get tripDelete => 'Supprimer le trajet';
+
+  @override
+  String get tripDeleted => 'Trajet supprimé.';
 
   @override
   String get tripSaveFailed =>

@@ -10,24 +10,26 @@ import '../rates/distance.dart';
 import '../rates/rates.dart';
 import '../vehicles/vehicle_screen.dart';
 
-/// Opens *Add a trip* (DAPP-141 §3). [tripSaved] runs after each save: the first trip
+/// Opens *Add a trip*, or *Edit trip* with [trip] (DAPP-141 §3). [tripSaved] runs after each save: the first trip
 /// saved is the app's first useful moment (`markFirstValue()`, DAPP-140).
 Future<void> openTripScreen(
   BuildContext context,
   LogController log, {
+  TripRecord? trip,
   Future<void> Function()? tripSaved,
   DateTime Function() now = DateTime.now,
 }) => Navigator.of(context).push(
   MaterialPageRoute<void>(
     fullscreenDialog: true,
-    builder: (_) => TripScreen(log: log, tripSaved: tripSaved, now: now),
+    builder: (_) => TripScreen(log: log, trip: trip, tripSaved: tripSaved, now: now),
   ),
 );
 
 class TripScreen extends StatefulWidget {
-  const TripScreen({super.key, required this.log, this.tripSaved, this.now = DateTime.now});
+  const TripScreen({super.key, required this.log, this.trip, this.tripSaved, this.now = DateTime.now});
 
   final LogController log;
+  final TripRecord? trip;
   final Future<void> Function()? tripSaved;
   final DateTime Function() now;
 
@@ -36,20 +38,27 @@ class TripScreen extends StatefulWidget {
 }
 
 class _TripScreenState extends State<TripScreen> {
-  late DateTime _date = _day(widget.now());
-  final _from = TextEditingController();
-  final _to = TextEditingController();
-  final _purpose = TextEditingController();
-  final _distance = TextEditingController();
-  bool _roundTrip = false;
-  late String? _vehicleId = widget.log.inUse.firstOrNull?.id;
+  late final _route = widget.trip?.route;
+  late DateTime _date = widget.trip?.date ?? _day(widget.now());
+  late final _from = TextEditingController(text: _route?.from);
+  late final _to = TextEditingController(text: _route?.to);
+  late final _purpose = TextEditingController(text: _route?.purpose);
+  late final _distance = TextEditingController(text: _route?.distance.value.toString());
+  late bool _roundTrip = _route?.roundTrip ?? false;
+  late String? _vehicleId = _route?.vehicleId ?? widget.log.inUse.firstOrNull?.id;
   bool _favourite = false;
   bool _checked = false;
   bool _saving = false;
 
   static DateTime _day(DateTime d) => DateTime.utc(d.year, d.month, d.day);
 
-  VehicleRecord? get _vehicle => widget.log.inUse.where((v) => v.id == _vehicleId).firstOrNull;
+  /// The vehicles in use, and the trip's own if it was archived since.
+  List<VehicleRecord> get _vehicles => [
+    ...widget.log.inUse,
+    ...?widget.log.logbook?.vehicles.where((v) => v.archived && v.id == _route?.vehicleId),
+  ];
+
+  VehicleRecord? get _vehicle => _vehicles.where((v) => v.id == _vehicleId).firstOrNull;
 
   DistanceUnit get _unit => (_vehicle?.rates ?? regionRates()).unit;
 
@@ -66,11 +75,13 @@ class _TripScreenState extends State<TripScreen> {
     super.dispose();
   }
 
-  Future<void> _run(Future<void> Function() change) async {
+  Future<void> _run(Future<void> Function() change, [VoidCallback? done]) async {
     setState(() => _saving = true);
     try {
       await change();
-      if (mounted) Navigator.of(context).pop();
+      if (!mounted) return;
+      done?.call();
+      Navigator.of(context).pop();
     } catch (_) {
       if (!mounted) return;
       setState(() => _saving = false);
@@ -99,12 +110,40 @@ class _TripScreenState extends State<TripScreen> {
       vehicleId: vehicle.id,
       roundTrip: _roundTrip,
     );
-    final trip = TripRecord(id: newId(), date: _date, route: route);
+    // Odometer readings stay with the trip while its distance does.
+    final readings = widget.trip?.route.distance.value == distance;
+    final trip = TripRecord(
+      id: widget.trip?.id ?? newId(),
+      date: _date,
+      route: route,
+      odometerStart: readings ? widget.trip?.odometerStart : null,
+      odometerEnd: readings ? widget.trip?.odometerEnd : null,
+    );
     await _run(() async {
       await widget.log.saveTrip(trip);
       if (_favourite) await widget.log.saveFavourite(FavouriteTrip(id: newId(), route: route));
       await widget.tripSaved?.call();
     });
+  }
+
+  void _delete(TripRecord trip) {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = RoulekmLocalizations.of(context);
+    final log = widget.log;
+    _run(
+      () => log.deleteTrip(trip.id),
+      () => messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.tripDeleted),
+          action: SnackBarAction(
+            label: l10n.vehicleArchiveUndo,
+            onPressed: () => log.saveTrip(trip).onError((_, _) {
+              messenger.showSnackBar(SnackBar(content: Text(l10n.tripSaveFailed)));
+            }),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _pickDate() async {
@@ -127,7 +166,7 @@ class _TripScreenState extends State<TripScreen> {
     final date = (large ? DateFormat.yMMMEd(lang) : DateFormat.yMMMMEEEEd(lang)).format(_date);
     final typed = _typed;
     final counted = typed == null ? null : typedDistance(l10n, lang, Distance(_roundTrip ? typed * 2 : typed, _unit));
-    final vehicles = widget.log.inUse;
+    final vehicles = _vehicles;
     String? missing(TextEditingController c, String error) => _checked && c.text.trim().isEmpty ? error : null;
 
     TextField field(TextEditingController c, String label, {String? error}) => TextField(
@@ -138,7 +177,7 @@ class _TripScreenState extends State<TripScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tripNewTitle)),
+      appBar: AppBar(title: Text(widget.trip == null ? l10n.tripNewTitle : l10n.tripEditTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
         child: Column(
@@ -216,6 +255,19 @@ class _TripScreenState extends State<TripScreen> {
               value: _favourite,
               onChanged: (on) => setState(() => _favourite = on ?? false),
             ),
+            if (widget.trip case final trip?)
+              // The text-button alignment rule: its label lines up with the fields' edge.
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Transform.translate(
+                  offset: const Offset(-12, 0),
+                  child: TextButton(
+                    style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
+                    onPressed: _saving ? null : () => _delete(trip),
+                    child: Text(l10n.tripDelete),
+                  ),
+                ),
+              ),
           ],
         ),
       ),

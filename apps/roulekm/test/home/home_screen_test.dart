@@ -144,6 +144,13 @@ void main() {
     expect(find.text('Nouveau trajet'), findsOneWidget);
   });
 
+  testWidgets('a recent trip opens its edit form', (tester) async {
+    await openHome(tester, 'fr', [clio], {'c': 34});
+    await tester.tap(find.bySemanticsLabel(RegExp('^A vers B')));
+    await tester.pumpAndSettle();
+    expect(find.text('Modifier le trajet'), findsOneWidget);
+  });
+
   testWidgets('a vehicle card opens its form', (tester) async {
     await openHome(tester, 'en', [clio]);
     await tester.tap(find.text('Clio'));
