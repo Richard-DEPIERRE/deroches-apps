@@ -382,4 +382,59 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   @override
   String get sourcesFooter =>
       'Roulekm is not affiliated with any tax authority. These amounts help you prepare your return; they are not tax advice.';
+
+  @override
+  String get tripNewTitle => 'New trip';
+
+  @override
+  String get tripDate => 'Date';
+
+  @override
+  String get tripFrom => 'From';
+
+  @override
+  String get tripTo => 'To';
+
+  @override
+  String get tripPurpose => 'Business purpose';
+
+  @override
+  String get tripDistance => 'One-way distance';
+
+  @override
+  String get tripRoundTrip => 'Round trip';
+
+  @override
+  String tripCounts(String distance) {
+    return 'Counts $distance';
+  }
+
+  @override
+  String get tripVehicle => 'Vehicle';
+
+  @override
+  String tripFavourite(String uk) {
+    String _temp0 = intl.Intl.selectLogic(uk, {
+      'yes': 'Save as a favourite',
+      'other': 'Save as a favorite',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String tripSave(String distance) {
+    return 'Save · $distance';
+  }
+
+  @override
+  String get tripSaveFailed => 'The trip couldn’t be saved. Try again.';
+
+  @override
+  String get tripFromMissing => 'Enter where the trip started';
+
+  @override
+  String get tripToMissing => 'Enter where it ended';
+
+  @override
+  String get tripDistanceMissing => 'Enter the distance';
 }

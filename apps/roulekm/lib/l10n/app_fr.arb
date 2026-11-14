@@ -92,5 +92,20 @@
   "sourcesUsCovers": "Usage professionnel d’une voiture, d’un van, d’un pick-up ou d’une camionnette, électrique ou non\u00a0: un taux par mile, qui peut changer en cours d’année.",
   "sourcesLink": "{title}\u00a0· {site}, lu le {date}",
   "sourcesNextYear": "Le barème des trajets de {period} paraît début {next}. D’ici là, Roulekm applique le dernier publié, puis recalcule vos totaux quand le nouveau sort.",
-  "sourcesFooter": "Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration\u00a0; ils ne sont pas un conseil fiscal."
+  "sourcesFooter": "Roulekm n’est pas un service de l’administration. Ces montants aident à préparer votre déclaration\u00a0; ils ne sont pas un conseil fiscal.",
+  "tripNewTitle": "Nouveau trajet",
+  "tripDate": "Date",
+  "tripFrom": "Départ",
+  "tripTo": "Arrivée",
+  "tripPurpose": "Motif",
+  "tripDistance": "Distance aller",
+  "tripRoundTrip": "Aller-retour",
+  "tripCounts": "Compte {distance}",
+  "tripVehicle": "Véhicule",
+  "tripFavourite": "{uk, select, other{Garder comme favori}}",
+  "tripSave": "Enregistrer\u00a0· {distance}",
+  "tripSaveFailed": "Le trajet n’a pas pu être enregistré. Réessayez.",
+  "tripFromMissing": "Indiquez le lieu de départ",
+  "tripToMissing": "Indiquez le lieu d’arrivée",
+  "tripDistanceMissing": "Indiquez la distance"
 }
