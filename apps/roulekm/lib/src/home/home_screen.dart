@@ -86,7 +86,7 @@ class HomeScreen extends StatelessWidget {
                   ],
                   if (logbook.trips.isNotEmpty) ...[
                     _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),
-                    for (final t in _recent(logbook)) _TripRow(t, logbook.vehicles),
+                    for (final t in logbook.latestFirst.take(3)) _TripRow(t, logbook.vehicles),
                   ],
                 ],
               ),
@@ -185,13 +185,6 @@ class HomeScreen extends StatelessWidget {
       RateSystem.us => l10n.homeSourceUs(year, latest, site),
     };
   }
-}
-
-/// The last three trips, latest day first; on the same day, the one added last first.
-List<TripRecord> _recent(Logbook logbook) {
-  final trips = [...logbook.trips.indexed]
-    ..sort((a, b) => a.$2.date == b.$2.date ? b.$1 - a.$1 : b.$2.date.compareTo(a.$2.date));
-  return [for (final (_, t) in trips.take(3)) t];
 }
 
 String _periodLabel(RateSystem system, DateTime now) => system.label(system.periodOf(now));
