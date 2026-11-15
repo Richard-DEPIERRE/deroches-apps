@@ -451,4 +451,30 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get tripDistanceMissing => 'Enter the distance';
+
+  @override
+  String get tripModeDistance => 'Distance';
+
+  @override
+  String get tripModeOdometer => 'Odometer';
+
+  @override
+  String get tripOdometerStart => 'Start reading';
+
+  @override
+  String get tripOdometerEnd => 'End reading';
+
+  @override
+  String tripOdometerDistance(String distance) {
+    return '= $distance';
+  }
+
+  @override
+  String get tripOdometerMissing => 'Enter the reading';
+
+  @override
+  String get tripOdometerBelow => 'Must be above the start reading';
+
+  @override
+  String get tripSwap => 'Swap';
 }

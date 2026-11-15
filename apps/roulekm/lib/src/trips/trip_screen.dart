@@ -44,6 +44,12 @@ class _TripScreenState extends State<TripScreen> {
   late final _to = TextEditingController(text: _route?.to);
   late final _purpose = TextEditingController(text: _route?.purpose);
   late final _distance = TextEditingController(text: _route?.distance.value.toString());
+  late final _start = TextEditingController(text: widget.trip?.odometerStart?.toString());
+  late final _end = TextEditingController(text: widget.trip?.odometerEnd?.toString());
+  final _fromFocus = FocusNode();
+  final _toFocus = FocusNode();
+  late bool _odometer = widget.trip?.odometerStart != null && widget.trip?.odometerEnd != null;
+  bool _grouped = false;
   late bool _roundTrip = _route?.roundTrip ?? false;
   late String? _vehicleId = _route?.vehicleId ?? widget.log.inUse.firstOrNull?.id;
   bool _favourite = false;
@@ -67,13 +73,44 @@ class _TripScreenState extends State<TripScreen> {
     _ => null,
   };
 
+  static int? _reading(TextEditingController c) => int.tryParse(c.text.replaceAll(RegExp(r'\D'), ''));
+
+  /// The one-way distance: typed, or between the two odometer readings.
+  int? get _measured => _odometer ? odometerDistance(_reading(_start), _reading(_end)) : _typed;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // A saved trip's readings, grouped as the phone writes numbers, like the ones typed.
+    if (_grouped) return;
+    _grouped = true;
+    final lang = Localizations.localeOf(context).languageCode;
+    for (final c in [_start, _end]) {
+      c.text = _group(lang, _reading(c));
+    }
+  }
+
   @override
   void dispose() {
-    for (final c in [_from, _to, _purpose, _distance]) {
+    for (final c in [_from, _to, _purpose, _distance, _start, _end]) {
       c.dispose();
     }
+    _fromFocus.dispose();
+    _toFocus.dispose();
     super.dispose();
   }
+
+  void _swap() => setState(() {
+    final from = _from.text;
+    _from.text = _to.text;
+    _to.text = from;
+  });
+
+  /// Back to a typed distance, the readings' distance carries over.
+  void _setOdometer(bool on) => setState(() {
+    if (_measured case final d? when !on) _distance.text = '$d';
+    _odometer = on;
+  });
 
   Future<void> _run(Future<void> Function() change, [VoidCallback? done]) async {
     setState(() => _saving = true);
@@ -93,7 +130,7 @@ class _TripScreenState extends State<TripScreen> {
 
   Future<void> _save() async {
     setState(() => _checked = true);
-    final distance = _typed;
+    final distance = _measured;
     if (_from.text.trim().isEmpty || _to.text.trim().isEmpty || distance == null) return;
     // After "Later" in onboarding: the vehicle first (DAPP-141 §6).
     if (_vehicle == null) {
@@ -110,14 +147,12 @@ class _TripScreenState extends State<TripScreen> {
       vehicleId: vehicle.id,
       roundTrip: _roundTrip,
     );
-    // Odometer readings stay with the trip while its distance does.
-    final readings = widget.trip?.route.distance.value == distance;
     final trip = TripRecord(
       id: widget.trip?.id ?? newId(),
       date: _date,
       route: route,
-      odometerStart: readings ? widget.trip?.odometerStart : null,
-      odometerEnd: readings ? widget.trip?.odometerEnd : null,
+      odometerStart: _odometer ? _reading(_start) : null,
+      odometerEnd: _odometer ? _reading(_end) : null,
     );
     await _run(() async {
       await widget.log.saveTrip(trip);
@@ -164,16 +199,66 @@ class _TripScreenState extends State<TripScreen> {
     final lang = Localizations.localeOf(context).languageCode;
     final large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
     final date = (large ? DateFormat.yMMMEd(lang) : DateFormat.yMMMMEEEEd(lang)).format(_date);
-    final typed = _typed;
-    final counted = typed == null ? null : typedDistance(l10n, lang, Distance(_roundTrip ? typed * 2 : typed, _unit));
+    final measured = _measured;
+    String distance(int d) => typedDistance(l10n, lang, Distance(d, _unit));
+    final counted = measured == null ? null : distance(_roundTrip ? measured * 2 : measured);
     final vehicles = _vehicles;
+    final places = widget.log.logbook?.places ?? const <String>[];
+    final purposes = widget.log.logbook?.purposes.take(3) ?? const <String>[];
+    final start = _reading(_start);
+    final end = _reading(_end);
     String? missing(TextEditingController c, String error) => _checked && c.text.trim().isEmpty ? error : null;
+    String? unread(int? reading) => _checked && reading == null ? l10n.tripOdometerMissing : null;
 
-    TextField field(TextEditingController c, String label, {String? error}) => TextField(
+    TextField field(TextEditingController c, String label, {String? error, FocusNode? focusNode}) => TextField(
       controller: c,
+      focusNode: focusNode,
       textCapitalization: TextCapitalization.sentences,
       decoration: InputDecoration(labelText: label, errorText: error),
       onChanged: (_) => _checked ? setState(() {}) : null,
+    );
+
+    // The user's own places, on the phone only.
+    Widget place(TextEditingController c, FocusNode focusNode, String label, String? error) => Autocomplete<String>(
+      textEditingController: c,
+      focusNode: focusNode,
+      optionsBuilder: (value) {
+        final typed = value.text.trim().toLowerCase();
+        return typed.isEmpty
+            ? const []
+            : places.where((p) => p.toLowerCase().contains(typed) && p.toLowerCase() != typed);
+      },
+      onSelected: (_) => setState(() {}),
+      fieldViewBuilder: (_, c, focusNode, _) => field(c, label, error: error, focusNode: focusNode),
+    );
+
+    TextField reading(TextEditingController c, String label, String? error) => TextField(
+      controller: c,
+      keyboardType: TextInputType.number,
+      inputFormatters: [_ReadingFormatter(lang)],
+      decoration: InputDecoration(labelText: label, errorText: error, errorMaxLines: 2),
+      onChanged: (_) => setState(() {}),
+    );
+    final readings = [
+      reading(_start, l10n.tripOdometerStart, unread(start)),
+      reading(
+        _end,
+        l10n.tripOdometerEnd,
+        start != null && end != null && end <= start ? l10n.tripOdometerBelow : unread(end),
+      ),
+    ];
+
+    // The text-button alignment rule: its label lines up with the fields' edge.
+    Widget textButton(String label, VoidCallback? onPressed) => Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Transform.translate(
+        offset: const Offset(-12, 0),
+        child: TextButton(
+          style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
+          onPressed: onPressed,
+          child: Text(label),
+        ),
+      ),
     );
 
     return Scaffold(
@@ -197,20 +282,90 @@ class _TripScreenState extends State<TripScreen> {
                 ),
               ),
             ),
-            field(_from, l10n.tripFrom, error: missing(_from, l10n.tripFromMissing)),
-            field(_to, l10n.tripTo, error: missing(_to, l10n.tripToMissing)),
-            field(_purpose, l10n.tripPurpose),
-            TextField(
-              controller: _distance,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: l10n.tripDistance,
-                suffixText: _unit == DistanceUnit.km ? 'km' : 'mi',
-                errorText: _checked && typed == null ? l10n.tripDistanceMissing : null,
-              ),
-              onChanged: (_) => setState(() {}),
+            // A tonal swap button on the line between the places; a text button under them at large text sizes.
+            Stack(
+              alignment: AlignmentDirectional.centerEnd,
+              children: [
+                Column(
+                  spacing: 16,
+                  children: [
+                    place(_from, _fromFocus, l10n.tripFrom, missing(_from, l10n.tripFromMissing)),
+                    place(_to, _toFocus, l10n.tripTo, missing(_to, l10n.tripToMissing)),
+                  ],
+                ),
+                if (!large)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 12),
+                    child: IconButton.filledTonal(
+                      tooltip: l10n.tripSwap,
+                      visualDensity: VisualDensity.compact,
+                      iconSize: 18,
+                      onPressed: _swap,
+                      icon: const Icon(Icons.swap_vert),
+                    ),
+                  ),
+              ],
             ),
+            if (large) textButton(l10n.tripSwap, _swap),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 8,
+              children: [
+                field(_purpose, l10n.tripPurpose),
+                if (purposes.isNotEmpty)
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final p in purposes)
+                        ActionChip(
+                          label: FittedBox(fit: BoxFit.scaleDown, child: Text(p)),
+                          onPressed: () => setState(() => _purpose.text = p),
+                        ),
+                    ],
+                  ),
+              ],
+            ),
+            SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.tripModeDistance), icon: const Icon(Icons.straighten)),
+                ButtonSegment(value: true, label: Text(l10n.tripModeOdometer), icon: const Icon(Icons.speed)),
+              ],
+              selected: {_odometer},
+              onSelectionChanged: (s) => _setOdometer(s.single),
+            ),
+            if (!_odometer)
+              TextField(
+                controller: _distance,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  labelText: l10n.tripDistance,
+                  suffixText: _unit == DistanceUnit.km ? 'km' : 'mi',
+                  errorText: _checked && measured == null ? l10n.tripDistanceMissing : null,
+                ),
+                onChanged: (_) => setState(() {}),
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 8,
+                children: [
+                  if (large)
+                    Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: readings)
+                  else
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 16,
+                      children: [for (final r in readings) Expanded(child: r)],
+                    ),
+                  if (measured != null)
+                    Text(
+                      l10n.tripOdometerDistance(distance(measured)),
+                      style: theme.textTheme.labelLarge?.copyWith(color: theme.colorScheme.primary),
+                    ),
+                ],
+              ),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.tripRoundTrip),
@@ -258,19 +413,7 @@ class _TripScreenState extends State<TripScreen> {
               value: _favourite,
               onChanged: (on) => setState(() => _favourite = on ?? false),
             ),
-            if (widget.trip case final trip?)
-              // The text-button alignment rule: its label lines up with the fields' edge.
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Transform.translate(
-                  offset: const Offset(-12, 0),
-                  child: TextButton(
-                    style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
-                    onPressed: _saving ? null : () => _delete(trip),
-                    child: Text(l10n.tripDelete),
-                  ),
-                ),
-              ),
+            if (widget.trip case final trip?) textButton(l10n.tripDelete, _saving ? null : () => _delete(trip)),
           ],
         ),
       ),
@@ -284,6 +427,26 @@ class _TripScreenState extends State<TripScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+String _group(String lang, int? n) => n == null ? '' : NumberFormat.decimalPattern(lang).format(n);
+
+/// Groups an odometer reading's digits as the phone writes numbers ("45 210", "32,580"); 7 digits at most.
+class _ReadingFormatter extends TextInputFormatter {
+  _ReadingFormatter(this.lang);
+
+  final String lang;
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
+    if (digits.length > 7) return oldValue;
+    final text = _group(lang, int.tryParse(digits));
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
     );
   }
 }

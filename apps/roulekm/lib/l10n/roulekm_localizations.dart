@@ -772,6 +772,54 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Enter the distance'**
   String get tripDistanceMissing;
+
+  /// Segment: the trip's distance is typed.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get tripModeDistance;
+
+  /// Segment: the trip's distance comes from two odometer readings.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get tripModeOdometer;
+
+  /// No description provided for @tripOdometerStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start reading'**
+  String get tripOdometerStart;
+
+  /// No description provided for @tripOdometerEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End reading'**
+  String get tripOdometerEnd;
+
+  /// Under the two readings: the distance between them.
+  ///
+  /// In en, this message translates to:
+  /// **'= {distance}'**
+  String tripOdometerDistance(String distance);
+
+  /// No description provided for @tripOdometerMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the reading'**
+  String get tripOdometerMissing;
+
+  /// No description provided for @tripOdometerBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be above the start reading'**
+  String get tripOdometerBelow;
+
+  /// Trades From and To: the swap button's tooltip, or its label at large text sizes.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap'**
+  String get tripSwap;
 }
 
 class _RoulekmLocalizationsDelegate
