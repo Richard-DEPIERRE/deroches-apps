@@ -12,8 +12,8 @@ import 'src/onboarding/first_launch.dart';
 import 'src/sources/sources_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
 
-/// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key, RevenueCat keys and App Store id stay
-/// empty until those exist: until then the app sends nothing and sells nothing.
+/// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key and App Store id stay empty until those
+/// exist: until then the app sends nothing.
 final roulekmConfig = AppConfig(
   slug: roulekmAppId,
   names: const {'fr': 'Roulekm – frais kilométriques', 'en': 'Roulekm – Mileage Log'},
@@ -31,6 +31,10 @@ final roulekmConfig = AppConfig(
     ),
   },
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
+  // RevenueCat's public SDK keys for the Roulekm project's iOS and Android apps, public by design (ADR 0001,
+  // section 13; DAPP-225, DAPP-306).
+  revenueCatAppleKey: 'appl_MKQismejHtyMcwoHnZPrpSOUgDj',
+  revenueCatGoogleKey: 'goog_GMsmpEWzeohPOsCRmxEhgzjuBZt',
 );
 
 /// The app: onboarding on the first launch, then the home screen (DAPP-141).
