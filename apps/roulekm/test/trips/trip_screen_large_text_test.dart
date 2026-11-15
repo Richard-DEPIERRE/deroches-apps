@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:roulekm/src/data/logbook.dart';
+import 'package:roulekm/src/rates/distance.dart';
 
 import '../vehicles/vehicle_screen_large_text_test.dart' show loadRoboto;
 import 'trip_screen_test.dart' show bron, openTrip, pickup, type;
@@ -46,8 +48,45 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await openTrip(tester, const Locale('en', 'US'), vehicles: [pickup], size: const Size(360, 2000));
     expect(find.text('Swap'), findsOneWidget);
+    expect(find.byIcon(Icons.check), findsNothing, reason: 'no icons on the segments at large text sizes');
+    expect(find.byIcon(Icons.speed), findsNothing);
     for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
       expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
     }
+  });
+
+  testWidgets('at 1.3× on a 360 dp phone the readings stack, so their labels fit', (tester) async {
+    await tester.runAsync(loadRoboto);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await openTrip(tester, const Locale('fr', 'FR'), size: const Size(360, 2000));
+    await tester.tap(find.text('Compteur'));
+    await tester.pump();
+    expect(
+      tester.getTopLeft(find.text('Compteur arrivée')).dy,
+      greaterThan(tester.getBottomLeft(find.text('Compteur départ')).dy),
+    );
+    for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
+      expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
+    }
+  });
+
+  testWidgets('a long purpose chip ends in an ellipsis, at full size', (tester) async {
+    await tester.runAsync(loadRoboto);
+    final long = TripRecord(
+      id: 't9',
+      date: DateTime.utc(2026, 11, 2),
+      route: const TripRoute(
+        from: 'Domicile',
+        to: 'Chantier Bron',
+        purpose: 'Réunion de chantier avec le maître d’ouvrage et le bureau de contrôle',
+        distance: Distance(34, DistanceUnit.km),
+        vehicleId: 'v1',
+      ),
+    );
+    await openTrip(tester, const Locale('fr', 'FR'), trips: [long], size: const Size(360, 2000));
+    final chip = find.descendant(of: find.byType(ActionChip), matching: find.byType(RichText));
+    final paragraph = tester.renderObject<RenderParagraph>(chip);
+    expect(paragraph.didExceedMaxLines, isTrue, reason: 'cut with an ellipsis, not shrunk until unreadable');
   });
 }

@@ -230,6 +230,35 @@ class _TripScreenState extends State<TripScreen> {
       },
       onSelected: (_) => setState(() {}),
       fieldViewBuilder: (_, c, focusNode, _) => field(c, label, error: error, focusNode: focusNode),
+      // An M3 menu, with no row highlighted: on a touch phone that reads as pre-selected.
+      optionsViewBuilder: (context, onSelected, options) => Align(
+        alignment: AlignmentDirectional.topStart,
+        child: Material(
+          elevation: 3,
+          color: theme.colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          clipBehavior: Clip.antiAlias,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 240),
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              shrinkWrap: true,
+              children: [
+                for (final option in options)
+                  InkWell(
+                    onTap: () => onSelected(option),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Text(option, style: theme.textTheme.bodyLarge),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
 
     TextField reading(TextEditingController c, String label, String? error) => TextField(
@@ -244,7 +273,10 @@ class _TripScreenState extends State<TripScreen> {
       reading(
         _end,
         l10n.tripOdometerEnd,
-        start != null && end != null && end <= start ? l10n.tripOdometerBelow : unread(end),
+        // Not while the end reading is still being typed: both are grouped alike, so lengths compare digits.
+        start != null && end != null && end <= start && (_checked || _end.text.length >= _start.text.length)
+            ? l10n.tripOdometerBelow
+            : unread(end),
       ),
     ];
 
@@ -319,7 +351,8 @@ class _TripScreenState extends State<TripScreen> {
                     children: [
                       for (final p in purposes)
                         ActionChip(
-                          label: FittedBox(fit: BoxFit.scaleDown, child: Text(p)),
+                          // The user's own text, which can be long: cut, never shrunk.
+                          label: Text(p, maxLines: 1, overflow: TextOverflow.ellipsis),
                           onPressed: () => setState(() => _purpose.text = p),
                         ),
                     ],
@@ -328,9 +361,19 @@ class _TripScreenState extends State<TripScreen> {
             ),
             SegmentedButton<bool>(
               segments: [
-                ButtonSegment(value: false, label: Text(l10n.tripModeDistance), icon: const Icon(Icons.straighten)),
-                ButtonSegment(value: true, label: Text(l10n.tripModeOdometer), icon: const Icon(Icons.speed)),
+                // Above 1.3× text, no icons: the fill shows the selected one.
+                ButtonSegment(
+                  value: false,
+                  label: Text(l10n.tripModeDistance),
+                  icon: large ? null : const Icon(Icons.straighten),
+                ),
+                ButtonSegment(
+                  value: true,
+                  label: Text(l10n.tripModeOdometer),
+                  icon: large ? null : const Icon(Icons.speed),
+                ),
               ],
+              showSelectedIcon: !large,
               selected: {_odometer},
               onSelectionChanged: (s) => _setOdometer(s.single),
             ),
@@ -351,14 +394,16 @@ class _TripScreenState extends State<TripScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
-                  if (large)
-                    Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: readings)
-                  else
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      spacing: 16,
-                      children: [for (final r in readings) Expanded(child: r)],
-                    ),
+                  // Side by side only while each half holds its label: stacked on a small phone with large text.
+                  LayoutBuilder(
+                    builder: (context, box) => (box.maxWidth - 16) / 2 >= MediaQuery.textScalerOf(context).scale(130)
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 16,
+                            children: [for (final r in readings) Expanded(child: r)],
+                          )
+                        : Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: readings),
+                  ),
                   if (measured != null)
                     Text(
                       l10n.tripOdometerDistance(distance(measured)),

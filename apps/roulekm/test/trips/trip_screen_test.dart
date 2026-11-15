@@ -230,6 +230,8 @@ void main() {
     await type(tester, 'Arrivée', 'Chantier Bron');
     await type(tester, 'Compteur départ', '45210');
     expect(find.widgetWithText(TextField, '45\u202f210'), findsOneWidget, reason: 'grouped as the phone writes it');
+    await type(tester, 'Compteur arrivée', '452');
+    expect(find.text('Doit dépasser le compteur départ'), findsNothing, reason: 'still typing');
     await type(tester, 'Compteur arrivée', '45244');
     expect(find.text('=\u00a034\u00a0km'), findsOneWidget);
     await tester.tap(find.text('Aller-retour'));
