@@ -842,7 +842,7 @@ abstract class RoulekmLocalizations {
   /// Quick-add sheet: a round-trip favourite's one-way distance, then the distance it counts.
   ///
   /// In en, this message translates to:
-  /// **'{distance} round trip = {counted}'**
+  /// **'{distance} round trip = {counted}'**
   String quickAddRoundTrip(String distance, String counted);
 
   /// Quick-add sheet's main button: saves the trip (the second tap).

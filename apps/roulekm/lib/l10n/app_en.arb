@@ -200,7 +200,7 @@
   "quickAddYesterday": "Yesterday",
   "quickAddOtherDate": "Other date",
   "@quickAddOtherDate": {"description": "Date chip that opens the date picker; shows the date picked afterwards."},
-  "quickAddRoundTrip": "{distance} round trip\u00a0= {counted}",
+  "quickAddRoundTrip": "{distance} round\u00a0trip\u00a0= {counted}",
   "@quickAddRoundTrip": {"description": "Quick-add sheet: a round-trip favourite's one-way distance, then the distance it counts.", "placeholders": {"distance": {"type": "String"}, "counted": {"type": "String"}}},
   "quickAddAdd": "Add trip",
   "@quickAddAdd": {"description": "Quick-add sheet's main button: saves the trip (the second tap)."},

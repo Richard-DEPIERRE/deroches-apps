@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
@@ -113,8 +112,8 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
     final counted = typedDistance(l10n, lang, route.counted);
     final other = _date != _today && _date != _yesterday;
 
-    Widget chip(String label, bool selected, VoidCallback onSelected) =>
-        ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onSelected());
+    Widget chip(String label, bool selected, VoidCallback onSelected, {Widget? avatar}) =>
+        ChoiceChip(avatar: avatar, label: Text(label), selected: selected, onSelected: (_) => onSelected());
 
     return SafeArea(
       child: Column(
@@ -148,7 +147,16 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
                     children: [
                       chip(l10n.quickAddToday, _date == _today, () => setState(() => _date = _today)),
                       chip(l10n.quickAddYesterday, _date == _yesterday, () => setState(() => _date = _yesterday)),
-                      chip(other ? DateFormat.MMMEd(lang).format(_date) : l10n.quickAddOtherDate, other, _pickDate),
+                      chip(
+                        other ? shortDay(lang, vehicle?.rates, _date, thisYear: _today.year) : l10n.quickAddOtherDate,
+                        other,
+                        _pickDate,
+                        // The one chip that opens a picker; selected, the check takes its place.
+                        avatar: Icon(
+                          Icons.calendar_today_outlined,
+                          size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18),
+                        ),
+                      ),
                     ],
                   ),
                 ],

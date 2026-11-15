@@ -3,10 +3,12 @@ import 'dart:io';
 import 'package:app_kit/app_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:roulekm/l10n/roulekm_localizations.dart';
 import 'package:roulekm/src/data/log_controller.dart';
 import 'package:roulekm/src/data/logbook.dart';
 import 'package:roulekm/src/home/home_screen.dart';
+import 'package:roulekm/src/rates/rates.dart';
 
 import '../home/home_lists_test.dart' show route;
 import '../home/home_screen_test.dart' show civic, clio;
@@ -61,6 +63,24 @@ Future<void> tapFavourite(WidgetTester tester) async {
 }
 
 void main() {
+  test('the picked day reads as on the home screen, with its year when it is not this year', () async {
+    await initializeDateFormatting();
+    final nov3 = DateTime.utc(2026, 11, 3);
+    final dec31 = DateTime.utc(2025, 12, 31);
+    // dart format off
+    for (final (lang, system, day, text) in [
+      ('fr', RateSystem.france, nov3, 'Mar. 3 nov.'),
+      ('fr', RateSystem.france, dec31, 'Mer. 31 déc. 2025'),
+      ('en', RateSystem.uk, nov3, 'Tue 3 Nov'),
+      ('en', RateSystem.uk, dec31, 'Wed 31 Dec 2025'),
+      ('en', RateSystem.us, nov3, 'Tue, Nov 3'),
+      ('en', RateSystem.us, dec31, 'Wed, Dec 31, 2025'),
+    ]) {
+      expect(shortDay(lang, system, day, thisYear: 2026), text.replaceAll(' ', _nbsp), reason: '$lang $system $day');
+    }
+    // dart format on
+  });
+
   testWidgets('in French: two taps add the favourite today, and Annuler deletes that trip', (tester) async {
     final saved = <int>[];
     final log = await openWithFavourite(tester, 'fr', clio, _bron, saved: saved);
@@ -99,7 +119,10 @@ void main() {
     final saved = <int>[];
     final log = await openWithFavourite(tester, 'en', civic, _site, saved: saved);
     await tapFavourite(tester);
-    expect(find.text('Site visit$_nbsp· Civic$_nbsp· 21${_nbsp}mi round trip$_nbsp= 42${_nbsp}mi'), findsOneWidget);
+    expect(
+      find.text('Site visit$_nbsp· Civic$_nbsp· 21${_nbsp}mi round${_nbsp}trip$_nbsp= 42${_nbsp}mi'),
+      findsOneWidget,
+    );
     expect(find.widgetWithText(ChoiceChip, 'Today'), findsOneWidget);
     expect(find.widgetWithText(TextButton, 'Edit before adding'), findsOneWidget);
     await tester.tap(find.widgetWithText(ChoiceChip, 'Yesterday'));
@@ -110,12 +133,14 @@ void main() {
     expect(find.text('Trip added$_nbsp· 42${_nbsp}mi'), findsOneWidget);
 
     await tapFavourite(tester);
+    final calendar = find.byIcon(Icons.calendar_today_outlined);
+    expect(find.descendant(of: find.widgetWithText(ChoiceChip, 'Other date'), matching: calendar), findsOneWidget);
     await tester.tap(find.widgetWithText(ChoiceChip, 'Other date'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('3'));
     await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
-    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Tue, Nov 3')).selected, isTrue);
+    expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Tue,${_nbsp}Nov${_nbsp}3')).selected, isTrue);
     await tester.tap(find.widgetWithText(FilledButton, 'Add trip'));
     await settle(tester);
     expect([for (final t in log.logbook!.latestFirst) t.date], [DateTime.utc(2026, 11, 10), DateTime.utc(2026, 11, 3)]);

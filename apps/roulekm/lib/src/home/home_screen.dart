@@ -220,12 +220,14 @@ String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int 
 String typedDistance(RoulekmLocalizations l10n, String lang, Distance d) =>
     d.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d.value)) : l10n.distanceMiles(_number(lang, d.value));
 
-/// "Mer. 5 nov.", "Wed, Nov 5", and "Wed 5 Nov" for an HMRC vehicle; never broken across lines.
-String _day(String lang, RateSystem? system, DateTime day) {
+/// "Mer. 5 nov.", "Wed, Nov 5", and "Wed 5 Nov" for an HMRC vehicle; never broken across lines. With [thisYear], a
+/// day in another year shows its year.
+String shortDay(String lang, RateSystem? system, DateTime day, {int? thisYear}) {
+  final year = thisYear != null && day.year != thisYear;
   final text = switch (lang) {
-    'fr' => DateFormat.MMMEd('fr').format(day),
-    _ when system == RateSystem.uk => DateFormat('EEE d MMM', 'en').format(day),
-    _ => DateFormat.MMMEd('en').format(day),
+    'fr' => (year ? DateFormat.yMMMEd('fr') : DateFormat.MMMEd('fr')).format(day),
+    _ when system == RateSystem.uk => DateFormat(year ? 'EEE d MMM y' : 'EEE d MMM', 'en').format(day),
+    _ => (year ? DateFormat.yMMMEd('en') : DateFormat.MMMEd('en')).format(day),
   };
   return '${text[0].toUpperCase()}${text.substring(1)}'.replaceAll(' ', '\u00a0');
 }
@@ -585,7 +587,7 @@ class _TripRow extends StatelessWidget {
         title: RouteText(trip.route),
         subtitle: Text(
           [
-            _day(lang, vehicle?.rates, trip.date),
+            shortDay(lang, vehicle?.rates, trip.date),
             ?vehicle?.name,
             trip.route.purpose,
           ].where((s) => s.isNotEmpty).join('\u00a0· '),

@@ -489,7 +489,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String quickAddRoundTrip(String distance, String counted) {
-    return '$distance round trip = $counted';
+    return '$distance round trip = $counted';
   }
 
   @override
