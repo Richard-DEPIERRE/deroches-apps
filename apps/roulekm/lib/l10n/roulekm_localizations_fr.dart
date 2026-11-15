@@ -448,4 +448,30 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get tripDistanceMissing => 'Indiquez la distance';
+
+  @override
+  String get tripModeDistance => 'Distance';
+
+  @override
+  String get tripModeOdometer => 'Compteur';
+
+  @override
+  String get tripOdometerStart => 'Compteur départ';
+
+  @override
+  String get tripOdometerEnd => 'Compteur arrivée';
+
+  @override
+  String tripOdometerDistance(String distance) {
+    return '= $distance';
+  }
+
+  @override
+  String get tripOdometerMissing => 'Indiquez le relevé';
+
+  @override
+  String get tripOdometerBelow => 'Doit dépasser le compteur départ';
+
+  @override
+  String get tripSwap => 'Inverser';
 }

@@ -182,5 +182,17 @@
   "tripSaveFailed": "The trip couldn’t be saved. Try again.",
   "tripFromMissing": "Enter where the trip started",
   "tripToMissing": "Enter where it ended",
-  "tripDistanceMissing": "Enter the distance"
+  "tripDistanceMissing": "Enter the distance",
+  "tripModeDistance": "Distance",
+  "@tripModeDistance": {"description": "Segment: the trip's distance is typed."},
+  "tripModeOdometer": "Odometer",
+  "@tripModeOdometer": {"description": "Segment: the trip's distance comes from two odometer readings."},
+  "tripOdometerStart": "Start reading",
+  "tripOdometerEnd": "End reading",
+  "tripOdometerDistance": "=\u00a0{distance}",
+  "@tripOdometerDistance": {"description": "Under the two readings: the distance between them.", "placeholders": {"distance": {"type": "String"}}},
+  "tripOdometerMissing": "Enter the reading",
+  "tripOdometerBelow": "Must be above the start reading",
+  "tripSwap": "Swap",
+  "@tripSwap": {"description": "Trades From and To: the swap button's tooltip, or its label at large text sizes."}
 }

@@ -111,5 +111,13 @@
   "tripSaveFailed": "Le trajet n’a pas pu être enregistré. Réessayez.",
   "tripFromMissing": "Indiquez le lieu de départ",
   "tripToMissing": "Indiquez le lieu d’arrivée",
-  "tripDistanceMissing": "Indiquez la distance"
+  "tripDistanceMissing": "Indiquez la distance",
+  "tripModeDistance": "Distance",
+  "tripModeOdometer": "Compteur",
+  "tripOdometerStart": "Compteur départ",
+  "tripOdometerEnd": "Compteur arrivée",
+  "tripOdometerDistance": "=\u00a0{distance}",
+  "tripOdometerMissing": "Indiquez le relevé",
+  "tripOdometerBelow": "Doit dépasser le compteur départ",
+  "tripSwap": "Inverser"
 }

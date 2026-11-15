@@ -22,6 +22,7 @@ Future<LogController> openTrip(
   List<TripRecord> trips = const [],
   TripRecord? trip,
   List<int>? saved,
+  Size size = const Size(390, 1600),
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_trip_');
   addTearDown(() => dir.deleteSync(recursive: true));
@@ -31,7 +32,7 @@ Future<LogController> openTrip(
   await tester.runAsync(log.open);
   tester.platformDispatcher.localesTestValue = [device];
   addTearDown(tester.platformDispatcher.clearLocalesTestValue);
-  tester.view.physicalSize = const Size(390, 1600) * 3;
+  tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -188,15 +189,14 @@ void main() {
     expect(find.text('New trip'), findsNothing);
   });
 
-  testWidgets('editing in French: prefilled, replaced in place, readings kept while the distance stays', (
-    tester,
-  ) async {
+  testWidgets('editing in French: prefilled on the odometer, replaced in place, readings kept', (tester) async {
     final log = await openTrip(tester, const Locale('fr', 'FR'), trips: [bron, later], trip: bron);
     expect(find.text('Modifier le trajet'), findsOneWidget);
     expect(find.text('Mardi 3 novembre 2026'), findsOneWidget);
-    for (final text in ['Domicile', 'Chantier Bron', 'Suivi', '34']) {
+    for (final text in ['Domicile', 'Chantier Bron', 'Suivi', '12\u202f000', '12\u202f034']) {
       expect(find.widgetWithText(TextField, text), findsOneWidget, reason: text);
     }
+    expect(find.text('=\u00a034\u00a0km'), findsOneWidget);
     expect(find.text('Supprimer le trajet'), findsOneWidget);
     await type(tester, 'Motif', 'Réunion');
     await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
@@ -208,14 +208,96 @@ void main() {
     expect([trips.first.odometerStart, trips.first.odometerEnd], [12000, 12034]);
   });
 
-  testWidgets('editing in English: a new distance drops the odometer readings', (tester) async {
+  testWidgets('editing in English: back to a typed distance drops the odometer readings', (tester) async {
     final log = await openTrip(tester, const Locale('en', 'GB'), trips: [bron], trip: bron);
     expect(find.text('Edit trip'), findsOneWidget);
+    await tester.tap(find.text('Distance'));
+    await tester.pump();
+    expect(find.widgetWithText(TextField, '34'), findsOneWidget, reason: 'the odometer distance carries over');
     await type(tester, 'One-way distance', '36');
     await tapSave(tester, 'Save\u00a0· 36\u00a0km');
 
     final trip = log.logbook!.trips.single;
     expect([trip.id, trip.route.distance.value, trip.odometerStart, trip.odometerEnd], ['t1', 36, null, null]);
+  });
+
+  testWidgets('on the odometer in French: the readings give the distance and are saved with the trip', (tester) async {
+    final log = await openTrip(tester, const Locale('fr', 'FR'));
+    await tester.tap(find.text('Compteur'));
+    await tester.pump();
+    expect(find.text('Distance aller'), findsNothing);
+    await type(tester, 'Départ', 'Domicile');
+    await type(tester, 'Arrivée', 'Chantier Bron');
+    await type(tester, 'Compteur départ', '45210');
+    expect(find.widgetWithText(TextField, '45\u202f210'), findsOneWidget, reason: 'grouped as the phone writes it');
+    await type(tester, 'Compteur arrivée', '452');
+    expect(find.text('Doit dépasser le compteur départ'), findsNothing, reason: 'still typing');
+    await type(tester, 'Compteur arrivée', '45244');
+    expect(find.text('=\u00a034\u00a0km'), findsOneWidget);
+    await tester.tap(find.text('Aller-retour'));
+    await tester.pump();
+    expect(find.text('Compte 68\u00a0km'), findsOneWidget);
+    await tapSave(tester, 'Enregistrer\u00a0· 68\u00a0km');
+
+    final trip = log.logbook!.trips.single;
+    expect([trip.route.distance.value, trip.route.roundTrip], [34, isTrue]);
+    expect([trip.odometerStart, trip.odometerEnd], [45210, 45244]);
+  });
+
+  testWidgets('on the odometer, an end reading not above the start says so and nothing is saved', (tester) async {
+    final log = await openTrip(tester, const Locale('en', 'US'), vehicles: [pickup]);
+    await tester.tap(find.text('Odometer'));
+    await tester.pump();
+    await type(tester, 'From', 'Office');
+    await type(tester, 'To', 'Warehouse');
+    await tapSave(tester, 'Save');
+    expect(find.text('Enter the reading'), findsNWidgets(2));
+    await type(tester, 'Start reading', '32601');
+    await type(tester, 'End reading', '32580');
+    expect(find.widgetWithText(TextField, '32,580'), findsOneWidget);
+    expect(find.text('Must be above the start reading'), findsOneWidget);
+    expect(find.textContaining('='), findsNothing);
+    await tapSave(tester, 'Save');
+    expect(log.logbook!.trips, isEmpty);
+
+    await type(tester, 'End reading', '32622');
+    expect(find.text('Must be above the start reading'), findsNothing);
+    expect(find.text('=\u00a021\u00a0mi'), findsOneWidget);
+    await tapSave(tester, 'Save\u00a0· 21\u00a0mi');
+    expect([log.logbook!.trips.single.odometerStart, log.logbook!.trips.single.odometerEnd], [32601, 32622]);
+  });
+
+  testWidgets("From and To suggest the user's own places; the purpose has chips of recent ones", (tester) async {
+    final log = await openTrip(tester, const Locale('fr', 'FR'), trips: [bron]);
+    expect(find.widgetWithText(ActionChip, 'Suivi'), findsOneWidget);
+    await type(tester, 'Arrivée', 'chan');
+    await tester.pumpAndSettle();
+    expect(find.text('Domicile'), findsNothing, reason: 'only the places that match');
+    await tester.tap(find.text('Chantier Bron'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextField, 'Chantier Bron'), findsOneWidget);
+    await type(tester, 'Départ', 'd');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Domicile'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ActionChip, 'Suivi'));
+    await tester.pump();
+    await type(tester, 'Distance aller', '34');
+    await tapSave(tester, 'Enregistrer\u00a0· 34\u00a0km');
+
+    final route = log.logbook!.trips.last.route;
+    expect([route.from, route.to, route.purpose], ['Domicile', 'Chantier Bron', 'Suivi']);
+  });
+
+  testWidgets('the swap button trades From and To', (tester) async {
+    await openTrip(tester, const Locale('en', 'US'));
+    await type(tester, 'From', 'Home');
+    await type(tester, 'To', 'Job site');
+    expect(find.text('Swap'), findsNothing, reason: 'an icon button at normal text size');
+    await tester.tap(find.widgetWithIcon(IconButton, Icons.swap_vert));
+    await tester.pump();
+    expect(tester.widget<TextField>(find.widgetWithText(TextField, 'From')).controller!.text, 'Job site');
+    expect(tester.widget<TextField>(find.widgetWithText(TextField, 'To')).controller!.text, 'Home');
   });
 
   testWidgets('Delete trip closes the form; Undo puts the trip back', (tester) async {
