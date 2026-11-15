@@ -1,7 +1,7 @@
 ---
 title: Roulekm – vos frais kilométriques au barème, sans compte
 description: Roulekm, bientôt sur iPhone et Android, tient votre relevé de frais kilométriques au barème de chaque véhicule. Sans compte, sans GPS, sans quota de trajets.
-updated: 2026-11-14
+updated: 2026-11-16
 ---
 
 # Roulekm
@@ -22,3 +22,6 @@ notre guide sur [les justificatifs de frais kilométriques à conserver](/guides
 Votre voiture est 100 % électrique ? Notre guide sur [les frais réels d’une voiture
 électrique](/guides/frais-reels-voiture-electrique/) explique le barème majoré de 20 % et ce qu’il couvre déjà, recharge
 comprise.
+
+Votre employeur vous rembourse vos kilomètres ? Notre guide sur [l’indemnité kilométrique versée par
+l’employeur](/guides/indemnite-kilometrique-employeur/) explique la limite du barème et les pièces à lui remettre.

@@ -7,7 +7,7 @@ published: 2026-11-14
 updated: 2026-11-14
 factCheck: DAPP-279
 download: Roulekm applique le barème majoré à votre voiture électrique et garde chaque trajet daté.
-related: [tableau-frais-kilometriques, justificatif-frais-kilometriques]
+related: [tableau-frais-kilometriques, justificatif-frais-kilometriques, indemnite-kilometrique-employeur]
 sources:
   - title: 'Code général des impôts, annexe IV, article 6 B'
     publisher: Légifrance
@@ -312,6 +312,9 @@ service de paie.
 
 Si vous déclarez vos frais réels, les indemnités et remboursements de frais versés par votre employeur s’ajoutent à
 votre rémunération imposable.
+
+Notre guide sur [l’indemnité kilométrique versée par l’employeur](/guides/indemnite-kilometrique-employeur/) détaille la limite du
+barème, avec un exemple de calcul sur une année, et ce que vous remettez à votre employeur.
 
 ## Ce qu’il faut vérifier pour votre situation
 
