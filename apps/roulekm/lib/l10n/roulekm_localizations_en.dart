@@ -477,4 +477,29 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get tripSwap => 'Swap';
+
+  @override
+  String get quickAddToday => 'Today';
+
+  @override
+  String get quickAddYesterday => 'Yesterday';
+
+  @override
+  String get quickAddOtherDate => 'Other date';
+
+  @override
+  String quickAddRoundTrip(String distance, String counted) {
+    return '$distance round trip = $counted';
+  }
+
+  @override
+  String get quickAddAdd => 'Add trip';
+
+  @override
+  String get quickAddEdit => 'Edit before adding';
+
+  @override
+  String tripAdded(String distance) {
+    return 'Trip added · $distance';
+  }
 }

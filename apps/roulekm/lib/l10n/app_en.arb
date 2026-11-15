@@ -194,5 +194,18 @@
   "tripOdometerMissing": "Enter the reading",
   "tripOdometerBelow": "Must be above the start reading",
   "tripSwap": "Swap",
-  "@tripSwap": {"description": "Trades From and To: the swap button's tooltip, or its label at large text sizes."}
+  "@tripSwap": {"description": "Trades From and To: the swap button's tooltip, or its label at large text sizes."},
+  "quickAddToday": "Today",
+  "@quickAddToday": {"description": "Quick-add sheet (tap a favourite on the home screen): date chip, selected by default."},
+  "quickAddYesterday": "Yesterday",
+  "quickAddOtherDate": "Other date",
+  "@quickAddOtherDate": {"description": "Date chip that opens the date picker; shows the date picked afterwards."},
+  "quickAddRoundTrip": "{distance} round trip\u00a0= {counted}",
+  "@quickAddRoundTrip": {"description": "Quick-add sheet: a round-trip favourite's one-way distance, then the distance it counts.", "placeholders": {"distance": {"type": "String"}, "counted": {"type": "String"}}},
+  "quickAddAdd": "Add trip",
+  "@quickAddAdd": {"description": "Quick-add sheet's main button: saves the trip (the second tap)."},
+  "quickAddEdit": "Edit before adding",
+  "@quickAddEdit": {"description": "Opens the new-trip form filled in from the favourite."},
+  "tripAdded": "Trip added\u00a0· {distance}",
+  "@tripAdded": {"description": "Snackbar after adding a favourite, with Undo; the distance counted.", "placeholders": {"distance": {"type": "String"}}}
 }

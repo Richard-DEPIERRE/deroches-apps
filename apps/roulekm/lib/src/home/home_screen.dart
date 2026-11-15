@@ -10,6 +10,7 @@ import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
 import '../sources/sources_screen.dart';
+import '../trips/quick_add_sheet.dart';
 import '../trips/trip_screen.dart';
 import '../vehicles/vehicle_screen.dart';
 import '../vehicles/vehicles_screen.dart';
@@ -86,8 +87,8 @@ class HomeScreen extends StatelessWidget {
                       l10n.homeFavouritesEdit,
                       editFavourites,
                     ),
-                    // Tap = the quick-add sheet (DAPP-146).
-                    for (final f in logbook.favourites) _FavouriteRow(f.route),
+                    for (final f in logbook.favourites)
+                      _FavouriteRow(f.route, () => showQuickAdd(context, log, f.route, tripSaved: tripSaved, now: now)),
                   ],
                   if (logbook.trips.isNotEmpty) ...[
                     _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),
@@ -506,8 +507,8 @@ class _Header extends StatelessWidget {
 
 /// "Domicile → Chantier Bron": the arrow is an icon (Barlow has no glyph for U+2192), read "Domicile vers Chantier
 /// Bron".
-class _Route extends StatelessWidget {
-  const _Route(this.route);
+class RouteText extends StatelessWidget {
+  const RouteText(this.route, {super.key});
 
   final TripRoute route;
 
@@ -539,9 +540,10 @@ class _Route extends StatelessWidget {
 }
 
 class _FavouriteRow extends StatelessWidget {
-  const _FavouriteRow(this.route);
+  const _FavouriteRow(this.route, this.onTap);
 
   final TripRoute route;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -552,8 +554,9 @@ class _FavouriteRow extends StatelessWidget {
       child: ListTile(
         contentPadding: _rowPadding,
         titleAlignment: ListTileTitleAlignment.titleHeight,
+        onTap: onTap,
         leading: Icon(Icons.star, color: scheme.primary, size: _iconSize(context, 22)),
-        title: _Route(route),
+        title: RouteText(route),
         subtitle: Text(route.roundTrip ? l10n.homeRoundTrip(distance) : distance),
         trailing: Icon(Icons.add_circle_outline, color: scheme.primary, size: _iconSize(context, 22)),
       ),
@@ -579,7 +582,7 @@ class _TripRow extends StatelessWidget {
         contentPadding: _rowPadding,
         titleAlignment: ListTileTitleAlignment.titleHeight,
         onTap: onTap,
-        title: _Route(trip.route),
+        title: RouteText(trip.route),
         subtitle: Text(
           [
             _day(lang, vehicle?.rates, trip.date),

@@ -119,5 +119,12 @@
   "tripOdometerDistance": "=\u00a0{distance}",
   "tripOdometerMissing": "Indiquez le relevé",
   "tripOdometerBelow": "Doit dépasser le compteur départ",
-  "tripSwap": "Inverser"
+  "tripSwap": "Inverser",
+  "quickAddToday": "Aujourd’hui",
+  "quickAddYesterday": "Hier",
+  "quickAddOtherDate": "Autre date",
+  "quickAddRoundTrip": "{distance} aller-retour\u00a0= {counted}",
+  "quickAddAdd": "Ajouter le trajet",
+  "quickAddEdit": "Modifier avant d’ajouter",
+  "tripAdded": "Trajet ajouté\u00a0· {distance}"
 }
