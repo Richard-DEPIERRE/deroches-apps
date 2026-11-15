@@ -474,4 +474,29 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get tripSwap => 'Inverser';
+
+  @override
+  String get quickAddToday => 'Aujourd’hui';
+
+  @override
+  String get quickAddYesterday => 'Hier';
+
+  @override
+  String get quickAddOtherDate => 'Autre date';
+
+  @override
+  String quickAddRoundTrip(String distance, String counted) {
+    return '$distance aller-retour = $counted';
+  }
+
+  @override
+  String get quickAddAdd => 'Ajouter le trajet';
+
+  @override
+  String get quickAddEdit => 'Modifier avant d’ajouter';
+
+  @override
+  String tripAdded(String distance) {
+    return 'Trajet ajouté · $distance';
+  }
 }

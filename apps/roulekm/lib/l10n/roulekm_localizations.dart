@@ -820,6 +820,48 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Swap'**
   String get tripSwap;
+
+  /// Quick-add sheet (tap a favourite on the home screen): date chip, selected by default.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get quickAddToday;
+
+  /// No description provided for @quickAddYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get quickAddYesterday;
+
+  /// Date chip that opens the date picker; shows the date picked afterwards.
+  ///
+  /// In en, this message translates to:
+  /// **'Other date'**
+  String get quickAddOtherDate;
+
+  /// Quick-add sheet: a round-trip favourite's one-way distance, then the distance it counts.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} round trip = {counted}'**
+  String quickAddRoundTrip(String distance, String counted);
+
+  /// Quick-add sheet's main button: saves the trip (the second tap).
+  ///
+  /// In en, this message translates to:
+  /// **'Add trip'**
+  String get quickAddAdd;
+
+  /// Opens the new-trip form filled in from the favourite.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit before adding'**
+  String get quickAddEdit;
+
+  /// Snackbar after adding a favourite, with Undo; the distance counted.
+  ///
+  /// In en, this message translates to:
+  /// **'Trip added · {distance}'**
+  String tripAdded(String distance);
 }
 
 class _RoulekmLocalizationsDelegate

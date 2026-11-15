@@ -10,26 +10,41 @@ import '../rates/distance.dart';
 import '../rates/rates.dart';
 import '../vehicles/vehicle_screen.dart';
 
-/// Opens *Add a trip*, or *Edit trip* with [trip] (DAPP-141 §3). [tripSaved] runs after each save: the first trip
-/// saved is the app's first useful moment (`markFirstValue()`, DAPP-140).
+/// Opens *Add a trip*, or *Edit trip* with [trip] (DAPP-141 §3); a new trip starts from [route] and [date] when
+/// given (a favourite's "Edit before adding"). [tripSaved] runs after each save: the first trip saved is the app's
+/// first useful moment (`markFirstValue()`, DAPP-140).
 Future<void> openTripScreen(
   BuildContext context,
   LogController log, {
   TripRecord? trip,
+  TripRoute? route,
+  DateTime? date,
   Future<void> Function()? tripSaved,
   DateTime Function() now = DateTime.now,
 }) => Navigator.of(context).push(
   MaterialPageRoute<void>(
     fullscreenDialog: true,
-    builder: (_) => TripScreen(log: log, trip: trip, tripSaved: tripSaved, now: now),
+    builder: (_) => TripScreen(log: log, trip: trip, route: route, date: date, tripSaved: tripSaved, now: now),
   ),
 );
 
 class TripScreen extends StatefulWidget {
-  const TripScreen({super.key, required this.log, this.trip, this.tripSaved, this.now = DateTime.now});
+  const TripScreen({
+    super.key,
+    required this.log,
+    this.trip,
+    this.route,
+    this.date,
+    this.tripSaved,
+    this.now = DateTime.now,
+  });
 
   final LogController log;
   final TripRecord? trip;
+
+  /// A new trip's starting point.
+  final TripRoute? route;
+  final DateTime? date;
   final Future<void> Function()? tripSaved;
   final DateTime Function() now;
 
@@ -38,8 +53,8 @@ class TripScreen extends StatefulWidget {
 }
 
 class _TripScreenState extends State<TripScreen> {
-  late final _route = widget.trip?.route;
-  late DateTime _date = widget.trip?.date ?? _day(widget.now());
+  late final _route = widget.trip?.route ?? widget.route;
+  late DateTime _date = widget.trip?.date ?? widget.date ?? _day(widget.now());
   late final _from = TextEditingController(text: _route?.from);
   late final _to = TextEditingController(text: _route?.to);
   late final _purpose = TextEditingController(text: _route?.purpose);
