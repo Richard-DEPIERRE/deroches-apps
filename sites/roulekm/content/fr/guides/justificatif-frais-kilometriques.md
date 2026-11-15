@@ -7,7 +7,7 @@ published: 2026-11-13
 updated: 2026-11-13
 factCheck: DAPP-264
 download: Roulekm date chaque trajet avec son motif et sa distance, et tient le total de l’année par véhicule.
-related: [tableau-frais-kilometriques, frais-reels-voiture-electrique]
+related: [tableau-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
 sources:
   - title: Frais de transport
     publisher: Direction générale des Finances publiques (impots.gouv.fr)
@@ -302,6 +302,9 @@ relevé mensuel…).
 
 Si vous déclarez vos frais réels, les indemnités et remboursements reçus de votre employeur s’ajoutent à votre
 rémunération imposable.
+
+Notre guide sur [l’indemnité kilométrique versée par l’employeur](/guides/indemnite-kilometrique-employeur/) détaille la limite du
+barème, avec un exemple de calcul sur une année, et ce que vous remettez à votre employeur.
 
 ## Exemple : le dossier d’une année
 
