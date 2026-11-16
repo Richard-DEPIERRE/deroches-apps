@@ -12,6 +12,7 @@ Future<List<int>?> showRepeatSheet(
   BuildContext context, {
   required List<int> weekdays,
   required DateTime start,
+  required int thisYear,
   RateSystem? system,
   TripRoute? route,
 }) => showModalBottomSheet<List<int>>(
@@ -19,7 +20,7 @@ Future<List<int>?> showRepeatSheet(
   isScrollControlled: true,
   showDragHandle: true,
   useSafeArea: true,
-  builder: (_) => _RepeatSheet(weekdays: weekdays, start: start, system: system, route: route),
+  builder: (_) => _RepeatSheet(weekdays: weekdays, start: start, thisYear: thisYear, system: system, route: route),
 );
 
 /// A weekday's name in [lang]: [DateTime.monday] is "lundi" / "Monday".
@@ -37,10 +38,13 @@ String repeatDays(RoulekmLocalizations l10n, String lang, List<int> weekdays) {
 }
 
 class _RepeatSheet extends StatefulWidget {
-  const _RepeatSheet({required this.weekdays, required this.start, this.system, this.route});
+  const _RepeatSheet({required this.weekdays, required this.start, required this.thisYear, this.system, this.route});
 
   final List<int> weekdays;
   final DateTime start;
+
+  /// A first day in another year shows its year.
+  final int thisYear;
   final RateSystem? system;
   final TripRoute? route;
 
@@ -60,6 +64,10 @@ class _RepeatSheetState extends State<_RepeatSheet> {
     final days = [for (var d = DateTime.monday; d <= DateTime.sunday; d++) d];
     final picked = [...days.where(_on.contains)];
     final muted = theme.textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant);
+    final scaler = MediaQuery.textScalerOf(context);
+    final icon = scaler.clamp(maxScaleFactor: 1.5).scale(20);
+    final body = theme.textTheme.bodyMedium!;
+    final line = scaler.scale(body.fontSize!) * (body.height ?? 1.2);
 
     Widget circle(int day) {
       final on = _on.contains(day);
@@ -127,12 +135,29 @@ class _RepeatSheetState extends State<_RepeatSheet> {
                   const SizedBox(height: 16),
                   Row(children: [for (final d in days) circle(d)]),
                   const SizedBox(height: 8),
-                  ListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(l10n.repeatStarting),
-                    trailing: Text(shortDay(lang, widget.system, widget.start), style: theme.textTheme.bodyLarge),
+                  // Label and day on one line; when they don't fit, the day drops under the label, which stays whole.
+                  Container(
+                    constraints: const BoxConstraints(minHeight: 56),
+                    alignment: AlignmentDirectional.centerStart,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: MergeSemantics(
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          spacing: 16,
+                          children: [
+                            Text(l10n.repeatStarting, style: theme.textTheme.bodyLarge),
+                            Text(
+                              shortDay(lang, widget.system, widget.start, thisYear: widget.thisYear),
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 12),
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: scheme.surfaceContainerHighest,
@@ -144,7 +169,11 @@ class _RepeatSheetState extends State<_RepeatSheet> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          Icon(Icons.check_circle_outline, size: 20, color: scheme.onSurfaceVariant),
+                          // Grows with the text up to 1.5×, centred on the promise's first line.
+                          Padding(
+                            padding: EdgeInsets.only(top: ((line - icon) / 2).clamp(0, double.infinity)),
+                            child: Icon(Icons.check_circle_outline, size: icon, color: scheme.onSurfaceVariant),
+                          ),
                           Expanded(child: Text(l10n.repeatPromise, style: theme.textTheme.bodyMedium)),
                         ],
                       ),

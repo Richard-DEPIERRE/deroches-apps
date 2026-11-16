@@ -229,6 +229,7 @@ class _TripScreenState extends State<TripScreen> {
       context,
       weekdays: _repeat ?? const [1, 2, 3, 4, 5],
       start: _date,
+      thisYear: widget.now().year,
       system: _vehicle?.rates,
       route: _from.text.trim().isEmpty || _to.text.trim().isEmpty || measured == null
           ? null

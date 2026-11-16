@@ -94,12 +94,26 @@ void main() {
     await tester.runAsync(loadRoboto);
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-    await openTrip(tester, const Locale('fr', 'FR'), trips: [bron], size: const Size(360, 640));
+    await openTrip(
+      tester,
+      const Locale('fr', 'FR'),
+      trips: [bron],
+      size: const Size(360, 640),
+      date: DateTime.utc(2025, 12, 30),
+    );
     await tester.scrollUntilVisible(find.text('Répéter ce trajet'), 100, scrollable: find.byType(Scrollable).first);
     await tester.tap(find.text('Répéter ce trajet'));
     await tester.pumpAndSettle();
     final button = find.widgetWithText(FilledButton, 'Répéter du lundi au vendredi');
     expect(tester.getBottomLeft(button).dy, lessThanOrEqualTo(640));
+    // A long day drops under "À partir du", which stays on one line, as tall as the day.
+    final label = find.text('À\u00a0partir\u00a0du');
+    final day = find.text('Mar.\u00a030\u00a0déc.\u00a02025');
+    expect(tester.getTopLeft(day).dy, greaterThanOrEqualTo(tester.getBottomLeft(label).dy));
+    expect(tester.getTopLeft(day).dx, tester.getTopLeft(label).dx);
+    expect(tester.getSize(label).height, tester.getSize(day).height);
+    // The promise's icon grows with the text, up to 1.5×.
+    expect(tester.getSize(find.byIcon(Icons.check_circle_outline)).height, 30);
     for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
       expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
     }

@@ -507,7 +507,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get repeatNever => 'Jamais';
 
   @override
-  String get repeatStarting => 'À partir du';
+  String get repeatStarting => 'À partir du';
 
   @override
   String get repeatPromise =>

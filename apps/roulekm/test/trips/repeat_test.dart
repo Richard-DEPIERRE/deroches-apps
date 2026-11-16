@@ -37,7 +37,7 @@ void main() {
     for (final (day, on) in [('lundi', true), ('vendredi', true), ('samedi', false), ('dimanche', false)]) {
       expect(tester.getSemantics(find.bySemanticsLabel(day)), isSemantics(isButton: true, isSelected: on), reason: day);
     }
-    expect(find.text('À partir du'), findsOneWidget);
+    expect(find.text('À\u00a0partir\u00a0du'), findsOneWidget, reason: 'never broken across lines');
     expect(find.text('Jeu. 5 nov.'), findsOneWidget);
     expect(find.textContaining('Rien n’est compté sans votre confirmation'), findsOneWidget);
     expect(find.text('Répéter du lundi au vendredi'), findsOneWidget);
@@ -124,5 +124,11 @@ void main() {
 
     await openTrip(tester, const Locale('en', 'US'), trip: later);
     expect(find.text('Repeat this trip'), findsNothing);
+  });
+
+  testWidgets('a trip day in another year shows its year', (tester) async {
+    await openTrip(tester, const Locale('fr', 'FR'), pro: true, date: DateTime.utc(2025, 12, 30));
+    await openSheet(tester, 'Répéter ce trajet');
+    expect(find.text('Mar.\u00a030\u00a0déc.\u00a02025'), findsOneWidget);
   });
 }

@@ -26,6 +26,7 @@ Future<LogController> openTrip(
   Size size = const Size(390, 1600),
   bool pro = false,
   OpenPaywall? openPaywall,
+  DateTime? date,
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_trip_');
   addTearDown(() => dir.deleteSync(recursive: true));
@@ -50,6 +51,7 @@ Future<LogController> openTrip(
               context,
               log,
               trip: trip,
+              date: date,
               tripSaved: () async => saved?.add(1),
               pro: ValueNotifier(pro),
               openPaywall: openPaywall,
