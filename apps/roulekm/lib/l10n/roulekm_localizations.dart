@@ -862,6 +862,66 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Trip added · {distance}'**
   String tripAdded(String distance);
+
+  /// Year screen (DAPP-141 §7) title; the UK's year is its tax year, "2026–27".
+  ///
+  /// In en, this message translates to:
+  /// **'{uk, select, yes{Tax year {year}} other{Year {year}}}'**
+  String yearTitle(String uk, String year);
+
+  /// Tooltip of the Year screen's year picker (current and past years, free).
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the year'**
+  String get yearPick;
+
+  /// Under the year's total: its distance (formatted) and trip count.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} · {count, plural, =1{1 trip} other{{count} trips}}'**
+  String yearSummary(String distance, int count);
+
+  /// No description provided for @yearDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get yearDistance;
+
+  /// A vehicle's calculation with its numbers, e.g. "5,226 × $0.725".
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get yearCalculation;
+
+  /// No description provided for @yearAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get yearAmount;
+
+  /// Year screen, under the cards: the dated source of the rates used.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out with the French barème kilométrique {year}{latest, select, yes{, the latest published} other{}} (source: {site}, read {date}).'**
+  String yearSourceFrance(String year, String latest, String site, String date);
+
+  /// No description provided for @yearSourceUk.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out at HMRC approved mileage rates, {year}{latest, select, yes{, the latest published} other{}} (source: {site}, read {date}). Keep this log with your records; it is not tax advice.'**
+  String yearSourceUk(String year, String latest, String site, String date);
+
+  /// No description provided for @yearSourceUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out at the IRS standard mileage rate for {year}{latest, select, yes{, the latest published} other{}} (source: {site}, read {date}). Keep this log with your records; it is not tax advice.'**
+  String yearSourceUs(String year, String latest, String site, String date);
+
+  /// Tooltip of the home app bar's PDF icon, which opens the Year screen (DAPP-141 §1).
+  ///
+  /// In en, this message translates to:
+  /// **'Year and PDF'**
+  String get homeYear;
 }
 
 class _RoulekmLocalizationsDelegate
