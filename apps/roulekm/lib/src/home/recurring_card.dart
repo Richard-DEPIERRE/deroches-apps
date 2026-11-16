@@ -27,20 +27,25 @@ class RecurringCard extends StatelessWidget {
     final messenger = ScaffoldMessenger.of(context);
     final count = picked.values.fold(0, (n, days) => n + days.length);
     final skipped = waiting.fold(0, (n, w) => n + w.$2.length) - count;
-    final before = {for (final (pattern, _) in waiting) pattern.id: pattern.checkedThrough};
+    final before = <String, DateTime?>{};
     final added = <String>[];
     try {
       for (final (pattern, days) in waiting) {
-        added.addAll(await log.confirmRecurring(pattern.id, picked[pattern.id] ?? const [], through: days.last));
+        final ids = await log.confirmRecurring(pattern.id, picked[pattern.id] ?? const [], through: days.last);
+        // Null: an earlier tap already confirmed these days; its own snackbar and Undo cover them.
+        if (ids == null) continue;
+        before[pattern.id] = pattern.checkedThrough;
+        added.addAll(ids);
       }
-      if (count > 0) await tripSaved?.call();
+      if (added.isNotEmpty) await tripSaved?.call();
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.tripSaveFailed)));
       return;
     }
+    if (before.isEmpty) return;
     messenger.showSnackBar(
       SnackBar(
-        content: Text(count > 0 ? l10n.recurringAdded(count) : l10n.recurringSkipped(skipped)),
+        content: Text(added.isNotEmpty ? l10n.recurringAdded(added.length) : l10n.recurringSkipped(skipped)),
         action: SnackBarAction(
           label: l10n.vehicleArchiveUndo,
           onPressed: () => log.undoConfirm(added, before).onError((_, _) {

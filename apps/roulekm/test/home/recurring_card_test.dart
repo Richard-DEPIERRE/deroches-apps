@@ -107,6 +107,14 @@ void main() {
     expect(find.text('3\u00a0trajets réguliers à confirmer'), findsOneWidget, reason: 'the card is back as it was');
   });
 
+  testWidgets('a double tap on "Tout confirmer" adds each day once', (tester) async {
+    final log = await openWithPattern(tester, 'fr', clio, weekdays(clio));
+    await tester.tap(find.text('Tout confirmer'));
+    await tapAndSave(tester, 'Tout confirmer');
+    expect(tripDays(log), [DateTime.utc(2026, 11, 9), DateTime.utc(2026, 11, 10), DateTime.utc(2026, 11, 11)]);
+    expect(find.text('3\u00a0trajets ajoutés'), findsOneWidget);
+  });
+
   testWidgets('in English: "Review" confirms the days left ticked and never offers the others again', (tester) async {
     final log = await openWithPattern(tester, 'en', civic, weekdays(civic));
     expect(find.text('3\u00a0regular trips to confirm'), findsOneWidget);

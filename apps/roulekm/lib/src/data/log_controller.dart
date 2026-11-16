@@ -51,15 +51,29 @@ class LogController extends ChangeNotifier {
   Future<void> deleteRecurring(String id) => _save(recurring: (recurring) => [...recurring.where((r) => r.id != id)]);
 
   /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
-  /// one save: a confirmed or skipped day is never offered again. Completes with the new trips' ids, for Undo.
-  Future<List<String>> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) async {
-    final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
-    final added = [for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)];
+  /// one save: a confirmed or skipped day is never offered again. Decided in the save queue, against the pattern as
+  /// the earlier saves left it, so a second confirm of the same days (a double tap) adds nothing. Completes with the
+  /// new trips' ids, for Undo; null when every day was already seen and nothing changed.
+  Future<List<String>?> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) async {
+    List<String>? added;
     await _save(
-      trips: (trips) => [...trips, ...added],
-      recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(checkedThrough: through) : r],
+      // Runs before `recurring` below, while [logbook] is still the logbook this save starts from.
+      trips: (trips) {
+        final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
+        final seen = pattern.checkedThrough;
+        if (seen != null && !seen.isBefore(through)) return trips;
+        final fresh = [
+          for (final d in days)
+            if (seen == null || d.isAfter(seen)) TripRecord(id: newId(), date: d, route: pattern.route),
+        ];
+        added = [for (final t in fresh) t.id];
+        return [...trips, ...fresh];
+      },
+      recurring: (recurring) => [
+        for (final r in recurring) r.id == id && added != null ? r.copyWith(checkedThrough: through) : r,
+      ],
     );
-    return [for (final t in added) t.id];
+    return added;
   }
 
   /// Undo for [confirmRecurring], in one save: removes the trips [tripIds] and puts back each pattern's

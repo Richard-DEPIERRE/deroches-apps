@@ -189,6 +189,16 @@ void main() {
       expect(reopened.logbook, log.logbook, reason: 'trips and the checked-through day are saved together');
     });
 
+    test('two quick confirms of the same days (a double tap) add each day once', () async {
+      await log.saveRecurring(weekdays);
+      final waiting = log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 6, 18));
+      final first = log.confirmRecurring('r1', waiting, through: waiting.last);
+      final second = log.confirmRecurring('r1', waiting, through: waiting.last);
+      expect(await first, hasLength(5));
+      expect(await second, isNull, reason: 'nothing left to add, nothing to undo');
+      expect([for (final t in log.logbook!.trips) t.date.day], [2, 3, 4, 5, 6]);
+    });
+
     test('skipping every day adds no trip and the days never come back', () async {
       await log.saveRecurring(weekdays);
       await log.confirmRecurring('r1', const [], through: DateTime.utc(2026, 11, 6));

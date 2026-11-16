@@ -73,14 +73,15 @@ Future<void> type(WidgetTester tester, String label, String text) async {
   await tester.pump();
 }
 
-Future<void> tapSave(WidgetTester tester, String label) async {
+Future<void> tapSave(WidgetTester tester, String label, {bool Function()? until}) async {
   await tester.tap(find.widgetWithText(FilledButton, label));
-  await settle(tester);
+  await settle(tester, until: until);
 }
 
 /// Saves started by a tap run in the test's fake time: pump while real time passes, so each write reaches the disk.
-Future<void> settle(WidgetTester tester) async {
-  for (var i = 0; i < 20; i++) {
+/// With [until], keep going (up to 3 s) until it holds: a slow CI disk may need more than the default 200 ms.
+Future<void> settle(WidgetTester tester, {bool Function()? until}) async {
+  for (var i = 0; i < 20 || (until != null && !until() && i < 300); i++) {
     await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 10)));
     await tester.pump();
   }
