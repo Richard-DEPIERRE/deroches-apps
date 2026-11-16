@@ -573,4 +573,43 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get homeYear => 'Year and PDF';
+
+  @override
+  String get repeatTitle => 'Repeat this trip';
+
+  @override
+  String get repeatNever => 'Never';
+
+  @override
+  String get repeatStarting => 'Starting';
+
+  @override
+  String get repeatPromise =>
+      'Each planned day, the trip waits on the home screen. Nothing counts until you confirm it, so days off stay out of your log.';
+
+  @override
+  String repeatButton(String days) {
+    return 'Repeat $days';
+  }
+
+  @override
+  String get repeatNoDay => 'Pick at least one day';
+
+  @override
+  String get repeatEveryDay => 'every day';
+
+  @override
+  String repeatOneDay(String day) {
+    return 'on ${day}s';
+  }
+
+  @override
+  String repeatRange(String first, String last) {
+    return '$first to $last';
+  }
+
+  @override
+  String repeatList(String days, String last) {
+    return '$days and $last';
+  }
 }

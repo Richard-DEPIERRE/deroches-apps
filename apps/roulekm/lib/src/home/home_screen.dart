@@ -1,4 +1,5 @@
 import 'package:app_kit/app_kit.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -6,6 +7,7 @@ import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
+import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
@@ -29,6 +31,8 @@ class HomeScreen extends StatelessWidget {
     required this.log,
     required this.settings,
     this.tripSaved,
+    this.pro,
+    this.openPaywall,
     this.editFavourites,
     this.openYear,
     this.now = DateTime.now,
@@ -39,6 +43,10 @@ class HomeScreen extends StatelessWidget {
 
   /// Runs after each trip saved: the first one is the app's first useful moment (`markFirstValue()`).
   final Future<void> Function()? tripSaved;
+
+  /// Whether Pro is owned, and the paywall (DAPP-148 connects it): for the trip form's "Repeat this trip".
+  final ValueListenable<bool>? pro;
+  final OpenPaywall? openPaywall;
 
   /// "Gérer" beside the favourites; "Tout voir" beside the recent trips and the app bar's PDF icon (the Year screen,
   /// DAPP-147). Hidden while null.
@@ -79,7 +87,14 @@ class HomeScreen extends StatelessWidget {
                   if (inUse.isEmpty) _NoVehicle(log: log),
                   for (final (i, system) in systems.indexed) ..._system(context, system, logbook, today, first: i == 0),
                   _AddTripButton(
-                    onPressed: () => openTripScreen(context, log, tripSaved: tripSaved, now: now),
+                    onPressed: () => openTripScreen(
+                      context,
+                      log,
+                      tripSaved: tripSaved,
+                      pro: pro,
+                      openPaywall: openPaywall,
+                      now: now,
+                    ),
                     label: l10n.homeAddTrip,
                     semantics: l10n.homeAddTripLabel,
                   ),
@@ -90,7 +105,18 @@ class HomeScreen extends StatelessWidget {
                       editFavourites,
                     ),
                     for (final f in logbook.favourites)
-                      _FavouriteRow(f.route, () => showQuickAdd(context, log, f.route, tripSaved: tripSaved, now: now)),
+                      _FavouriteRow(
+                        f.route,
+                        () => showQuickAdd(
+                          context,
+                          log,
+                          f.route,
+                          tripSaved: tripSaved,
+                          pro: pro,
+                          openPaywall: openPaywall,
+                          now: now,
+                        ),
+                      ),
                   ],
                   if (logbook.trips.isNotEmpty) ...[
                     _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),

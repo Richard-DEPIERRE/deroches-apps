@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -6,13 +7,16 @@ import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../home/home_screen.dart';
+import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/rates.dart';
 import '../vehicles/vehicle_screen.dart';
+import 'repeat_sheet.dart';
 
 /// Opens *Add a trip*, or *Edit trip* with [trip] (DAPP-141 §3); a new trip starts from [route] and [date] when
 /// given (a favourite's "Edit before adding"). [tripSaved] runs after each save: the first trip saved is the app's
-/// first useful moment (`markFirstValue()`, DAPP-140).
+/// first useful moment (`markFirstValue()`, DAPP-140). A new trip can repeat (Pro, `recurring_trip`): the trip is
+/// saved first, the pattern only with [pro] or once [openPaywall] says it was bought.
 Future<void> openTripScreen(
   BuildContext context,
   LogController log, {
@@ -20,11 +24,22 @@ Future<void> openTripScreen(
   TripRoute? route,
   DateTime? date,
   Future<void> Function()? tripSaved,
+  ValueListenable<bool>? pro,
+  OpenPaywall? openPaywall,
   DateTime Function() now = DateTime.now,
 }) => Navigator.of(context).push(
   MaterialPageRoute<void>(
     fullscreenDialog: true,
-    builder: (_) => TripScreen(log: log, trip: trip, route: route, date: date, tripSaved: tripSaved, now: now),
+    builder: (_) => TripScreen(
+      log: log,
+      trip: trip,
+      route: route,
+      date: date,
+      tripSaved: tripSaved,
+      pro: pro,
+      openPaywall: openPaywall,
+      now: now,
+    ),
   ),
 );
 
@@ -36,6 +51,8 @@ class TripScreen extends StatefulWidget {
     this.route,
     this.date,
     this.tripSaved,
+    this.pro,
+    this.openPaywall,
     this.now = DateTime.now,
   });
 
@@ -46,6 +63,8 @@ class TripScreen extends StatefulWidget {
   final TripRoute? route;
   final DateTime? date;
   final Future<void> Function()? tripSaved;
+  final ValueListenable<bool>? pro;
+  final OpenPaywall? openPaywall;
   final DateTime Function() now;
 
   @override
@@ -53,6 +72,8 @@ class TripScreen extends StatefulWidget {
 }
 
 class _TripScreenState extends State<TripScreen> {
+  /// Kept across save attempts: saving again after a failure replaces the trip, never adds a second one.
+  late final _id = widget.trip?.id ?? newId();
   late final _route = widget.trip?.route ?? widget.route;
   late DateTime _date = widget.trip?.date ?? widget.date ?? _day(widget.now());
   late final _from = TextEditingController(text: _route?.from);
@@ -68,6 +89,9 @@ class _TripScreenState extends State<TripScreen> {
   late bool _roundTrip = _route?.roundTrip ?? false;
   late String? _vehicleId = _route?.vehicleId ?? widget.log.inUse.firstOrNull?.id;
   bool _favourite = false;
+
+  /// The weekdays picked in the repeat sheet; null when the trip doesn't repeat.
+  List<int>? _repeat;
   bool _checked = false;
   bool _saving = false;
 
@@ -163,7 +187,7 @@ class _TripScreenState extends State<TripScreen> {
       roundTrip: _roundTrip,
     );
     final trip = TripRecord(
-      id: widget.trip?.id ?? newId(),
+      id: _id,
       date: _date,
       route: route,
       odometerStart: _odometer ? _reading(_start) : null,
@@ -173,7 +197,52 @@ class _TripScreenState extends State<TripScreen> {
       await widget.log.saveTrip(trip);
       if (_favourite) await widget.log.saveFavourite(FavouriteTrip(id: newId(), route: route));
       await widget.tripSaved?.call();
+      // Then the repetition, which alone needs Pro: without it the trip stays and no pattern is kept.
+      if (_repeat case final weekdays? when mounted) {
+        final allowed = await proAction(
+          context,
+          placement: 'recurring_trip',
+          pro: _pro,
+          tripSaved: true,
+          openPaywall: widget.openPaywall,
+        );
+        if (allowed) {
+          await widget.log.saveRecurring(
+            RecurringTrip(id: newId(), route: route, weekdays: weekdays, startDate: _date, checkedThrough: _date),
+          );
+        }
+      }
     });
+  }
+
+  bool get _pro => widget.pro?.value ?? false;
+
+  /// The repeat sheet; the pattern starts on the trip's day, which the trip itself covers.
+  Future<void> _pickRepeat() async {
+    if (!_pro && (widget.log.logbook?.trips.isEmpty ?? true)) {
+      // Before the first trip: the snackbar, no price (DAPP-140 §1).
+      await proAction(context, placement: 'recurring_trip', pro: false, tripSaved: false, openPaywall: null);
+      return;
+    }
+    final measured = _measured;
+    final picked = await showRepeatSheet(
+      context,
+      weekdays: _repeat ?? const [1, 2, 3, 4, 5],
+      start: _date,
+      thisYear: widget.now().year,
+      system: _vehicle?.rates,
+      route: _from.text.trim().isEmpty || _to.text.trim().isEmpty || measured == null
+          ? null
+          : TripRoute(
+              from: _from.text.trim(),
+              to: _to.text.trim(),
+              purpose: '',
+              distance: Distance(measured, _unit),
+              vehicleId: '',
+              roundTrip: _roundTrip,
+            ),
+    );
+    if (picked != null && mounted) setState(() => _repeat = picked);
   }
 
   void _delete(TripRecord trip) {
@@ -466,6 +535,24 @@ class _TripScreenState extends State<TripScreen> {
                   ],
                 ),
               ),
+            if (widget.trip == null)
+              // No leading icon: its text lines up with the rows around it, whose controls sit at the end.
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Row(
+                  spacing: 8,
+                  children: [
+                    Flexible(child: Text(l10n.repeatTitle)),
+                    if (!_pro) const ProTag(),
+                  ],
+                ),
+                subtitle: Text(switch (_repeat) {
+                  final days? => _capitalized(repeatDays(l10n, lang, days)),
+                  null => l10n.repeatNever,
+                }),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: _saving ? null : _pickRepeat,
+              ),
             CheckboxListTile(
               contentPadding: EdgeInsets.zero,
               controlAffinity: ListTileControlAffinity.trailing,
@@ -490,6 +577,8 @@ class _TripScreenState extends State<TripScreen> {
     );
   }
 }
+
+String _capitalized(String s) => '${s[0].toUpperCase()}${s.substring(1)}';
 
 String _group(String lang, int? n) => n == null ? '' : NumberFormat.decimalPattern(lang).format(n);
 

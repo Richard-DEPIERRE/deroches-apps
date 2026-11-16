@@ -136,5 +136,15 @@
   "yearSourceFrance": "Calcul au barème kilométrique {year}{latest, select, yes{, le dernier publié} other{}} (source\u00a0: {site}, lu le {date}).",
   "yearSourceUk": "Calcul aux indemnités kilométriques HMRC, {year}{latest, select, yes{, les dernières publiées} other{}} (source\u00a0: {site}, lu le {date}). Conservez ce relevé avec vos justificatifs\u00a0; ce n’est pas un conseil fiscal.",
   "yearSourceUs": "Calcul au taux kilométrique standard IRS pour {year}{latest, select, yes{, le dernier publié} other{}} (source\u00a0: {site}, lu le {date}). Conservez ce relevé avec vos justificatifs\u00a0; ce n’est pas un conseil fiscal.",
-  "homeYear": "Année et PDF"
+  "homeYear": "Année et PDF",
+  "repeatTitle": "Répéter ce trajet",
+  "repeatNever": "Jamais",
+  "repeatStarting": "À\u00a0partir\u00a0du",
+  "repeatPromise": "Chaque jour prévu, le trajet vous attend sur l’accueil. Rien n’est compté sans votre confirmation\u00a0: congés et jours off restent hors du relevé.",
+  "repeatButton": "Répéter {days}",
+  "repeatNoDay": "Choisissez au moins un jour",
+  "repeatEveryDay": "tous les jours",
+  "repeatOneDay": "le {day}",
+  "repeatRange": "du {first} au {last}",
+  "repeatList": "{days} et {last}"
 }
