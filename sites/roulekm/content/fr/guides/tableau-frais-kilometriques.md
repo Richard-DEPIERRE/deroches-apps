@@ -4,7 +4,7 @@ description: 'Un tableau de frais kilométriques prêt à recopier : les colonne
 translation: tableau-frais-kilometriques
 type: guide
 published: 2026-11-10
-updated: 2026-11-10
+updated: 2026-11-17
 factCheck: DAPP-233
 download: Roulekm tient ce tableau sur votre téléphone et applique le barème de chaque véhicule.
 related: [justificatif-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
