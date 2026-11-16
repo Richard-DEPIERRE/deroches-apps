@@ -82,41 +82,58 @@ void main() {
   testWidgets('in French: the card names the route and days; "Tout confirmer" counts them all once', (tester) async {
     final saved = <int>[];
     final log = await openWithPattern(tester, 'fr', clio, weekdays(clio), saved: saved);
-    expect(find.text('3 trajets réguliers à confirmer'), findsOneWidget);
+    expect(find.text('3\u00a0trajets réguliers à confirmer'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp(r'\nHome vers Job site\n')), findsOneWidget, reason: 'read as one card');
     expect(find.textContaining('Du lundi au vendredi'), findsOneWidget);
-    expect(find.textContaining('Lun.\u00a09\u00a0nov.\u00a0– Mer.\u00a011\u00a0nov.'), findsOneWidget);
+    expect(find.text('3\u00a0jours\u00a0· Lun.\u00a09\u00a0nov.\u00a0– Mer.\u00a011\u00a0nov.'), findsOneWidget);
     expect(log.logbook!.trips, isEmpty, reason: 'nothing counted until confirmed');
+    expect(
+      tester.getRect(find.widgetWithText(FilledButton, 'Tout confirmer')).right,
+      400 - 16 - 16,
+      reason: 'the actions end on the card text edge',
+    );
 
     await tapAndSave(tester, 'Tout confirmer');
     expect(tripDays(log), [DateTime.utc(2026, 11, 9), DateTime.utc(2026, 11, 10), DateTime.utc(2026, 11, 11)]);
     expect(log.logbook!.trips.every((t) => t.route == weekdays(clio).route), isTrue);
     expect(log.logbook!.recurring.single.checkedThrough, DateTime.utc(2026, 11, 11));
     expect(saved, isNotEmpty, reason: 'a confirmed trip is a trip saved');
-    expect(find.text('3 trajets ajoutés'), findsOneWidget);
+    expect(find.text('3\u00a0trajets ajoutés'), findsOneWidget);
     expect(find.textContaining('à confirmer'), findsNothing, reason: 'never offered again');
+
+    await tapAndSave(tester, 'Annuler');
+    expect(log.logbook!.trips, isEmpty, reason: 'Undo removes the trips just added');
+    expect(log.logbook!.recurring.single.checkedThrough, isNull);
+    expect(find.text('3\u00a0trajets réguliers à confirmer'), findsOneWidget, reason: 'the card is back as it was');
   });
 
   testWidgets('in English: "Review" confirms the days left ticked and never offers the others again', (tester) async {
     final log = await openWithPattern(tester, 'en', civic, weekdays(civic));
-    expect(find.text('3 regular trips to confirm'), findsOneWidget);
+    expect(find.text('3\u00a0regular trips to confirm'), findsOneWidget);
     expect(find.textContaining('Monday to Friday'), findsOneWidget);
     await tester.tap(find.text('Review'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Untick'), findsOneWidget);
+    expect(find.textContaining('Uncheck the days'), findsOneWidget);
     expect(find.byType(CheckboxListTile), findsNWidgets(3));
-    expect(find.text('Confirm 3 trips'), findsOneWidget);
+    expect(find.text('Confirm 3\u00a0trips'), findsOneWidget);
     await tester.tap(find.text('Tue,\u00a0Nov\u00a010'));
     await tester.pump();
 
-    await tapAndSave(tester, 'Confirm 2 trips');
+    await tapAndSave(tester, 'Confirm 2\u00a0trips');
     expect(tripDays(log), [DateTime.utc(2026, 11, 9), DateTime.utc(2026, 11, 11)]);
     expect(log.logbook!.recurring.single.checkedThrough, DateTime.utc(2026, 11, 11));
-    expect(find.text('2 trips added'), findsOneWidget);
+    expect(find.text('2\u00a0trips added'), findsOneWidget);
     expect(find.textContaining('to confirm'), findsNothing);
+
+    await tapAndSave(tester, 'Undo');
+    expect(log.logbook!.trips, isEmpty);
+    expect(log.logbook!.recurring.single.checkedThrough, isNull, reason: 'the skipped day comes back too');
+    expect(find.text('3\u00a0regular trips to confirm'), findsOneWidget);
   });
 
-  testWidgets('skip: with every day unticked, nothing is counted and the days are never offered again', (tester) async {
+  testWidgets('skip: with every day unchecked, nothing is counted and the days are never offered again', (
+    tester,
+  ) async {
     final saved = <int>[];
     final log = await openWithPattern(tester, 'en', civic, weekdays(civic), saved: saved);
     await tester.tap(find.text('Review'));
@@ -131,6 +148,11 @@ void main() {
     expect(log.logbook!.recurring.single.checkedThrough, DateTime.utc(2026, 11, 11));
     expect(saved, isEmpty);
     expect(find.textContaining('to confirm'), findsNothing);
+    expect(find.text('3\u00a0days skipped'), findsOneWidget, reason: 'never closed without a word');
     expect(log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 12)), [DateTime.utc(2026, 11, 12)]);
+
+    await tapAndSave(tester, 'Undo');
+    expect(log.logbook!.recurring.single.checkedThrough, isNull);
+    expect(find.text('3\u00a0regular trips to confirm'), findsOneWidget);
   });
 }

@@ -51,14 +51,35 @@ class LogController extends ChangeNotifier {
   Future<void> deleteRecurring(String id) => _save(recurring: (recurring) => [...recurring.where((r) => r.id != id)]);
 
   /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
-  /// one save: a confirmed or skipped day is never offered again.
-  Future<void> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) {
+  /// one save: a confirmed or skipped day is never offered again. Completes with the new trips' ids, for Undo.
+  Future<List<String>> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) async {
     final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
-    return _save(
-      trips: (trips) => [...trips, for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)],
+    final added = [for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)];
+    await _save(
+      trips: (trips) => [...trips, ...added],
       recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(checkedThrough: through) : r],
     );
+    return [for (final t in added) t.id];
   }
+
+  /// Undo for [confirmRecurring], in one save: removes the trips [tripIds] and puts back each pattern's
+  /// [checkedThrough] (by pattern id), so its days wait again.
+  Future<void> undoConfirm(List<String> tripIds, Map<String, DateTime?> checkedThrough) => _save(
+    trips: (trips) => [...trips.where((t) => !tripIds.contains(t.id))],
+    recurring: (recurring) => [
+      for (final r in recurring)
+        checkedThrough.containsKey(r.id)
+            ? RecurringTrip(
+                id: r.id,
+                route: r.route,
+                weekdays: r.weekdays,
+                startDate: r.startDate,
+                checkedThrough: checkedThrough[r.id],
+                paused: r.paused,
+              )
+            : r,
+    ],
+  );
 
   static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
     final i = items.indexWhere((e) => id(e) == id(item));

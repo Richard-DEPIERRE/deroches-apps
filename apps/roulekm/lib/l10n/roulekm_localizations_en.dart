@@ -547,8 +547,8 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count regular trips to confirm',
-      one: '1 regular trip to confirm',
+      other: '$count regular trips to confirm',
+      one: '1 regular trip to confirm',
     );
     return '$_temp0';
   }
@@ -561,15 +561,15 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get recurringReviewHint =>
-      'Untick the days you didn’t make this trip. They won’t be offered again.';
+      'Uncheck the days you didn’t make the trip. They won’t be offered again.';
 
   @override
   String recurringConfirm(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Confirm $count trips',
-      one: 'Confirm 1 trip',
+      other: 'Confirm $count trips',
+      one: 'Confirm 1 trip',
     );
     return '$_temp0';
   }
@@ -582,9 +582,31 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count trips added',
-      one: '1 trip added',
+      other: '$count trips added',
+      one: '1 trip added',
     );
     return '$_temp0';
+  }
+
+  @override
+  String recurringSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days skipped',
+      one: '1 day skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSpan(int count, String span) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0 · $span';
   }
 }

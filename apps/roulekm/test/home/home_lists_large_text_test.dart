@@ -41,8 +41,8 @@ void main() {
   }
 
   for (final (lang, vehicle, all, confirm) in [
-    ('fr', clio, 'Tout confirmer', 'Confirmer 3 trajets'),
-    ('en', civic, 'Confirm all', 'Confirm 3 trips'),
+    ('fr', clio, 'Tout confirmer', 'Confirmer 3\u00a0trajets'),
+    ('en', civic, 'Confirm all', 'Confirm 3\u00a0trips'),
   ]) {
     testWidgets('$lang: the regular-trips card and its review sheet keep their actions on a 360 dp phone at 2× text', (
       tester,

@@ -926,7 +926,7 @@ abstract class RoulekmLocalizations {
   /// Home card (Pro) and review sheet title: the recurring days waiting.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 regular trip to confirm} other{{count} regular trips to confirm}}'**
+  /// **'{count, plural, =1{1 regular trip to confirm} other{{count} regular trips to confirm}}'**
   String recurringToConfirm(int count);
 
   /// Home card: opens the sheet to pick which days to confirm.
@@ -944,16 +944,16 @@ abstract class RoulekmLocalizations {
   /// Review sheet: under the title.
   ///
   /// In en, this message translates to:
-  /// **'Untick the days you didn’t make this trip. They won’t be offered again.'**
+  /// **'Uncheck the days you didn’t make the trip. They won’t be offered again.'**
   String get recurringReviewHint;
 
   /// Review sheet's button, with the days ticked.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Confirm 1 trip} other{Confirm {count} trips}}'**
+  /// **'{count, plural, =1{Confirm 1 trip} other{Confirm {count} trips}}'**
   String recurringConfirm(int count);
 
-  /// Review sheet's button when every day is unticked: none is counted or offered again.
+  /// Review sheet's button when every day is unchecked: none is counted or offered again.
   ///
   /// In en, this message translates to:
   /// **'Skip these days'**
@@ -962,8 +962,20 @@ abstract class RoulekmLocalizations {
   /// Snackbar after confirming recurring days.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 trip added} other{{count} trips added}}'**
+  /// **'{count, plural, =1{1 trip added} other{{count} trips added}}'**
   String recurringAdded(int count);
+
+  /// Snackbar, with Undo, after skipping every recurring day waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day skipped} other{{count} days skipped}}'**
+  String recurringSkipped(int count);
+
+  /// Home card: three or more days waiting, “3 days · Mon, Nov 9 – Wed, Nov 11”.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}} · {span}'**
+  String recurringSpan(int count, String span);
 }
 
 class _RoulekmLocalizationsDelegate

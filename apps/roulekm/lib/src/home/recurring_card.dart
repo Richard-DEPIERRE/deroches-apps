@@ -20,21 +20,35 @@ class RecurringCard extends StatelessWidget {
   final DateTime today;
   final Future<void> Function()? tripSaved;
 
-  /// Adds the [picked] days of each pattern and marks every day shown as seen, then says how many were added.
+  /// Adds the [picked] days of each pattern and marks every day shown as seen, then says how many were added or
+  /// skipped, with Undo: it removes those trips and puts every day back as waiting, in one save.
   Future<void> _confirm(BuildContext context, Map<String, List<DateTime>> picked) async {
     final l10n = RoulekmLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final count = picked.values.fold(0, (n, days) => n + days.length);
+    final skipped = waiting.fold(0, (n, w) => n + w.$2.length) - count;
+    final before = {for (final (pattern, _) in waiting) pattern.id: pattern.checkedThrough};
+    final added = <String>[];
     try {
       for (final (pattern, days) in waiting) {
-        await log.confirmRecurring(pattern.id, picked[pattern.id] ?? const [], through: days.last);
+        added.addAll(await log.confirmRecurring(pattern.id, picked[pattern.id] ?? const [], through: days.last));
       }
       if (count > 0) await tripSaved?.call();
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.tripSaveFailed)));
       return;
     }
-    if (count > 0) messenger.showSnackBar(SnackBar(content: Text(l10n.recurringAdded(count))));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(count > 0 ? l10n.recurringAdded(count) : l10n.recurringSkipped(skipped)),
+        action: SnackBarAction(
+          label: l10n.vehicleArchiveUndo,
+          onPressed: () => log.undoConfirm(added, before).onError((_, _) {
+            messenger.showSnackBar(SnackBar(content: Text(l10n.tripSaveFailed)));
+          }),
+        ),
+      ),
+    );
   }
 
   Future<void> _review(BuildContext context) async {
@@ -54,6 +68,10 @@ class RecurringCard extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final count = waiting.fold(0, (n, w) => n + w.$2.length);
+    final scaler = MediaQuery.textScalerOf(context);
+    final icon = scaler.clamp(maxScaleFactor: 1.5).scale(18);
+    final title = theme.textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w600);
+    final line = scaler.scale(title.fontSize!) * (title.height ?? 1.2);
     return Card.outlined(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Padding(
@@ -63,18 +81,14 @@ class RecurringCard extends StatelessWidget {
           children: [
             Row(
               spacing: 8,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.repeat,
-                  size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18),
-                  color: scheme.primary,
+                // Centred on the title's first line.
+                Padding(
+                  padding: EdgeInsets.only(top: ((line - icon) / 2).clamp(0, double.infinity)),
+                  child: Icon(Icons.repeat, size: icon, color: scheme.primary),
                 ),
-                Expanded(
-                  child: Text(
-                    l10n.recurringToConfirm(count),
-                    style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                ),
+                Expanded(child: Text(l10n.recurringToConfirm(count), style: title)),
               ],
             ),
             for (final (pattern, days) in waiting) ...[
@@ -82,16 +96,21 @@ class RecurringCard extends StatelessWidget {
               _Pattern(log: log, pattern: pattern, days: days, today: today),
             ],
             const SizedBox(height: 4),
-            Wrap(
-              spacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                TextButton(onPressed: () => _review(context), child: Text(l10n.recurringReview)),
-                FilledButton.tonal(
-                  onPressed: () => _confirm(context, {for (final (pattern, days) in waiting) pattern.id: days}),
-                  child: Text(l10n.recurringConfirmAll),
-                ),
-              ],
+            // Card actions at the end (M3); they wrap at large text sizes. Full width, or the Wrap shrinks to them.
+            SizedBox(
+              width: double.infinity,
+              child: Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  TextButton(onPressed: () => _review(context), child: Text(l10n.recurringReview)),
+                  FilledButton.tonal(
+                    onPressed: () => _confirm(context, {for (final (pattern, days) in waiting) pattern.id: days}),
+                    child: Text(l10n.recurringConfirmAll),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -100,7 +119,8 @@ class RecurringCard extends StatelessWidget {
   }
 }
 
-/// A pattern's route, its weekdays and distance and, with [days], the days waiting: two listed, more as a span.
+/// A pattern's route, its weekdays and distance and, with [days], the days waiting: two listed, more
+/// as their count and span.
 class _Pattern extends StatelessWidget {
   const _Pattern({required this.log, required this.pattern, required this.today, this.days});
 
@@ -131,7 +151,9 @@ class _Pattern extends StatelessWidget {
         ),
         if (days case final days?)
           Text(
-            days.length <= 2 ? days.map(day).join('\u00a0· ') : '${day(days.first)}\u00a0– ${day(days.last)}',
+            days.length <= 2
+                ? days.map(day).join('\u00a0· ')
+                : l10n.recurringSpan(days.length, '${day(days.first)}\u00a0– ${day(days.last)}'),
             style: muted,
           ),
       ],
