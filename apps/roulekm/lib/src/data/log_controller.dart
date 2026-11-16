@@ -51,14 +51,49 @@ class LogController extends ChangeNotifier {
   Future<void> deleteRecurring(String id) => _save(recurring: (recurring) => [...recurring.where((r) => r.id != id)]);
 
   /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
-  /// one save: a confirmed or skipped day is never offered again.
-  Future<void> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) {
-    final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
-    return _save(
-      trips: (trips) => [...trips, for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)],
-      recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(checkedThrough: through) : r],
+  /// one save: a confirmed or skipped day is never offered again. Decided in the save queue, against the pattern as
+  /// the earlier saves left it, so a second confirm of the same days (a double tap) adds nothing. Completes with the
+  /// new trips' ids, for Undo; null when every day was already seen and nothing changed.
+  Future<List<String>?> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) async {
+    List<String>? added;
+    await _save(
+      // Runs before `recurring` below, while [logbook] is still the logbook this save starts from.
+      trips: (trips) {
+        final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
+        final seen = pattern.checkedThrough;
+        if (seen != null && !seen.isBefore(through)) return trips;
+        final fresh = [
+          for (final d in days)
+            if (seen == null || d.isAfter(seen)) TripRecord(id: newId(), date: d, route: pattern.route),
+        ];
+        added = [for (final t in fresh) t.id];
+        return [...trips, ...fresh];
+      },
+      recurring: (recurring) => [
+        for (final r in recurring) r.id == id && added != null ? r.copyWith(checkedThrough: through) : r,
+      ],
     );
+    return added;
   }
+
+  /// Undo for [confirmRecurring], in one save: removes the trips [tripIds] and puts back each pattern's
+  /// [checkedThrough] (by pattern id), so its days wait again.
+  Future<void> undoConfirm(List<String> tripIds, Map<String, DateTime?> checkedThrough) => _save(
+    trips: (trips) => [...trips.where((t) => !tripIds.contains(t.id))],
+    recurring: (recurring) => [
+      for (final r in recurring)
+        checkedThrough.containsKey(r.id)
+            ? RecurringTrip(
+                id: r.id,
+                route: r.route,
+                weekdays: r.weekdays,
+                startDate: r.startDate,
+                checkedThrough: checkedThrough[r.id],
+                paused: r.paused,
+              )
+            : r,
+    ],
+  );
 
   static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
     final i = items.indexWhere((e) => id(e) == id(item));

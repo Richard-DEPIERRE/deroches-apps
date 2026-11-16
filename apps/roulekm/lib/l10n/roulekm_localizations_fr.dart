@@ -610,4 +610,72 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String repeatList(String days, String last) {
     return '$days et $last';
   }
+
+  @override
+  String recurringToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets réguliers à confirmer',
+      one: '1 trajet régulier à confirmer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringReview => 'Voir';
+
+  @override
+  String get recurringConfirmAll => 'Tout confirmer';
+
+  @override
+  String get recurringReviewHint =>
+      'Décochez les jours où vous n’avez pas fait le trajet. Ils ne seront plus proposés.';
+
+  @override
+  String recurringConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Confirmer $count trajets',
+      one: 'Confirmer 1 trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringSkip => 'Ignorer ces jours';
+
+  @override
+  String recurringAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets ajoutés',
+      one: '1 trajet ajouté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours ignorés',
+      one: '1 jour ignoré',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSpan(int count, String span) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours',
+      one: '1 jour',
+    );
+    return '$_temp0 · $span';
+  }
 }

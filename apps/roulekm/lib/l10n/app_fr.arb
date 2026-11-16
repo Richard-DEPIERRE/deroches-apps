@@ -146,5 +146,14 @@
   "repeatEveryDay": "tous les jours",
   "repeatOneDay": "le {day}",
   "repeatRange": "du {first} au {last}",
-  "repeatList": "{days} et {last}"
+  "repeatList": "{days} et {last}",
+  "recurringToConfirm": "{count, plural, =1{1\u00a0trajet régulier à confirmer} other{{count}\u00a0trajets réguliers à confirmer}}",
+  "recurringReview": "Voir",
+  "recurringConfirmAll": "Tout confirmer",
+  "recurringReviewHint": "Décochez les jours où vous n’avez pas fait le trajet. Ils ne seront plus proposés.",
+  "recurringConfirm": "{count, plural, =1{Confirmer 1\u00a0trajet} other{Confirmer {count}\u00a0trajets}}",
+  "recurringSkip": "Ignorer ces jours",
+  "recurringAdded": "{count, plural, =1{1\u00a0trajet ajouté} other{{count}\u00a0trajets ajoutés}}",
+  "recurringSkipped": "{count, plural, =1{1\u00a0jour ignoré} other{{count}\u00a0jours ignorés}}",
+  "recurringSpan": "{count, plural, =1{1\u00a0jour} other{{count}\u00a0jours}}\u00a0· {span}"
 }

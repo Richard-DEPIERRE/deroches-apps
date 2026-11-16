@@ -96,7 +96,8 @@ void main() {
       await openSheet(tester, 'Repeat this trip');
       await tester.tap(find.text('Repeat Monday to Friday'));
       await tester.pumpAndSettle();
-      await tapSave(tester, 'Save\u00a0· 21\u00a0mi');
+      // Two saves and the paywall: wait for the form to close.
+      await tapSave(tester, 'Save\u00a0· 21\u00a0mi', until: () => find.text('New trip').evaluate().isEmpty);
 
       expect(paywalls, ['recurring_trip']);
       expect(log.logbook!.trips, hasLength(2), reason: 'saved whatever happens');
