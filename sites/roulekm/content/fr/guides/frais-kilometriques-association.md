@@ -323,7 +323,7 @@ précise qu’il n’a été revalorisé ni en 2025 ni en 2026. Il se lit selon 
 parcourue, avec un barème pour les voitures et d’autres pour les motos et les cyclomoteurs. Exemple de ligne : voiture
 de 5 CV, jusqu’à 5 000 km dans l’année, **d × 0,636**, où d est la distance en kilomètres. Pour une voiture 100 %
 électrique, le montant est majoré de 20 % (voir notre guide sur [les frais d’une voiture
-électrique](/guides/frais-reels-voiture-electrique/)). Le barème complet, voitures et deux-roues, est dans notre
+électrique](/guides/frais-reels-voiture-electrique/)). Le barème complet des voitures est dans notre
 [tableau des frais kilométriques](/guides/tableau-frais-kilometriques/).
 
 Pour vos trajets de 2026, à déclarer en 2027, le barème des revenus de 2026 n’était pas encore publié à la date de ce
