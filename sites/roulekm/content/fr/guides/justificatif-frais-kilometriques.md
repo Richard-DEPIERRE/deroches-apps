@@ -329,6 +329,8 @@ frais et de votre situation. Pour votre cas :
 - le **service des impôts qui gère votre dossier**, dont les coordonnées figurent sur votre avis d’impôt et votre
   déclaration, répond aux questions sur votre situation ;
 - pour des indemnités versées par votre employeur, voyez avec lui ou avec son service de paie ;
+- pour des trajets faits comme bénévole d’une association, voyez notre guide sur [les frais kilométriques en
+  association](/guides/frais-kilometriques-association/) ;
 - un professionnel peut aussi vous conseiller.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de l’administration fiscale

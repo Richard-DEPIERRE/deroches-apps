@@ -7,7 +7,7 @@ published: 2026-11-16
 updated: 2026-11-16
 factCheck: DAPP-313
 download: Roulekm date chaque déplacement avec son motif et ses kilomètres, et en fait le total par véhicule au barème.
-related: [tableau-frais-kilometriques, justificatif-frais-kilometriques]
+related: [tableau-frais-kilometriques, justificatif-frais-kilometriques, frais-kilometriques-association]
 sources:
   - title: 'Arrêté du 4 septembre 2025 relatif aux frais professionnels déductibles pour le calcul des cotisations de sécurité sociale'
     publisher: Légifrance (Journal officiel)
@@ -248,6 +248,9 @@ au Smic.
 
 Ce guide ne dit pas si une somme vous est due ni laquelle : cela dépend de votre contrat et de votre situation (voir la
 dernière partie).
+
+Vous roulez comme bénévole pour une association, sans être salarié ? Voyez plutôt notre guide sur [les frais
+kilométriques en association](/guides/frais-kilometriques-association/).
 
 ## Exemple : une année de déplacements avec une voiture de 5 CV
 
