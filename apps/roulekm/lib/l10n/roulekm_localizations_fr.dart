@@ -501,6 +501,78 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   }
 
   @override
+  String yearTitle(String uk, String year) {
+    String _temp0 = intl.Intl.selectLogic(uk, {
+      'yes': 'Année fiscale $year',
+      'other': 'Année $year',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yearPick => 'Choisir l’année';
+
+  @override
+  String yearSummary(String distance, int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString trajets',
+      one: '1 trajet',
+      zero: '0 trajet',
+    );
+    return '$distance · $_temp0';
+  }
+
+  @override
+  String get yearDistance => 'Distance';
+
+  @override
+  String get yearCalculation => 'Calcul';
+
+  @override
+  String get yearAmount => 'Montant';
+
+  @override
+  String yearSourceFrance(
+    String year,
+    String latest,
+    String site,
+    String date,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', le dernier publié',
+      'other': '',
+    });
+    return 'Calcul au barème kilométrique $year$_temp0 (source : $site, lu le $date).';
+  }
+
+  @override
+  String yearSourceUk(String year, String latest, String site, String date) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', les dernières publiées',
+      'other': '',
+    });
+    return 'Calcul aux indemnités kilométriques HMRC, $year$_temp0 (source : $site, lu le $date). Conservez ce relevé avec vos justificatifs ; ce n’est pas un conseil fiscal.';
+  }
+
+  @override
+  String yearSourceUs(String year, String latest, String site, String date) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', le dernier publié',
+      'other': '',
+    });
+    return 'Calcul au taux kilométrique standard IRS pour $year$_temp0 (source : $site, lu le $date). Conservez ce relevé avec vos justificatifs ; ce n’est pas un conseil fiscal.';
+  }
+
+  @override
+  String get homeYear => 'Année et PDF';
+
+  @override
   String get repeatTitle => 'Répéter ce trajet';
 
   @override

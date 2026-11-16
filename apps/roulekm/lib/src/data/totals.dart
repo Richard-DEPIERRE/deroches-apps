@@ -10,12 +10,22 @@ import 'logbook.dart';
 typedef VehicleTotal = ({int distance, int? cents});
 
 /// Each vehicle's total for the period that holds [now] ([RateSystem.periodOf]), archived ones included.
+Map<String, VehicleTotal> vehicleTotals(Logbook log, DateTime now) => {
+  for (final MapEntry(:key, :value) in yearTotals(log, now).entries)
+    key: (distance: value.distance, cents: value.cents),
+};
+
+/// A vehicle's year on the Year screen (DAPP-147): [VehicleTotal] with its trip count and the claim [line] it is
+/// counted in (null without trips or rates; shared with other vehicles where the law pools them).
+typedef YearTotal = ({int distance, int trips, int? cents, ClaimLine? line});
+
+/// Each vehicle's [YearTotal] for the period that holds [now], archived ones included.
 ///
 /// A period whose rates aren't published yet is counted at the latest ones (the home names them, DAPP-141 §1): its
 /// trips are moved to that period, day for day. Where the law pools vehicles (the UK's cars, the US), the line's
 /// amount is shared out by distance.
-Map<String, VehicleTotal> vehicleTotals(Logbook log, DateTime now) {
-  final totals = <String, VehicleTotal>{};
+Map<String, YearTotal> yearTotals(Logbook log, DateTime now) {
+  final totals = <String, YearTotal>{};
   for (final system in RateSystem.values) {
     final period = system.periodOf(now);
     final ratesYear = ratesFor(system, now)?.year;
@@ -41,6 +51,8 @@ Map<String, VehicleTotal> vehicleTotals(Logbook log, DateTime now) {
       };
       totals[id] = (
         distance: distance,
+        trips: trips.where((t) => identical(t.vehicle, vehicle)).length,
+        line: line,
         cents: result is! Claim
             ? null
             : line == null || line.distance == 0
@@ -50,6 +62,24 @@ Map<String, VehicleTotal> vehicleTotals(Logbook log, DateTime now) {
     }
   }
   return totals;
+}
+
+/// The first day of [system]'s [period]: 1 January, or 6 April for the UK's tax year.
+DateTime periodStart(RateSystem system, int period) =>
+    DateTime.utc(period, system == RateSystem.uk ? 4 : 1, system == RateSystem.uk ? 6 : 1);
+
+/// The Year screen's years, latest first: from the first trip's period to the current one, the latest current period
+/// of the systems in use (archived vehicles' when none is in use; France's without vehicles).
+List<int> yearsOf(Logbook log, DateTime now) {
+  final systems = {for (final v in log.vehicles) v.id: v.rates};
+  final inUse = {
+    for (final v in log.vehicles)
+      if (!v.archived) v.rates,
+  };
+  final counted = inUse.isNotEmpty ? inUse : {...systems.values};
+  final current = (counted.isEmpty ? {RateSystem.france} : counted).map((s) => s.periodOf(now)).reduce(max);
+  final first = [for (final t in log.trips) ?systems[t.route.vehicleId]?.periodOf(t.date)].fold(current, min);
+  return [for (var y = current; y >= first; y--) y];
 }
 
 /// The rates [system] uses for the period that holds [now]: that period's, or the latest published while its own

@@ -48,8 +48,8 @@ class HomeScreen extends StatelessWidget {
   final ValueListenable<bool>? pro;
   final OpenPaywall? openPaywall;
 
-  /// "Gérer" beside the favourites, and "Tout voir" beside the recent trips (the Year screen, DAPP-147): hidden until
-  /// their screens exist.
+  /// "Gérer" beside the favourites; "Tout voir" beside the recent trips and the app bar's PDF icon (the Year screen,
+  /// DAPP-147). Hidden while null.
   final VoidCallback? editFavourites;
   final VoidCallback? openYear;
   final DateTime Function() now;
@@ -70,6 +70,8 @@ class HomeScreen extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w600, fontFeatures: _tabular),
           ),
           actions: [
+            if (openYear != null)
+              IconButton(icon: const Icon(Icons.picture_as_pdf_outlined), tooltip: l10n.homeYear, onPressed: openYear),
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               tooltip: KitLocalizations.of(context).settingsTitle,
@@ -119,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                   if (logbook.trips.isNotEmpty) ...[
                     _Header(l10n.homeRecent, l10n.homeSeeAll, openYear),
                     for (final t in logbook.latestFirst.take(3))
-                      _TripRow(t, logbook.vehicles, () => openTripScreen(context, log, trip: t, tripSaved: tripSaved)),
+                      TripRow(t, logbook.vehicles, () => openTripScreen(context, log, trip: t, tripSaved: tripSaved)),
                   ],
                 ],
               ),
@@ -592,8 +594,9 @@ class _FavouriteRow extends StatelessWidget {
   }
 }
 
-class _TripRow extends StatelessWidget {
-  const _TripRow(this.trip, this.vehicles, this.onTap);
+/// A trip: route, "Mer. 5 nov. · Clio · Suivi de chantier", distance on the right; tap to edit (home, Year screen).
+class TripRow extends StatelessWidget {
+  const TripRow(this.trip, this.vehicles, this.onTap, {super.key});
 
   final TripRecord trip;
   final List<VehicleRecord> vehicles;
