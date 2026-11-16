@@ -862,6 +862,66 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Trip added · {distance}'**
   String tripAdded(String distance);
+
+  /// The trip form's row (Pro) and the repeat sheet's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat this trip'**
+  String get repeatTitle;
+
+  /// Under “Repeat this trip” while no day is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Never'**
+  String get repeatNever;
+
+  /// Repeat sheet: before the first day of the pattern (the trip's day).
+  ///
+  /// In en, this message translates to:
+  /// **'Starting'**
+  String get repeatStarting;
+
+  /// Repeat sheet: the promise that nothing is filled in by itself.
+  ///
+  /// In en, this message translates to:
+  /// **'Each planned day, the trip waits on the home screen. Nothing counts until you confirm it, so days off stay out of your log.'**
+  String get repeatPromise;
+
+  /// Repeat sheet's button, with the days picked: “Repeat Monday to Friday”.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat {days}'**
+  String repeatButton(String days);
+
+  /// Repeat sheet's button, disabled, while no day is picked.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick at least one day'**
+  String get repeatNoDay;
+
+  /// The days of a pattern: all seven.
+  ///
+  /// In en, this message translates to:
+  /// **'every day'**
+  String get repeatEveryDay;
+
+  /// The days of a pattern: one day, “on Mondays”.
+  ///
+  /// In en, this message translates to:
+  /// **'on {day}s'**
+  String repeatOneDay(String day);
+
+  /// The days of a pattern: three or more days in a row, “Monday to Friday”.
+  ///
+  /// In en, this message translates to:
+  /// **'{first} to {last}'**
+  String repeatRange(String first, String last);
+
+  /// The days of a pattern: “Monday, Wednesday and Friday”.
+  ///
+  /// In en, this message translates to:
+  /// **'{days} and {last}'**
+  String repeatList(String days, String last);
 }
 
 class _RoulekmLocalizationsDelegate

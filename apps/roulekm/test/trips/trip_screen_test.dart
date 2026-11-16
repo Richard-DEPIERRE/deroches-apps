@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:roulekm/l10n/roulekm_localizations.dart';
 import 'package:roulekm/src/data/log_controller.dart';
 import 'package:roulekm/src/data/logbook.dart';
+import 'package:roulekm/src/pro.dart';
 import 'package:roulekm/src/rates/distance.dart';
 import 'package:roulekm/src/rates/french_bareme.dart';
 import 'package:roulekm/src/rates/rates.dart';
@@ -23,6 +24,9 @@ Future<LogController> openTrip(
   TripRecord? trip,
   List<int>? saved,
   Size size = const Size(390, 1600),
+  bool pro = false,
+  OpenPaywall? openPaywall,
+  DateTime? date,
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_trip_');
   addTearDown(() => dir.deleteSync(recursive: true));
@@ -43,8 +47,16 @@ Future<LogController> openTrip(
       home: Builder(
         builder: (context) => Scaffold(
           body: TextButton(
-            onPressed: () =>
-                openTripScreen(context, log, trip: trip, tripSaved: () async => saved?.add(1), now: () => today),
+            onPressed: () => openTripScreen(
+              context,
+              log,
+              trip: trip,
+              date: date,
+              tripSaved: () async => saved?.add(1),
+              pro: ValueNotifier(pro),
+              openPaywall: openPaywall,
+              now: () => today,
+            ),
             child: const Text('host'),
           ),
         ),

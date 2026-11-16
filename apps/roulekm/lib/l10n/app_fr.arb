@@ -126,5 +126,15 @@
   "quickAddRoundTrip": "{distance} aller-retour\u00a0= {counted}",
   "quickAddAdd": "Ajouter le trajet",
   "quickAddEdit": "Modifier avant d’ajouter",
-  "tripAdded": "Trajet ajouté\u00a0· {distance}"
+  "tripAdded": "Trajet ajouté\u00a0· {distance}",
+  "repeatTitle": "Répéter ce trajet",
+  "repeatNever": "Jamais",
+  "repeatStarting": "À\u00a0partir\u00a0du",
+  "repeatPromise": "Chaque jour prévu, le trajet vous attend sur l’accueil. Rien n’est compté sans votre confirmation\u00a0: congés et jours off restent hors du relevé.",
+  "repeatButton": "Répéter {days}",
+  "repeatNoDay": "Choisissez au moins un jour",
+  "repeatEveryDay": "tous les jours",
+  "repeatOneDay": "le {day}",
+  "repeatRange": "du {first} au {last}",
+  "repeatList": "{days} et {last}"
 }
