@@ -541,4 +541,50 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String repeatList(String days, String last) {
     return '$days and $last';
   }
+
+  @override
+  String recurringToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count regular trips to confirm',
+      one: '1 regular trip to confirm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringReview => 'Review';
+
+  @override
+  String get recurringConfirmAll => 'Confirm all';
+
+  @override
+  String get recurringReviewHint =>
+      'Untick the days you didn’t make this trip. They won’t be offered again.';
+
+  @override
+  String recurringConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Confirm $count trips',
+      one: 'Confirm 1 trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringSkip => 'Skip these days';
+
+  @override
+  String recurringAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips added',
+      one: '1 trip added',
+    );
+    return '$_temp0';
+  }
 }

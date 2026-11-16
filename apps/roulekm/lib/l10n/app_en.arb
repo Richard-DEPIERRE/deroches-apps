@@ -227,5 +227,19 @@
   "repeatRange": "{first} to {last}",
   "@repeatRange": {"description": "The days of a pattern: three or more days in a row, “Monday to Friday”.", "placeholders": {"first": {"type": "String"}, "last": {"type": "String"}}},
   "repeatList": "{days} and {last}",
-  "@repeatList": {"description": "The days of a pattern: “Monday, Wednesday and Friday”.", "placeholders": {"days": {"type": "String"}, "last": {"type": "String"}}}
+  "@repeatList": {"description": "The days of a pattern: “Monday, Wednesday and Friday”.", "placeholders": {"days": {"type": "String"}, "last": {"type": "String"}}},
+  "recurringToConfirm": "{count, plural, =1{1 regular trip to confirm} other{{count} regular trips to confirm}}",
+  "@recurringToConfirm": {"description": "Home card (Pro) and review sheet title: the recurring days waiting.", "placeholders": {"count": {"type": "int"}}},
+  "recurringReview": "Review",
+  "@recurringReview": {"description": "Home card: opens the sheet to pick which days to confirm."},
+  "recurringConfirmAll": "Confirm all",
+  "@recurringConfirmAll": {"description": "Home card: adds a trip for every day waiting."},
+  "recurringReviewHint": "Untick the days you didn’t make this trip. They won’t be offered again.",
+  "@recurringReviewHint": {"description": "Review sheet: under the title."},
+  "recurringConfirm": "{count, plural, =1{Confirm 1 trip} other{Confirm {count} trips}}",
+  "@recurringConfirm": {"description": "Review sheet's button, with the days ticked.", "placeholders": {"count": {"type": "int"}}},
+  "recurringSkip": "Skip these days",
+  "@recurringSkip": {"description": "Review sheet's button when every day is unticked: none is counted or offered again."},
+  "recurringAdded": "{count, plural, =1{1 trip added} other{{count} trips added}}",
+  "@recurringAdded": {"description": "Snackbar after confirming recurring days.", "placeholders": {"count": {"type": "int"}}}
 }

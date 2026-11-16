@@ -16,6 +16,7 @@ import '../trips/quick_add_sheet.dart';
 import '../trips/trip_screen.dart';
 import '../vehicles/vehicle_screen.dart';
 import '../vehicles/vehicles_screen.dart';
+import 'recurring_card.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
@@ -44,7 +45,8 @@ class HomeScreen extends StatelessWidget {
   /// Runs after each trip saved: the first one is the app's first useful moment (`markFirstValue()`).
   final Future<void> Function()? tripSaved;
 
-  /// Whether Pro is owned, and the paywall (DAPP-148 connects it): for the trip form's "Repeat this trip".
+  /// Whether Pro is owned, and the paywall (DAPP-148 connects it): for the trip form's "Repeat this trip", and the
+  /// regular trips to confirm (shown with Pro only).
   final ValueListenable<bool>? pro;
   final OpenPaywall? openPaywall;
 
@@ -56,13 +58,19 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: log,
+    listenable: Listenable.merge([log, ?pro]),
     builder: (context, _) {
       final l10n = RoulekmLocalizations.of(context);
       final logbook = log.logbook;
       final today = now();
       final inUse = log.inUse;
       final systems = {for (final v in inUse) v.rates};
+      // Confirming needs Pro: without it the patterns stay saved, and their days wait until Pro is back.
+      final Waiting waiting = [
+        if (pro?.value ?? false)
+          for (final r in logbook?.recurring ?? const <RecurringTrip>[])
+            if (r.waitingDays(today) case final days when days.isNotEmpty) (r, days),
+      ];
       return Scaffold(
         appBar: AppBar(
           title: Text(
@@ -96,6 +104,7 @@ class HomeScreen extends StatelessWidget {
                     label: l10n.homeAddTrip,
                     semantics: l10n.homeAddTripLabel,
                   ),
+                  if (waiting.isNotEmpty) RecurringCard(log: log, waiting: waiting, today: today, tripSaved: tripSaved),
                   if (logbook.favourites.isNotEmpty) ...[
                     _Header(
                       l10n.homeFavourites(systems.firstOrNull == RateSystem.uk ? 'yes' : 'no'),

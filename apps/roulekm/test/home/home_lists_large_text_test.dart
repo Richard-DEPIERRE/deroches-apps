@@ -5,7 +5,8 @@ import 'package:roulekm/src/data/logbook.dart';
 
 import '../vehicles/vehicle_screen_large_text_test.dart' show loadRoboto;
 import 'home_lists_test.dart' show dated, route;
-import 'home_screen_test.dart' show change, clio, golf, openHome;
+import 'home_screen_test.dart' show change, civic, clio, golf, openHome;
+import 'recurring_card_test.dart' show openWithPattern, weekdays;
 
 /// With the phone's font (Roboto), in its own file so the other tests keep the test font.
 void main() {
@@ -37,5 +38,39 @@ void main() {
         );
       }
     });
+  }
+
+  for (final (lang, vehicle, all, confirm) in [
+    ('fr', clio, 'Tout confirmer', 'Confirmer 3 trajets'),
+    ('en', civic, 'Confirm all', 'Confirm 3 trips'),
+  ]) {
+    testWidgets('$lang: the regular-trips card and its review sheet keep their actions on a 360 dp phone at 2× text', (
+      tester,
+    ) async {
+      await tester.runAsync(loadRoboto);
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await openWithPattern(tester, lang, vehicle, weekdays(vehicle));
+      tester.view.physicalSize = const Size(360, 640);
+      await tester.pumpAndSettle();
+      final review = find.text(lang == 'fr' ? 'Voir' : 'Review');
+      await tester.ensureVisible(review);
+      await tester.ensureVisible(find.text(all));
+      await tester.pumpAndSettle();
+      for (final action in [review, find.text(all)]) {
+        expect(const Rect.fromLTWH(0, 0, 360, 640).contains(tester.getCenter(action)), isTrue, reason: '$action');
+      }
+      expectNothingCut(tester);
+      await tester.tap(review);
+      await tester.pumpAndSettle();
+      expect(tester.getRect(find.text(confirm)).bottom, lessThanOrEqualTo(640), reason: 'the button stays on screen');
+      expectNothingCut(tester);
+    });
+  }
+}
+
+void expectNothingCut(WidgetTester tester) {
+  for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
+    expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
   }
 }

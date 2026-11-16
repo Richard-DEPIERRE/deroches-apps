@@ -922,6 +922,48 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'{days} and {last}'**
   String repeatList(String days, String last);
+
+  /// Home card (Pro) and review sheet title: the recurring days waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 regular trip to confirm} other{{count} regular trips to confirm}}'**
+  String recurringToConfirm(int count);
+
+  /// Home card: opens the sheet to pick which days to confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get recurringReview;
+
+  /// Home card: adds a trip for every day waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm all'**
+  String get recurringConfirmAll;
+
+  /// Review sheet: under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Untick the days you didn’t make this trip. They won’t be offered again.'**
+  String get recurringReviewHint;
+
+  /// Review sheet's button, with the days ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Confirm 1 trip} other{Confirm {count} trips}}'**
+  String recurringConfirm(int count);
+
+  /// Review sheet's button when every day is unticked: none is counted or offered again.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip these days'**
+  String get recurringSkip;
+
+  /// Snackbar after confirming recurring days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 trip added} other{{count} trips added}}'**
+  String recurringAdded(int count);
 }
 
 class _RoulekmLocalizationsDelegate
