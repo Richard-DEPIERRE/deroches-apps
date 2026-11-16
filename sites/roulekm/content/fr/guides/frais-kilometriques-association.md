@@ -186,13 +186,13 @@ citations:
     sources: [7, 9]
     recheck: 2027-11-16
     checked: '2026-11-16 by content-editor (the non-taxable statement is associations.gouv.fr only, attributed in the text; BOFiP § 180 gives the definition)'
-  - claim: 'Barème : depuis la loi de finances rectificative pour 2022 (art. 21), pour les revenus perçus à compter du 1er janvier 2022, les frais de déplacement en voiture, vélomoteur, scooter ou moto dont le bénévole est propriétaire peuvent être évalués sur le barème forfaitaire des salariés (CGI art. 83).'
+  - claim: 'Barème : depuis la loi de finances rectificative pour 2022 (art. 21), pour les revenus perçus à compter du 1er janvier 2022, les frais de déplacement en voiture, vélomoteur, scooter ou moto dont le bénévole est propriétaire peuvent être évalués sur le barème forfaitaire des salariés (CGI art. 83) ; Service-Public.fr le présente pour le cas où le bénévole ne peut pas justifier ses dépenses réelles liées au véhicule.'
     topic: tax
     period: revenus perçus depuis le 2022-01-01
     sources: [2, 1, 3, 4, 8]
     recheck: 2027-01-01
     checked: 2026-11-16 by content-editor
-  - claim: 'Le BOFiP (version de 2012) décrit encore un barème spécifique aux bénévoles, à tarif unique, dont les derniers montants affichés datent de 2011 (0,304 € par km pour une voiture).'
+  - claim: 'Le BOFiP (version de 2012) décrit encore un barème spécifique aux bénévoles (un tarif par km pour les voitures, un autre pour les deux-roues, quelle que soit la puissance), dont les derniers montants affichés datent de 2011 (0,304 € par km pour une voiture).'
     topic: tax
     period: 2009-2011 figures, BOFiP version of 2012-09-12
     sources: [7]
@@ -263,9 +263,9 @@ citations:
 Vous prenez votre voiture pour une association, comme bénévole ? Vos frais kilométriques peuvent suivre deux voies :
 **l’association vous les rembourse**, sur justificatifs, ou **vous renoncez à ce remboursement** et la somme compte
 alors comme un don, qui ouvre droit à la **réduction d’impôt de 66 %** de l’article 200 du code général des impôts, si
-l’association fait partie des organismes que vise cet article. Pour chiffrer les kilomètres d’un véhicule dont vous
-êtes propriétaire, la loi renvoie, pour les revenus perçus depuis le 1er janvier 2022, au **barème kilométrique des
-salariés**.
+l’association fait partie des organismes que vise cet article. Pour les kilomètres faits avec un véhicule dont vous
+êtes propriétaire, la loi permet, pour les revenus perçus depuis le 1er janvier 2022, de les chiffrer au **barème
+kilométrique des salariés**.
 
 ## Deux voies pour les mêmes kilomètres
 
@@ -311,10 +311,11 @@ réduction, même s’ils renoncent à leur remboursement.
 Depuis la loi de finances rectificative du 16 août 2022 (article 21), l’article 200 prévoit que les frais de
 déplacement en **voiture, vélomoteur, scooter ou moto dont vous êtes propriétaire** « peuvent être évalués sur le
 fondement du barème forfaitaire » des salariés. Cela vaut pour les revenus perçus à compter du 1er janvier 2022 ;
-impots.gouv.fr, Service-Public.fr et le site associations.gouv.fr le disent aussi.
+impots.gouv.fr, Service-Public.fr et le site associations.gouv.fr le disent aussi. Service-Public.fr présente ce
+barème pour le cas où vous ne pouvez pas justifier vos dépenses réelles liées au véhicule.
 
-Vous trouverez peut-être encore un « barème kilométrique spécifique aux bénévoles », avec un tarif unique par
-kilomètre : la page du BOFiP qui le décrit date de 2012, et ses derniers montants sont ceux de 2011 (0,304 € par
+Vous trouverez peut-être encore un « barème kilométrique spécifique aux bénévoles », avec un tarif par kilomètre
+pour les voitures et un autre pour les deux-roues, quelle que soit la puissance : la page du BOFiP qui le décrit date de 2012, et ses derniers montants sont ceux de 2011 (0,304 € par
 kilomètre pour une voiture). Ce n’est pas le barème que décrivent aujourd’hui ces pages officielles.
 
 Le dernier barème publié est celui de la brochure fiscale 2026, pour les **revenus de 2025** ; Service-Public.fr
@@ -364,7 +365,7 @@ que chaque pièce doit mentionner « précisément l’objet de la dépense ou d
   les kilomètres ;
 - **la carte grise**, qui indique la marque et la puissance du véhicule, donc la ligne du barème ;
 - **les tickets de péage ou de parking**, s’il y en a ;
-- **la note de frais** avec votre mention de renonciation, et le **reçu fiscal** de l’association.
+- **une copie de la note de frais** avec votre mention de renonciation, et le **reçu fiscal** de l’association.
 
 Notre guide sur [les justificatifs de frais kilométriques](/guides/justificatif-frais-kilometriques/) détaille la
 tenue d’un relevé. Pour le tenir au fil de l’année, Roulekm (bientôt sur iPhone et Android) garde chaque trajet daté,
@@ -383,8 +384,8 @@ bénévole.
 
 ## Ce qu’il faut vérifier pour votre situation
 
-Ce guide explique la règle générale. Il ne dit pas si votre association peut délivrer des reçus fiscaux, ni quel
-montant vous pouvez déduire. Pour votre cas :
+Ce guide explique la règle générale. Il ne dit pas si votre association peut délivrer des reçus fiscaux, ni quelle
+réduction vous obtiendrez. Pour votre cas :
 
 - **le remboursement ou l’abandon de frais, la note de frais à remplir, le reçu fiscal** et la date à laquelle
   l’association le délivre : le trésorier ou le bureau de l’association ;
