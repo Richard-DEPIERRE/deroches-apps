@@ -59,4 +59,12 @@ void main() {
     expect(yearsOf(log, DateTime(2026, 11, 16)), [2026, 2025, 2024, 2023]);
     expect(yearsOf(const Logbook(), DateTime(2026, 11, 16)), [2026]);
   });
+
+  test("before 6 April, a UK-only log's current year is the tax year still running, not France's next one", () {
+    final log = Logbook(vehicles: const [golf], trips: [trip('g', DateTime.utc(2027, 1, 5), 10, DistanceUnit.mile)]);
+    expect(yearsOf(log, DateTime(2027, 2, 10)), [2026]);
+    expect(yearsOf(const Logbook(vehicles: [golf]), DateTime(2027, 2, 10)), [2026]);
+    // Without vehicles: France's calendar year.
+    expect(yearsOf(const Logbook(), DateTime(2027, 2, 10)), [2027]);
+  });
 }

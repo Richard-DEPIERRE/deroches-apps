@@ -68,10 +68,16 @@ Map<String, YearTotal> yearTotals(Logbook log, DateTime now) {
 DateTime periodStart(RateSystem system, int period) =>
     DateTime.utc(period, system == RateSystem.uk ? 4 : 1, system == RateSystem.uk ? 6 : 1);
 
-/// The Year screen's years, latest first: from the first trip's period to the current one.
+/// The Year screen's years, latest first: from the first trip's period to the current one, the latest current period
+/// of the systems in use (archived vehicles' when none is in use; France's without vehicles).
 List<int> yearsOf(Logbook log, DateTime now) {
   final systems = {for (final v in log.vehicles) v.id: v.rates};
-  final current = {...systems.values, RateSystem.france}.map((s) => s.periodOf(now)).reduce(max);
+  final inUse = {
+    for (final v in log.vehicles)
+      if (!v.archived) v.rates,
+  };
+  final counted = inUse.isNotEmpty ? inUse : {...systems.values};
+  final current = (counted.isEmpty ? {RateSystem.france} : counted).map((s) => s.periodOf(now)).reduce(max);
   final first = [for (final t in log.trips) ?systems[t.route.vehicleId]?.periodOf(t.date)].fold(current, min);
   return [for (var y = current; y >= first; y--) y];
 }
