@@ -917,6 +917,30 @@ abstract class RoulekmLocalizations {
   /// **'Worked out at the IRS standard mileage rate for {year}{latest, select, yes{, the latest published} other{}} (source: {site}, read {date}). Keep this log with your records; it is not tax advice.'**
   String yearSourceUs(String year, String latest, String site, String date);
 
+  /// Year screen (DAPP-141 §7): header of the export buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get yearExport;
+
+  /// Year screen: the button (Pro) that shares the year's trips as a CSV file.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV spreadsheet'**
+  String get yearExportCsv;
+
+  /// CSV export (DAPP-141 §9): header of the distance unit column (km or mi).
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get csvUnit;
+
+  /// CSV export: the purpose of a return trip, whose distance counts both ways.
+  ///
+  /// In en, this message translates to:
+  /// **'{purpose} (round trip)'**
+  String csvRoundTrip(String purpose);
+
   /// Tooltip of the home app bar's PDF icon, which opens the Year screen (DAPP-141 §1).
   ///
   /// In en, this message translates to:

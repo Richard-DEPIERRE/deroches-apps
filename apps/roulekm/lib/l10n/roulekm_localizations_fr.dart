@@ -570,6 +570,20 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   }
 
   @override
+  String get yearExport => 'Exporter';
+
+  @override
+  String get yearExportCsv => 'Tableau CSV';
+
+  @override
+  String get csvUnit => 'Unité';
+
+  @override
+  String csvRoundTrip(String purpose) {
+    return '$purpose (A/R)';
+  }
+
+  @override
   String get homeYear => 'Année et PDF';
 
   @override

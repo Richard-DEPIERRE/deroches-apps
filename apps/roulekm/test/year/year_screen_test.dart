@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:roulekm/l10n/roulekm_localizations.dart';
 import 'package:roulekm/src/data/log_controller.dart';
 import 'package:roulekm/src/data/logbook.dart';
+import 'package:roulekm/src/pro.dart';
 import 'package:roulekm/src/rates/distance.dart';
 import 'package:roulekm/src/rates/french_bareme.dart';
 import 'package:roulekm/src/rates/rates.dart';
@@ -31,7 +32,14 @@ TripRecord dayTrip(String id, String vehicle, DateTime date, int distance, Dista
     );
 
 /// The Year screen in [lang] on a 2026-11-16 clock.
-Future<LogController> openYear(WidgetTester tester, String lang, Logbook logbook) async {
+Future<LogController> openYear(
+  WidgetTester tester,
+  String lang,
+  Logbook logbook, {
+  bool pro = false,
+  OpenPaywall? openPaywall,
+  ShareFile? share,
+}) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_year_');
   addTearDown(() => dir.deleteSync(recursive: true));
   final data = RoulekmData(dir);
@@ -43,7 +51,13 @@ Future<LogController> openYear(WidgetTester tester, String lang, Logbook logbook
       locale: Locale(lang),
       localizationsDelegates: const [...RoulekmLocalizations.localizationsDelegates, KitLocalizations.delegate],
       supportedLocales: RoulekmLocalizations.supportedLocales,
-      home: YearScreen(log: log, now: () => DateTime(2026, 11, 16)),
+      home: YearScreen(
+        log: log,
+        pro: ValueNotifier(pro),
+        openPaywall: openPaywall,
+        share: share ?? (_, _, _, _) async {},
+        now: () => DateTime(2026, 11, 16),
+      ),
     ),
   );
   return log;
@@ -93,7 +107,8 @@ void main() {
     );
     expect(find.textContaining('paraît début'), findsNothing);
 
-    await tester.scrollUntilVisible(find.text('Mars 2024'), 200);
+    await tester.scrollUntilVisible(find.bySemanticsLabel(RegExp('A vers Lyon')), 200);
+    expect(find.text('Mars 2024'), findsOneWidget);
     expect(find.text('Septembre 2024'), findsOneWidget);
     await tester.tap(find.bySemanticsLabel(RegExp('A vers Lyon')));
     await tester.pumpAndSettle();
