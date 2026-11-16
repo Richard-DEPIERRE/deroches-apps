@@ -1,7 +1,7 @@
 ---
 title: Roulekm – vos frais kilométriques au barème, sans compte
 description: Roulekm, bientôt sur iPhone et Android, tient votre relevé de frais kilométriques au barème de chaque véhicule. Sans compte, sans GPS, sans quota de trajets.
-updated: 2026-11-16
+updated: 2026-11-17
 ---
 
 # Roulekm
@@ -25,3 +25,6 @@ comprise.
 
 Votre employeur vous rembourse vos kilomètres ? Notre guide sur [l’indemnité kilométrique versée par
 l’employeur](/guides/indemnite-kilometrique-employeur/) explique la limite du barème et les pièces à lui remettre.
+
+Vous roulez comme bénévole pour une association ? Notre guide sur [les frais kilométriques en
+association](/guides/frais-kilometriques-association/) explique les deux voies : le remboursement, ou l’abandon de frais contre une réduction d’impôt.
