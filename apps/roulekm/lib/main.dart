@@ -63,6 +63,9 @@ Widget buildApp({
       home: HomeScreen(
         log: log,
         tripSaved: PaywallGate(kitState).markFirstValue,
+        // The paywall's hook stays empty until DAPP-148 connects it.
+        pro: pro,
+        openPaywall: null,
         settings: (context) => SettingsScreen(
           kitState: kitState,
           analytics: analytics,

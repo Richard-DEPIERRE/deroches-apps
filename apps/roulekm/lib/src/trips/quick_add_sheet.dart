@@ -1,9 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../home/home_screen.dart';
+import '../pro.dart';
 import 'trip_screen.dart';
 
 /// Tap 1 on a favourite (DAPP-141 §2): the route, its day, and "Ajouter le trajet" (tap 2). After it the sheet
@@ -13,13 +15,31 @@ Future<void> showQuickAdd(
   LogController log,
   TripRoute route, {
   Future<void> Function()? tripSaved,
+  ValueListenable<bool>? pro,
+  OpenPaywall? openPaywall,
   DateTime Function() now = DateTime.now,
 }) => showModalBottomSheet<void>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
   useSafeArea: true,
-  builder: (_) => _QuickAddSheet(home: context, log: log, route: route, tripSaved: tripSaved, now: now),
+  builder: (_) => _QuickAddSheet(
+    home: context,
+    log: log,
+    route: route,
+    tripSaved: tripSaved,
+    edit: (date) => openTripScreen(
+      context,
+      log,
+      route: route,
+      date: date,
+      tripSaved: tripSaved,
+      pro: pro,
+      openPaywall: openPaywall,
+      now: now,
+    ),
+    now: now,
+  ),
 );
 
 class _QuickAddSheet extends StatefulWidget {
@@ -28,6 +48,7 @@ class _QuickAddSheet extends StatefulWidget {
     required this.log,
     required this.route,
     required this.tripSaved,
+    required this.edit,
     required this.now,
   });
 
@@ -36,6 +57,9 @@ class _QuickAddSheet extends StatefulWidget {
   final LogController log;
   final TripRoute route;
   final Future<void> Function()? tripSaved;
+
+  /// "Edit before adding": the trip form over the home screen, filled in from the favourite, on the day picked.
+  final void Function(DateTime date) edit;
   final DateTime Function() now;
 
   @override
@@ -91,14 +115,7 @@ class _QuickAddSheetState extends State<_QuickAddSheet> {
 
   void _edit() {
     Navigator.of(context).pop();
-    openTripScreen(
-      widget.home,
-      widget.log,
-      route: widget.route,
-      date: _date,
-      tripSaved: widget.tripSaved,
-      now: widget.now,
-    );
+    widget.edit(_date);
   }
 
   @override

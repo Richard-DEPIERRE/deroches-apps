@@ -89,4 +89,19 @@ void main() {
     final paragraph = tester.renderObject<RenderParagraph>(chip);
     expect(paragraph.didExceedMaxLines, isTrue, reason: 'cut with an ellipsis, not shrunk until unreadable');
   });
+
+  testWidgets('at 2× text on a 360 dp phone (360 × 640), the repeat sheet keeps its button on screen', (tester) async {
+    await tester.runAsync(loadRoboto);
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await openTrip(tester, const Locale('fr', 'FR'), trips: [bron], size: const Size(360, 640));
+    await tester.scrollUntilVisible(find.text('Répéter ce trajet'), 100, scrollable: find.byType(Scrollable).first);
+    await tester.tap(find.text('Répéter ce trajet'));
+    await tester.pumpAndSettle();
+    final button = find.widgetWithText(FilledButton, 'Répéter du lundi au vendredi');
+    expect(tester.getBottomLeft(button).dy, lessThanOrEqualTo(640));
+    for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
+      expect(p.debugHasOverflowShader || p.didExceedMaxLines, isFalse, reason: '"${p.text.toPlainText()}" is cut off');
+    }
+  });
 }

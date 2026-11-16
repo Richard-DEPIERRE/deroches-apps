@@ -499,4 +499,43 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String tripAdded(String distance) {
     return 'Trajet ajouté · $distance';
   }
+
+  @override
+  String get repeatTitle => 'Répéter ce trajet';
+
+  @override
+  String get repeatNever => 'Jamais';
+
+  @override
+  String get repeatStarting => 'À partir du';
+
+  @override
+  String get repeatPromise =>
+      'Chaque jour prévu, le trajet vous attend sur l’accueil. Rien n’est compté sans votre confirmation : congés et jours off restent hors du relevé.';
+
+  @override
+  String repeatButton(String days) {
+    return 'Répéter $days';
+  }
+
+  @override
+  String get repeatNoDay => 'Choisissez au moins un jour';
+
+  @override
+  String get repeatEveryDay => 'tous les jours';
+
+  @override
+  String repeatOneDay(String day) {
+    return 'le $day';
+  }
+
+  @override
+  String repeatRange(String first, String last) {
+    return 'du $first au $last';
+  }
+
+  @override
+  String repeatList(String days, String last) {
+    return '$days et $last';
+  }
 }
