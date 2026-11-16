@@ -67,7 +67,7 @@ void main() {
       ),
     );
     expect(find.text('Année 2026'), findsOneWidget);
-    expect(find.text('36\u00a0km\u00a0· 1 trajet'), findsOneWidget);
+    expect(find.text('36\u00a0km\u00a0· 1\u00a0trajet'), findsOneWidget);
     // 2026's barème isn't out: 2025's, said as the latest, then the sentence on next year's.
     expect(
       find.textContaining('Calcul au barème kilométrique 2025, le dernier publié (source\u00a0: impots.gouv.fr'),
@@ -83,10 +83,10 @@ void main() {
     expect(find.text('Année 2024'), findsOneWidget);
     // (8 412 × 0,357) + 1 395 = 4 398,08 €, and the archived 206: 100 × 0,606 = 60,60 €.
     expect(find.text('4\u202f459\u00a0€'), findsOneWidget);
-    expect(find.text('8\u202f512\u00a0km\u00a0· 3 trajets'), findsOneWidget);
-    expect(find.text('(8\u202f412\u00a0×\u00a00,357) + 1\u202f395'), findsOneWidget);
+    expect(find.text('8\u202f512\u00a0km\u00a0· 3\u00a0trajets'), findsOneWidget);
+    expect(find.text('(8\u202f412\u00a0×\u00a00,357) +\u00a01\u202f395'), findsOneWidget);
     expect(find.text('4\u202f398\u00a0€'), findsOneWidget);
-    expect(find.text('206'), findsOneWidget);
+    expect(find.text('206 (archivé)'), findsOneWidget);
     expect(
       find.textContaining('Calcul au barème kilométrique 2024 (source\u00a0: impots.gouv.fr, lu le'),
       findsOneWidget,
@@ -113,8 +113,8 @@ void main() {
       ),
     );
     expect(find.text('Year 2026'), findsOneWidget);
-    expect(find.text('1,200\u00a0mi\u00a0· 2 trips'), findsOneWidget);
-    expect(find.text('1,000\u00a0×\u00a0\$0.725 + 200\u00a0×\u00a0\$0.76'), findsOneWidget);
+    expect(find.text('1,200\u00a0mi\u00a0· 2\u00a0trips'), findsOneWidget);
+    expect(find.text('1,000\u00a0×\u00a0\$0.725 +\u00a0200\u00a0×\u00a0\$0.76'), findsOneWidget);
     // 725 + 152 = $877
     expect(find.text('\$877'), findsNWidgets(2));
     expect(find.textContaining('it is not tax advice'), findsOneWidget);
@@ -127,7 +127,7 @@ void main() {
       Logbook(vehicles: const [golf], trips: [dayTrip('a', 'g', DateTime.utc(2026, 5, 1), 12000, DistanceUnit.mile)]),
     );
     expect(find.text('Tax year 2026–27'), findsOneWidget);
-    expect(find.text('10,000\u00a0×\u00a055p + 2,000\u00a0×\u00a025p'), findsOneWidget);
+    expect(find.text('10,000\u00a0×\u00a055p +\u00a02,000\u00a0×\u00a025p'), findsOneWidget);
   });
 
   testWidgets("the home's PDF icon opens the Year screen", (tester) async {

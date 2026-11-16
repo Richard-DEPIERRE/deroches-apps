@@ -3,8 +3,9 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:roulekm/src/data/logbook.dart';
 import 'package:roulekm/src/rates/distance.dart';
+import 'package:roulekm/src/vehicles/vehicles_screen.dart' show vehicleIcon;
 
-import '../home/home_screen_test.dart' show civic, clio;
+import '../home/home_screen_test.dart' show civic, clio, golf;
 import '../vehicles/vehicle_screen_large_text_test.dart' show loadRoboto;
 import 'year_screen_test.dart' show dayTrip, openYear;
 
@@ -13,6 +14,8 @@ void main() {
   for (final (lang, vehicle, unit, label) in [
     ('fr', clio, DistanceUnit.km, 'Calcul'),
     ('en', civic, DistanceUnit.mile, 'Calculation'),
+    // The longest title, "Année fiscale 2026–27", with the ▾: its two trips are in two tax years.
+    ('fr', golf, DistanceUnit.mile, 'Calcul'),
   ]) {
     testWidgets('$lang: the rows stack and nothing is cut on a 360 × 640 phone at 2× text', (tester) async {
       await tester.runAsync(loadRoboto);
@@ -27,11 +30,19 @@ void main() {
         Logbook(
           vehicles: [vehicle],
           trips: [
-            dayTrip('a', vehicle.id, DateTime.utc(2026, 3, 1), 12345, unit, to: 'Fournisseur, zone industrielle'),
-            dayTrip('b', vehicle.id, DateTime.utc(2026, 8, 1), 678, unit),
+            dayTrip('a', vehicle.id, DateTime.utc(2026, 8, 1), 12345, unit, to: 'Fournisseur, zone industrielle'),
+            dayTrip('b', vehicle.id, DateTime.utc(2026, 3, 1), 678, unit),
           ],
         ),
       );
+      // Each card's icon grows with the text, up to 1.5×; with two years, the picker is a 48 dp target and its ▾ grows
+      // with the title.
+      expect(tester.getSize(find.byIcon(vehicleIcon(vehicle.type)).first).height, 30);
+      if (vehicle == golf) {
+        final picker = find.byType(PopupMenuButton<int>);
+        expect(tester.getSize(picker).height, greaterThanOrEqualTo(48));
+        expect(tester.getSize(find.byIcon(Icons.arrow_drop_down)).height, greaterThan(24));
+      }
       await tester.scrollUntilVisible(find.text(label), 100);
       expect(
         tester.getTopLeft(find.text(label)).dx,

@@ -58,24 +58,35 @@ class _YearScreenState extends State<YearScreen> {
       }
       return Scaffold(
         appBar: AppBar(
-          title: years.length < 2
-              ? Text(title(year))
-              : PopupMenuButton<int>(
-                  tooltip: l10n.yearPick,
-                  initialValue: year,
-                  onSelected: (y) => setState(() => _year = y),
-                  itemBuilder: (_) => [
-                    for (final y in years)
-                      PopupMenuItem(value: y, child: Text((systems.firstOrNull ?? RateSystem.france).label(y))),
-                  ],
+          // AppBar caps its title at 1.34× text; where "Année fiscale 2026–27 ▾" still doesn't fit (360 dp), the year
+          // shrinks to fit rather than lose its end.
+          title: Builder(
+            builder: (context) {
+              final text = FittedBox(fit: BoxFit.scaleDown, child: Text(title(year)));
+              if (years.length < 2) return text;
+              return PopupMenuButton<int>(
+                tooltip: l10n.yearPick,
+                initialValue: year,
+                position: PopupMenuPosition.under,
+                onSelected: (y) => setState(() => _year = y),
+                itemBuilder: (_) => [
+                  for (final y in years)
+                    PopupMenuItem(value: y, child: Text((systems.firstOrNull ?? RateSystem.france).label(y))),
+                ],
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: kMinInteractiveDimension),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Flexible(child: Text(title(year))),
-                      const Icon(Icons.arrow_drop_down),
+                      Flexible(child: text),
+                      // Grows with the title's text.
+                      Icon(Icons.arrow_drop_down, size: MediaQuery.textScalerOf(context).scale(24)),
                     ],
                   ),
                 ),
+              );
+            },
+          ),
         ),
         body: ListView(
           padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom + 16),
@@ -227,8 +238,15 @@ class _VehicleYear extends StatelessWidget {
               spacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Icon(vehicleIcon(vehicle.type), size: 20, color: scheme.onSurfaceVariant),
-                Text(vehicle.name, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+                Icon(
+                  vehicleIcon(vehicle.type),
+                  size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(20),
+                  color: scheme.onSurfaceVariant,
+                ),
+                Text(
+                  vehicle.archived ? l10n.tripVehicleArchived(vehicle.name) : vehicle.name,
+                  style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
               ],
             ),
             row(l10n.yearDistance, _distance(l10n, vehicle.rates, lang, total.distance)),
@@ -243,7 +261,7 @@ class _VehicleYear extends StatelessWidget {
   }
 }
 
-/// The calculation with the user's numbers: "(8 412 × 0,357) + 1 395", "10,000 × 55p + 2,000 × 25p",
+/// The calculation with the user's numbers (a wrapped line starts with "+", never ends with it): "(8 412 × 0,357) + 1 395", "10,000 × 55p + 2,000 × 25p",
 /// "1,000 × $0.725 + 200 × $0.76".
 String calculation(RateSystem system, String lang, ClaimLine line) {
   final number = NumberFormat.decimalPattern(lang);
@@ -254,8 +272,8 @@ String calculation(RateSystem system, String lang, ClaimLine line) {
   };
   final terms = [for (final t in line.terms) '${number.format(t.distance)} × ${rate(t.ratePerUnitMilli)}'];
   return line.fixedMilli == 0
-      ? terms.join(' + ')
-      : '(${terms.join(' + ')}) + ${number.format(line.fixedMilli ~/ 1000)}';
+      ? terms.join(' +\u00a0')
+      : '(${terms.join(' +\u00a0')}) +\u00a0${number.format(line.fixedMilli ~/ 1000)}';
 }
 
 /// Whole euros, pounds or dollars, as on every screen.

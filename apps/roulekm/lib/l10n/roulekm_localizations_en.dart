@@ -524,8 +524,8 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$countString trips',
-      one: '1 trip',
+      other: '$countString trips',
+      one: '1 trip',
     );
     return '$distance · $_temp0';
   }

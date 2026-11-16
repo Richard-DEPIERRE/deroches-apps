@@ -878,7 +878,7 @@ abstract class RoulekmLocalizations {
   /// Under the year's total: its distance (formatted) and trip count.
   ///
   /// In en, this message translates to:
-  /// **'{distance} · {count, plural, =1{1 trip} other{{count} trips}}'**
+  /// **'{distance} · {count, plural, =1{1 trip} other{{count} trips}}'**
   String yearSummary(String distance, int count);
 
   /// No description provided for @yearDistance.

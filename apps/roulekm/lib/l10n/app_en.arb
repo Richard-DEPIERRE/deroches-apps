@@ -212,7 +212,7 @@
   "@yearTitle": {"description": "Year screen (DAPP-141 §7) title; the UK's year is its tax year, \"2026–27\".", "placeholders": {"uk": {"type": "String"}, "year": {"type": "String"}}},
   "yearPick": "Choose the year",
   "@yearPick": {"description": "Tooltip of the Year screen's year picker (current and past years, free)."},
-  "yearSummary": "{distance}\u00a0· {count, plural, =1{1 trip} other{{count} trips}}",
+  "yearSummary": "{distance}\u00a0· {count, plural, =1{1\u00a0trip} other{{count}\u00a0trips}}",
   "@yearSummary": {"description": "Under the year's total: its distance (formatted) and trip count.", "placeholders": {"distance": {"type": "String"}, "count": {"type": "int", "format": "decimalPattern"}}},
   "yearDistance": "Distance",
   "yearCalculation": "Calculation",
