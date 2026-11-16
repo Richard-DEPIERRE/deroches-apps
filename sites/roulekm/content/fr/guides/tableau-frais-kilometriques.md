@@ -271,6 +271,10 @@ un membre de votre foyer fiscal êtes propriétaire du véhicule ; les deux-roue
 le dernier publié à la date de ce guide (10 novembre 2026) : pour vos trajets de 2026, vérifiez au moment de déclarer
 le barème publié pour les revenus 2026.
 
+Les bénévoles qui renoncent au remboursement de leurs frais par une association peuvent, eux aussi, chiffrer au même
+barème les kilomètres faits avec leur propre véhicule : voir notre guide sur [les frais kilométriques en
+association](/guides/frais-kilometriques-association/).
+
 ## Trajet domicile-travail : la règle des 40 km
 
 Pour les frais réels, la règle est écrite ainsi sur impots.gouv.fr :
