@@ -46,6 +46,9 @@ Map<String, Object> read(PdfLog log) => {
   'page': plain(log.pageLabel(2, 4)),
 };
 
+pw.Font font(String weight) =>
+    pw.Font.ttf(File('assets/fonts/Barlow-$weight.ttf').readAsBytesSync().buffer.asByteData());
+
 void main() {
   setUpAll(initializeDateFormatting);
   final fr = lookupRoulekmLocalizations(const Locale('fr'));
@@ -81,7 +84,7 @@ void main() {
       'title': 'Relevé des frais kilométriques 2026',
       'period': 'Déplacements professionnels — du 1er janvier 2026 au 31 décembre 2026',
       'identity': [
-        'Véhicule : Clio — Voiture · 5 CV · thermique',
+        'Véhicule : Clio · Voiture · 5 CV · thermique',
         'Barème : Barème kilométrique 2025, le dernier publié · source : impots.gouv.fr',
       ],
       'columns': ['Date', 'Départ', 'Arrivée', 'Motif', 'Km'],
@@ -133,10 +136,7 @@ void main() {
       'file': 'roulekm-2026-civic.pdf',
       'title': 'Mileage log 2026',
       'period': 'Business trips — January 1, 2026 to December 31, 2026',
-      'identity': [
-        'Vehicle: Civic — Car or van · IRS standard rate',
-        'Rate: IRS standard mileage rate for 2026 · source: irs.gov',
-      ],
+      'identity': ['Vehicle: Civic · Car or van', 'Rate: IRS standard mileage rate for 2026 · source: irs.gov'],
       'columns': ['Date', 'From', 'To', 'Business purpose', 'Odometer', 'Miles'],
       'months': [
         [
@@ -189,9 +189,26 @@ void main() {
     expect(yearPdfLogs(const Logbook(vehicles: [clio]), 2026, fr, today), isEmpty);
   });
 
+  test('a long hyphenated place breaks after a hyphen that fits, not mid-word (DAPP-361)', () {
+    final regular = font('Regular').getFont(pw.Context(document: PdfDocument()));
+    double measure(String s) => (regular.stringMetrics(s) * 8.5).width;
+    const place = 'Domicile, Saint-Germain-au-Mont-d’Or';
+    final logbook = Logbook(
+      vehicles: const [clio, civic],
+      trips: [
+        trip('a', 'c', DateTime.utc(2026, 3, 3), place, 'Client', 'Visite', 20, DistanceUnit.km),
+        trip('b', 'u', DateTime.utc(2026, 3, 3), place, 'Client', 'Visit', 20, DistanceUnit.mile),
+      ],
+    );
+    String from(PdfLog log) => breakLongWords(place, pdfTextWidths(log)[1], measure);
+    final [a4] = yearPdfLogs(logbook, 2026, fr, today).where((l) => l.format == PdfPageFormat.a4).toList();
+    final [letter] = yearPdfLogs(logbook, 2026, en, today).where((l) => l.format == PdfPageFormat.letter).toList();
+    expect(from(a4), 'Domicile, Saint-Germain-au-Mont-\nd’Or');
+    expect(from(letter), 'Domicile, Saint-Germain-au-\nMont-d’Or');
+    expect(breakLongWords('Domicile Bron', 40, measure), 'Domicile Bron', reason: 'words that fit stay as typed');
+  });
+
   test('rendered: a PDF on the log\'s paper, one page per ~30 trips, in Barlow', () async {
-    pw.Font font(String weight) =>
-        pw.Font.ttf(File('assets/fonts/Barlow-$weight.ttf').readAsBytesSync().buffer.asByteData());
     final logbook = Logbook(
       vehicles: const [clio],
       trips: [

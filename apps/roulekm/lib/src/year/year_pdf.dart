@@ -11,7 +11,7 @@ import '../home/home_screen.dart' show typedDistance;
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
-import '../vehicles/vehicle_screen.dart' show vehicleSummary;
+import '../vehicles/vehicle_screen.dart' show vehicleSummary, vehicleTypeLabel;
 import 'year_csv.dart';
 import 'year_screen.dart' show calculation;
 
@@ -112,7 +112,11 @@ PdfLog _log(
     title: l10n.pdfTitle(system.label(year)),
     period: l10n.pdfPeriod(longDay(start), longDay(end)),
     identity: [
-      (l10n.pdfVehicle, '${v.name} — ${vehicleSummary(l10n, v)}'),
+      // As the app names it, without the rate system the Rate line gives (DAPP-361).
+      (
+        l10n.pdfVehicle,
+        '${v.name}\u00a0· ${system == RateSystem.france ? vehicleSummary(l10n, v) : vehicleTypeLabel(l10n, v.type)}',
+      ),
       if (rates case (:final period, year: final ratesYear, :final source))
         (
           l10n.pdfRate,
@@ -189,10 +193,44 @@ String _calculationLabel(RoulekmLocalizations l10n, NumberFormat number, Vehicle
   };
 }
 
-const _orange = PdfColor.fromInt(0xFFD9541E);
+const _orange = PdfColor.fromInt(0xFFC4511A); // the brand's seed colour, main.dart
 const _muted = PdfColor.fromInt(0xFF5C5C5C);
 const _shade = PdfColor.fromInt(0xFFF2F0EE);
 const _rule = PdfColor.fromInt(0xFFDDDDDD);
+
+const _padding = 4.0;
+
+/// The room for text in each of [log]'s columns, on its paper's 40 pt margins: the date, the odometer and the distance
+/// fixed, the places and the purpose sharing the rest.
+List<double> pdfTextWidths(PdfLog log) {
+  final fixed = [58.0, if (log.columns.length == 6) 84.0, 44.0];
+  final perFlex = (log.format.width - 80 - fixed.reduce((a, b) => a + b)) / 4.6;
+  return [
+    for (final w in [fixed.first, 1.2 * perFlex, 1.4 * perFlex, 2 * perFlex, ...fixed.skip(1)]) w - 2 * _padding,
+  ];
+}
+
+/// [text] with each space-free word wider than [width] broken after a hyphen that fits, else after an apostrophe,
+/// as [measure] measures them. The pdf package breaks lines at spaces only, then cuts a word too long for the line at
+/// any letter: "Saint-Germain-au-Mont-d'" / "Or" (DAPP-361).
+String breakLongWords(String text, double width, double Function(String) measure) => text.splitMapJoin(
+  RegExp(r'\S+'),
+  onNonMatch: (s) => s,
+  onMatch: (m) {
+    final lines = <String>[];
+    var rest = m[0]!;
+    while (measure(rest) > width) {
+      int cut(String marks) => [
+        for (final b in RegExp('[$marks]').allMatches(rest)) b.end,
+      ].lastWhere((i) => i < rest.length && measure(rest.substring(0, i)) <= width, orElse: () => 0);
+      final at = [cut('-'), cut("'’")].firstWhere((i) => i > 0, orElse: () => 0);
+      if (at == 0) break; // nothing to break at: the package cuts it
+      lines.add(rest.substring(0, at));
+      rest = rest.substring(at);
+    }
+    return [...lines, rest].join('\n');
+  },
+);
 
 /// [log] laid out (DAPP-141 §9): 40 pt margins, black on white in Barlow ([regular] and [bold]), one orange rule under
 /// the title and nothing that looks official (no logo, seal or form look: anti-goal 4). The header row repeats on
@@ -206,7 +244,7 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
   final strong = small.copyWith(fontWeight: pw.FontWeight.bold);
   final last = log.columns.length - 1;
   pw.Widget cell(String text, int i, {pw.TextStyle? style}) => pw.Padding(
-    padding: const pw.EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+    padding: const pw.EdgeInsets.all(_padding),
     child: pw.Text(text, style: style ?? small, textAlign: i == last ? pw.TextAlign.right : pw.TextAlign.left),
   );
   pw.Widget full(String text, [String end = '', PdfColor? color]) => pw.Container(
@@ -239,15 +277,42 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
     ),
   );
 
-  // Date, places and purpose share what the date, the odometer and the distance leave.
-  final widths = <int, pw.TableColumnWidth>{
-    0: const pw.FixedColumnWidth(58),
-    1: const pw.FlexColumnWidth(1.2),
-    2: const pw.FlexColumnWidth(1.4),
-    3: const pw.FlexColumnWidth(2),
-    if (last == 5) 4: const pw.FixedColumnWidth(84),
-    last: const pw.FixedColumnWidth(44),
-  };
+  final textWidths = pdfTextWidths(log);
+  final widths = {for (final (i, w) in textWidths.indexed) i: pw.FixedColumnWidth(w + 2 * _padding)};
+  final font = regular.getFont(pw.Context(document: doc.document));
+  double measure(String s) => (font.stringMetrics(s) * small.fontSize!).width;
+  pw.Widget table(Iterable<List<String>> rows) => pw.Table(
+    columnWidths: widths,
+    children: [
+      for (final r in rows)
+        pw.TableRow(
+          decoration: const pw.BoxDecoration(
+            border: pw.Border(bottom: pw.BorderSide(color: _rule, width: 0.5)),
+          ),
+          children: [for (final (i, c) in r.indexed) cell(breakLongWords(c, textWidths[i], measure), i)],
+        ),
+    ],
+  );
+  pw.Widget together(List<pw.Widget> children) => pw.Inseparable(
+    child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: children),
+  );
+  final yearTotal = [
+    pw.SizedBox(height: 18),
+    pw.Container(
+      padding: const pw.EdgeInsets.all(12),
+      decoration: pw.BoxDecoration(border: pw.Border.all(width: 1)),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(log.totalTitle, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+          for (final t in log.totals) pair(t),
+        ],
+      ),
+    ),
+    pw.SizedBox(height: 10),
+    pw.Text(log.note, style: const pw.TextStyle(fontSize: 8, color: _muted)),
+  ];
   final identity = [
     pw.Wrap(
       spacing: 24,
@@ -290,7 +355,10 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
                   ],
                 ),
               ),
-              pw.Text(log.pageLabel(context.pageNumber, context.pagesCount), style: const pw.TextStyle(fontSize: 8)),
+              pw.Text(
+                log.pageLabel(context.pageNumber, context.pagesCount),
+                style: const pw.TextStyle(fontSize: 8, color: _muted),
+              ),
             ],
           ),
           pw.SizedBox(height: 8),
@@ -311,47 +379,25 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
       ),
       footer: (context) => pw.Text(log.footer, style: const pw.TextStyle(fontSize: 8, color: _muted)),
       build: (context) => [
-        // A month: its shaded title, its trips, its total; the trips' table can break across pages.
-        for (final m in log.months) ...[
-          full(m.title, '', _shade),
-          pw.Table(
-            columnWidths: widths,
-            children: [
-              for (final r in m.rows)
-                pw.TableRow(
-                  decoration: const pw.BoxDecoration(
-                    border: pw.Border(bottom: pw.BorderSide(color: _rule, width: 0.5)),
-                  ),
-                  children: [for (final (i, c) in r.indexed) cell(c, i)],
-                ),
-            ],
-          ),
-          // The year's last total stays with the box, so a new page never starts with the box alone.
-          if (m != log.months.last) full(m.total.$1, m.total.$2),
-        ],
-        pw.Inseparable(
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              full(log.months.last.total.$1, log.months.last.total.$2),
-              pw.SizedBox(height: 18),
-              pw.Container(
-                padding: const pw.EdgeInsets.all(12),
-                decoration: pw.BoxDecoration(border: pw.Border.all(width: 1)),
-                child: pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(log.totalTitle, style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold)),
-                    pw.SizedBox(height: 4),
-                    for (final t in log.totals) pair(t),
-                  ],
-                ),
-              ),
-              pw.SizedBox(height: 10),
-              pw.Text(log.note, style: const pw.TextStyle(fontSize: 8, color: _muted)),
-            ],
-          ),
-        ),
+        // A month: its shaded title, its trips, its total; the year's total after the last one. A page never starts
+        // with a total, nor ends with a title: each keeps two trips with it (DAPP-361).
+        for (final m in log.months)
+          if (m.rows.length <= 4)
+            together([
+              full(m.title, '', _shade),
+              table(m.rows),
+              full(m.total.$1, m.total.$2),
+              if (m == log.months.last) ...yearTotal,
+            ])
+          else ...[
+            together([full(m.title, '', _shade), table(m.rows.take(2))]),
+            table(m.rows.sublist(2, m.rows.length - 2)),
+            together([
+              table(m.rows.skip(m.rows.length - 2)),
+              full(m.total.$1, m.total.$2),
+              if (m == log.months.last) ...yearTotal,
+            ]),
+          ],
       ],
     ),
   );
