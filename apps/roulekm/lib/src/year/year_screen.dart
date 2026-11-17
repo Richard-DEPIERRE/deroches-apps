@@ -127,7 +127,10 @@ class _YearScreenState extends State<YearScreen> {
                 builder: (context) => OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
                   onPressed: () => _exportCsv(context, year),
-                  icon: const Icon(Icons.table_view_outlined),
+                  icon: Icon(
+                    Icons.table_view_outlined,
+                    size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18),
+                  ),
                   label: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [

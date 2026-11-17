@@ -50,6 +50,9 @@ void main() {
         reason: 'the label sits over its value',
       );
       await tester.scrollUntilVisible(find.textContaining('Fournisseur'), 100);
+      // The export button's icon grows with its label too, up to 1.5× its 18 dp.
+      await tester.scrollUntilVisible(find.byIcon(Icons.table_view_outlined), 100);
+      expect(tester.getSize(find.byIcon(Icons.table_view_outlined)).height, 27);
       // A layout overflow fails the test by itself; a faded or clipped line is checked here.
       for (final p in tester.renderObjectList<RenderParagraph>(find.byType(RichText))) {
         expect(
