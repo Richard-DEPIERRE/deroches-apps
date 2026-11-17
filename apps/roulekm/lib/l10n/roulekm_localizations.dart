@@ -377,6 +377,48 @@ abstract class RoulekmLocalizations {
   /// **'Part of Roulekm Pro, once you’ve saved your first trip.'**
   String get proAfterFirstTrip;
 
+  /// Paywall header title and the Settings row that opens the paywall (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Roulekm Pro'**
+  String get proTitle;
+
+  /// Paywall header line under the title (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.'**
+  String get proLine;
+
+  /// Paywall header, what Pro unlocks: the PDF (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your year’s mileage log as a PDF, trip by trip'**
+  String get proPdf;
+
+  /// Paywall header, what Pro unlocks: the CSV (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export'**
+  String get proCsv;
+
+  /// Paywall header, what Pro unlocks: recurring trips (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trips'**
+  String get proRecurring;
+
+  /// Paywall header, what Pro unlocks: several vehicles in use (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Several vehicles at once'**
+  String get proVehicles;
+
+  /// Paywall header, last line (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your trips stay free and unlimited, with or without Pro.'**
+  String get proFoot;
+
   /// Header of the app's own section, first in Settings.
   ///
   /// In en, this message translates to:

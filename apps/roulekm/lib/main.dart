@@ -9,6 +9,7 @@ import 'src/data/log_controller.dart';
 import 'src/data/logbook.dart';
 import 'src/home/home_screen.dart';
 import 'src/onboarding/first_launch.dart';
+import 'src/pro.dart';
 import 'src/sources/sources_screen.dart';
 import 'src/trips/recurring_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
@@ -33,6 +34,7 @@ final roulekmConfig = AppConfig(
     ),
   },
   plans: const {Plan.weekly, Plan.yearly, Plan.lifetime},
+  preselectedPlan: Plan.lifetime, // DAPP-140 §2
   // RevenueCat's public SDK keys for the Roulekm project's iOS and Android apps, public by design (ADR 0001,
   // section 13; DAPP-225, DAPP-306).
   revenueCatAppleKey: 'appl_MKQismejHtyMcwoHnZPrpSOUgDj',
@@ -51,6 +53,7 @@ Widget buildApp({
   final log = LogController(data.log);
   unawaited(log.open());
   final pro = purchases?.entitled ?? ValueNotifier(false);
+  final openPaywall = roulekmPaywall(kitState, purchases);
   return KitApp(
     config: roulekmConfig,
     crashReporter: crashReporter,
@@ -65,12 +68,11 @@ Widget buildApp({
       home: HomeScreen(
         log: log,
         tripSaved: PaywallGate(kitState).markFirstValue,
-        // The paywall's hook stays empty until DAPP-148 connects it.
         pro: pro,
-        openPaywall: null,
+        openPaywall: openPaywall,
         openYear: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => YearScreen(log: log, pro: pro, openPaywall: null),
+            builder: (_) => YearScreen(log: log, pro: pro, openPaywall: openPaywall),
           ),
         ),
         settings: (context) => SettingsScreen(
@@ -81,12 +83,28 @@ Widget buildApp({
           onBackupRestored: () => unawaited(log.open()),
           appSections: [
             _SectionHeader(RoulekmLocalizations.of(context).settingsAppSection),
+            // The paywall at `settings` (DAPP-140 §1); with Pro, the kit's "entitled" view. Built in place, so its
+            // snackbar shows on the settings screen.
+            if (openPaywall != null)
+              Builder(
+                builder: (context) => ListTile(
+                  title: Text(RoulekmLocalizations.of(context).proTitle),
+                  onTap: () => pro.value
+                      ? openPaywall(context, 'settings')
+                      : proAction(
+                          context,
+                          placement: 'settings',
+                          pro: false,
+                          tripSaved: log.logbook?.trips.isNotEmpty ?? false,
+                          openPaywall: openPaywall,
+                        ),
+                ),
+              ),
             ListTile(
               title: Text(RoulekmLocalizations.of(context).vehiclesTitle),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(
-                  // The paywall's hook stays empty until DAPP-148 connects it.
-                  builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
+                  builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: openPaywall),
                 ),
               ),
             ),
@@ -99,8 +117,7 @@ Widget buildApp({
                       title: Text(RoulekmLocalizations.of(context).recurringTitle),
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute<void>(
-                          // The paywall's hook stays empty until DAPP-148 connects it.
-                          builder: (_) => RecurringScreen(log: log, pro: pro, openPaywall: null),
+                          builder: (_) => RecurringScreen(log: log, pro: pro, openPaywall: openPaywall),
                         ),
                       ),
                     ),

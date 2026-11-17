@@ -45,7 +45,7 @@ class HomeScreen extends StatelessWidget {
   /// Runs after each trip saved: the first one is the app's first useful moment (`markFirstValue()`).
   final Future<void> Function()? tripSaved;
 
-  /// Whether Pro is owned, and the paywall (DAPP-148 connects it): for the trip form's "Repeat this trip", and the
+  /// Whether Pro is owned, and the paywall: for the trip form's "Repeat this trip", and the
   /// regular trips to confirm (shown with Pro only).
   final ValueListenable<bool>? pro;
   final OpenPaywall? openPaywall;
