@@ -7,20 +7,22 @@ import '../home/home_screen.dart';
 import '../rates/rates.dart';
 
 /// The repeat sheet over the trip form (DAPP-141 §4): seven day circles, the first day, the promise and a button that
-/// says what it does. Completes with the weekdays picked (`DateTime.monday` to `DateTime.sunday`, ascending), or null.
+/// says what it does. Editing a saved pattern passes its [title] and no [start]: the first day can't change. Completes with the weekdays picked (`DateTime.monday` to `DateTime.sunday`, ascending), or null.
 Future<List<int>?> showRepeatSheet(
   BuildContext context, {
   required List<int> weekdays,
-  required DateTime start,
+  required DateTime? start,
   required int thisYear,
   RateSystem? system,
   TripRoute? route,
+  String? title,
 }) => showModalBottomSheet<List<int>>(
   context: context,
   isScrollControlled: true,
   showDragHandle: true,
   useSafeArea: true,
-  builder: (_) => _RepeatSheet(weekdays: weekdays, start: start, thisYear: thisYear, system: system, route: route),
+  builder: (_) =>
+      _RepeatSheet(weekdays: weekdays, start: start, thisYear: thisYear, system: system, route: route, title: title),
 );
 
 /// A weekday's name in [lang]: [DateTime.monday] is "lundi" / "Monday".
@@ -38,10 +40,20 @@ String repeatDays(RoulekmLocalizations l10n, String lang, List<int> weekdays) {
 }
 
 class _RepeatSheet extends StatefulWidget {
-  const _RepeatSheet({required this.weekdays, required this.start, required this.thisYear, this.system, this.route});
+  const _RepeatSheet({
+    required this.weekdays,
+    required this.start,
+    required this.thisYear,
+    this.system,
+    this.route,
+    this.title,
+  });
 
   final List<int> weekdays;
-  final DateTime start;
+
+  /// Null when editing: the row is hidden.
+  final DateTime? start;
+  final String? title;
 
   /// A first day in another year shows its year.
   final int thisYear;
@@ -121,7 +133,10 @@ class _RepeatSheetState extends State<_RepeatSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(l10n.repeatTitle, style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+                  Text(
+                    widget.title ?? l10n.repeatTitle,
+                    style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                  ),
                   if (widget.route case final route?) ...[
                     const SizedBox(height: 4),
                     DefaultTextStyle.merge(style: muted, child: RouteText(route)),
@@ -136,27 +151,28 @@ class _RepeatSheetState extends State<_RepeatSheet> {
                   Row(children: [for (final d in days) circle(d)]),
                   const SizedBox(height: 8),
                   // Label and day on one line; when they don't fit, the day drops under the label, which stays whole.
-                  Container(
-                    constraints: const BoxConstraints(minHeight: 56),
-                    alignment: AlignmentDirectional.centerStart,
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: MergeSemantics(
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceBetween,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: 16,
-                          children: [
-                            Text(l10n.repeatStarting, style: theme.textTheme.bodyLarge),
-                            Text(
-                              shortDay(lang, widget.system, widget.start, thisYear: widget.thisYear),
-                              style: theme.textTheme.bodyLarge,
-                            ),
-                          ],
+                  if (widget.start case final start?)
+                    Container(
+                      constraints: const BoxConstraints(minHeight: 56),
+                      alignment: AlignmentDirectional.centerStart,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: MergeSemantics(
+                          child: Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 16,
+                            children: [
+                              Text(l10n.repeatStarting, style: theme.textTheme.bodyLarge),
+                              Text(
+                                shortDay(lang, widget.system, start, thisYear: widget.thisYear),
+                                style: theme.textTheme.bodyLarge,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   const SizedBox(height: 12),
                   DecoratedBox(
                     decoration: BoxDecoration(

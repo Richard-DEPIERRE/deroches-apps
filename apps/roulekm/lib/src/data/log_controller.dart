@@ -58,25 +58,14 @@ class LogController extends ChangeNotifier {
   Future<void> editRecurring(String id, List<int> weekdays) =>
       _save(recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(weekdays: weekdays) : r]);
 
-  /// Pauses pattern [id], or resumes it. Resuming marks every day before [now]'s as seen, so the days it was paused
-  /// never wait; resuming one that isn't paused changes nothing.
-  Future<void> pauseRecurring(String id, {required bool paused, required DateTime now}) {
-    final yesterday = DateTime.utc(now.year, now.month, now.day - 1);
-    return _save(
-      recurring: (recurring) => [
-        for (final r in recurring)
-          if (r.id != id || r.paused == paused)
-            r
-          else if (paused)
-            r.copyWith(paused: true)
-          else
-            r.copyWith(
-              paused: false,
-              checkedThrough: r.checkedThrough?.isAfter(yesterday) ?? false ? r.checkedThrough : yesterday,
-            ),
-      ],
-    );
-  }
+  /// Pauses pattern [id] on [now]'s day, or resumes it: see [RecurringTrip.pause] and [RecurringTrip.resume]. Resuming
+  /// one that isn't paused (a double tap) changes nothing.
+  Future<void> pauseRecurring(String id, {required bool paused, required DateTime now}) => _save(
+    recurring: (recurring) => [
+      for (final r in recurring)
+        if (r.id != id || r.paused == paused) r else paused ? r.pause(now) : r.resume(now),
+    ],
+  );
 
   /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
   /// one save: a confirmed or skipped day is never offered again. Decided in the save queue, against the pattern as
@@ -109,17 +98,7 @@ class LogController extends ChangeNotifier {
   Future<void> undoConfirm(List<String> tripIds, Map<String, DateTime?> checkedThrough) => _save(
     trips: (trips) => [...trips.where((t) => !tripIds.contains(t.id))],
     recurring: (recurring) => [
-      for (final r in recurring)
-        checkedThrough.containsKey(r.id)
-            ? RecurringTrip(
-                id: r.id,
-                route: r.route,
-                weekdays: r.weekdays,
-                startDate: r.startDate,
-                checkedThrough: checkedThrough[r.id],
-                paused: r.paused,
-              )
-            : r,
+      for (final r in recurring) checkedThrough.containsKey(r.id) ? r.withCheckedThrough(checkedThrough[r.id]) : r,
     ],
   );
 

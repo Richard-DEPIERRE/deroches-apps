@@ -1046,7 +1046,7 @@ abstract class RoulekmLocalizations {
   /// Under a paused pattern: the days while paused are never offered, even after resuming.
   ///
   /// In en, this message translates to:
-  /// **'Paused: no days offered until you resume'**
+  /// **'Paused: no days offered during the pause'**
   String get recurringPaused;
 
   /// Recurring trips menu: pause a pattern (free).
@@ -1076,7 +1076,7 @@ abstract class RoulekmLocalizations {
   /// Snackbar after deleting a pattern, with Undo.
   ///
   /// In en, this message translates to:
-  /// **'Recurring trip deleted. Trips already added stay.'**
+  /// **'Recurring trip deleted. Trips already added are kept.'**
   String get recurringDeleted;
 
   /// Recurring trips screen once the last pattern is deleted.

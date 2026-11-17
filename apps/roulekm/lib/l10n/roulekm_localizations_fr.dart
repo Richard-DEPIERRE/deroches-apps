@@ -684,7 +684,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get recurringPaused =>
-      'En pause : aucun jour proposé d’ici la reprise';
+      'En pause : aucun jour proposé pendant la pause';
 
   @override
   String get recurringPause => 'Mettre en pause';
@@ -700,7 +700,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get recurringDeleted =>
-      'Trajet récurrent supprimé. Les trajets déjà ajoutés restent.';
+      'Trajet récurrent supprimé. Les trajets déjà ajoutés sont conservés.';
 
   @override
   String get recurringNone =>

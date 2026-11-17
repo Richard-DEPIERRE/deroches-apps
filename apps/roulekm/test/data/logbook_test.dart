@@ -14,8 +14,8 @@ void main() {
       (jsonDecode(File('test/data_upgrade/fixtures/log.schema1.json').readAsStringSync()) as Map)['data']
           as Map<String, Object?>;
 
-  test('schema 1 is exactly what the fixture holds: this code wrote it', () {
-    expect(jsonDecode(jsonEncode(schema1Logbook.toJson())), fixtureData());
+  test('this code writes exactly the schema 1 fixture, once upgraded', () {
+    expect(jsonDecode(jsonEncode(schema1Logbook.toJson())), logMigrations.fold(fixtureData(), (data, m) => m(data)));
   });
 
   test('decoding what was encoded gives the same logbook', () {

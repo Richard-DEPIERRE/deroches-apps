@@ -213,6 +213,23 @@ void main() {
       expect(log.logbook!.trips, isEmpty);
     });
 
+    test('Monday to Wednesday waiting, paused and resumed the same Thursday: the 3 days still wait', () async {
+      await log.saveRecurring(
+        RecurringTrip(id: 'r1', route: route, weekdays: const [1, 2, 3], startDate: weekdays.startDate),
+      );
+      final thursday = DateTime(2026, 11, 5, 8);
+      await log.pauseRecurring('r1', paused: true, now: thursday);
+      expect(log.logbook!.recurring.single.waitingDays(thursday), hasLength(3), reason: 'they wait while paused');
+      await log.pauseRecurring('r1', paused: false, now: thursday);
+      final reopened = LogController(RoulekmData(dir).log);
+      await reopened.open();
+      expect(reopened.logbook!.recurring.single.waitingDays(thursday), [
+        DateTime.utc(2026, 11, 2),
+        DateTime.utc(2026, 11, 3),
+        DateTime.utc(2026, 11, 4),
+      ]);
+    });
+
     test('resuming one that is not paused (a double tap) drops no day waiting', () async {
       await log.saveRecurring(weekdays);
       await log.pauseRecurring('r1', paused: false, now: DateTime(2026, 11, 6));

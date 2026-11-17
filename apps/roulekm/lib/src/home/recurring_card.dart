@@ -125,14 +125,22 @@ class RecurringCard extends StatelessWidget {
 }
 
 /// A pattern's route, its weekdays and distance and, with [days], the days waiting: two listed, more
-/// as their count and span.
+/// as their count and span. A [muted] route (a paused pattern) takes the secondary text colour.
 class PatternText extends StatelessWidget {
-  const PatternText({super.key, required this.log, required this.pattern, required this.today, this.days});
+  const PatternText({
+    super.key,
+    required this.log,
+    required this.pattern,
+    required this.today,
+    this.days,
+    this.muted = false,
+  });
 
   final LogController log;
   final RecurringTrip pattern;
   final DateTime today;
   final List<DateTime>? days;
+  final bool muted;
 
   @override
   Widget build(BuildContext context) {
@@ -144,22 +152,25 @@ class PatternText extends StatelessWidget {
     final weekdays = repeatDays(l10n, lang, pattern.weekdays);
     final distance = typedDistance(l10n, lang, route.distance);
     String day(DateTime d) => shortDay(lang, system, d, thisYear: today.year);
-    final muted = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+    final secondary = theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DefaultTextStyle.merge(style: theme.textTheme.bodyLarge, child: RouteText(route)),
+        DefaultTextStyle.merge(
+          style: theme.textTheme.bodyLarge?.copyWith(color: muted ? theme.colorScheme.onSurfaceVariant : null),
+          child: RouteText(route),
+        ),
         Text(
           '${weekdays[0].toUpperCase()}${weekdays.substring(1)}\u00a0· '
           '${route.roundTrip ? l10n.homeRoundTrip(distance) : distance}',
-          style: muted,
+          style: secondary,
         ),
         if (days case final days?)
           Text(
             days.length <= 2
                 ? days.map(day).join('\u00a0· ')
                 : l10n.recurringSpan(days.length, '${day(days.first)}\u00a0– ${day(days.last)}'),
-            style: muted,
+            style: secondary,
           ),
       ],
     );

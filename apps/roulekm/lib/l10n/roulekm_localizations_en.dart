@@ -685,7 +685,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String get recurringTitle => 'Recurring trips';
 
   @override
-  String get recurringPaused => 'Paused: no days offered until you resume';
+  String get recurringPaused => 'Paused: no days offered during the pause';
 
   @override
   String get recurringPause => 'Pause';
@@ -701,7 +701,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get recurringDeleted =>
-      'Recurring trip deleted. Trips already added stay.';
+      'Recurring trip deleted. Trips already added are kept.';
 
   @override
   String get recurringNone =>

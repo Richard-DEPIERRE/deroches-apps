@@ -1,6 +1,6 @@
 /// What Roulekm saves on the phone: one versioned JSON document, `log`, in the kit's envelope (ADR 0001, section 8).
 ///
-/// Schema 1. A change to any `toJson` below is a new schema: its migration in [logMigrations], a fixture of the old
+/// Schema 2. A change to any `toJson` below is a new schema: its migration in [logMigrations], a fixture of the old
 /// one under `test/data_upgrade/fixtures/`, and the upgrade test, in the same PR.
 library;
 
@@ -16,8 +16,17 @@ import '../rates/rates.dart';
 const roulekmAppId = 'roulekm';
 const logDocument = 'log';
 
-/// The log is at schema `logMigrations.length + 1` = 1.
-const List<Migration> logMigrations = [];
+/// The log is at schema `logMigrations.length + 1` = 2.
+const List<Migration> logMigrations = [_pauseDays];
+
+/// Schema 2 (DAPP-297): a recurring trip keeps the day its pause began and the days its pauses skipped.
+Map<String, Object?> _pauseDays(Map<String, Object?> data) => {
+  ...data,
+  'recurring': [
+    for (final r in (data['recurring']! as List).cast<Map<String, Object?>>())
+      {...r, 'paused_from': null, 'skipped': <Object?>[]},
+  ],
+};
 
 /// The app's data, made once at start-up in `getApplicationSupportDirectory()`. The screens and the [backup] share
 /// this one [DataStore]: after a restore it refuses to save until opened again, so a stale log can't overwrite it.
@@ -280,6 +289,8 @@ class RecurringTrip extends _Value {
     required this.startDate,
     this.checkedThrough,
     this.paused = false,
+    this.pausedFrom,
+    this.skipped = const [],
   });
 
   final String id;
@@ -293,17 +304,51 @@ class RecurringTrip extends _Value {
   final DateTime? checkedThrough;
   final bool paused;
 
+  /// While [paused]: the day the pause began; the days before it still wait. Null when paused before schema 2: then
+  /// the pause began on the first day not yet seen.
+  final DateTime? pausedFrom;
+
+  /// The days past pauses skipped, first and last day of each: they never wait.
+  final List<(DateTime, DateTime)> skipped;
+
   /// The days waiting for the user's confirmation, oldest first: from [startDate], after [checkedThrough], through
-  /// [now]'s day, on [weekdays] only; none while [paused]. Calendar days, so a clock change never adds or drops one.
+  /// [now]'s day (or the day before the pause), on [weekdays] only, none [skipped]. Calendar days, so a clock change
+  /// never adds or drops one.
   List<DateTime> waitingDays(DateTime now) {
-    if (paused) return const [];
-    final today = DateTime.utc(now.year, now.month, now.day);
-    final after = checkedThrough;
-    final first = after == null || after.isBefore(startDate) ? startDate : after.add(const Duration(days: 1));
+    if (paused && pausedFrom == null) return const [];
+    final today = _dayOf(now);
+    final last = paused && pausedFrom!.isBefore(today.add(_oneDay)) ? pausedFrom!.subtract(_oneDay) : today;
     return [
-      for (var d = first; !d.isAfter(today); d = d.add(const Duration(days: 1)))
-        if (weekdays.contains(d.weekday)) d,
+      for (var d = _firstUnseen; !d.isAfter(last); d = d.add(_oneDay))
+        if (weekdays.contains(d.weekday) && !skipped.any((s) => !d.isBefore(s.$1) && !d.isAfter(s.$2))) d,
     ];
+  }
+
+  DateTime get _firstUnseen {
+    final after = checkedThrough;
+    return after == null || after.isBefore(startDate) ? startDate : after.add(_oneDay);
+  }
+
+  /// Paused on [now]'s day: the days already waiting still wait, none after.
+  RecurringTrip pause(DateTime now) =>
+      _with(checkedThrough: checkedThrough, paused: true, pausedFrom: _dayOf(now), skipped: skipped);
+
+  /// Resumed on [now]'s day: the pause's days through yesterday are skipped; the days before it and today wait.
+  /// Skipped days the confirmed ones have passed are dropped.
+  RecurringTrip resume(DateTime now) {
+    final yesterday = _dayOf(now).subtract(_oneDay);
+    final from = pausedFrom ?? _firstUnseen;
+    final seen = checkedThrough;
+    return _with(
+      checkedThrough: seen,
+      paused: false,
+      pausedFrom: null,
+      skipped: [
+        for (final s in skipped)
+          if (seen == null || s.$2.isAfter(seen)) s,
+        if (!from.isAfter(yesterday)) (from, yesterday),
+      ],
+    );
   }
 
   RecurringTrip copyWith({List<int>? weekdays, DateTime? checkedThrough, bool? paused}) => RecurringTrip(
@@ -313,6 +358,28 @@ class RecurringTrip extends _Value {
     startDate: startDate,
     checkedThrough: checkedThrough ?? this.checkedThrough,
     paused: paused ?? this.paused,
+    pausedFrom: pausedFrom,
+    skipped: skipped,
+  );
+
+  /// With [checkedThrough] set as given, null included (Undo of a confirm).
+  RecurringTrip withCheckedThrough(DateTime? checkedThrough) =>
+      _with(checkedThrough: checkedThrough, paused: paused, pausedFrom: pausedFrom, skipped: skipped);
+
+  RecurringTrip _with({
+    required DateTime? checkedThrough,
+    required bool paused,
+    required DateTime? pausedFrom,
+    required List<(DateTime, DateTime)> skipped,
+  }) => RecurringTrip(
+    id: id,
+    route: route,
+    weekdays: weekdays,
+    startDate: startDate,
+    checkedThrough: checkedThrough,
+    paused: paused,
+    pausedFrom: pausedFrom,
+    skipped: skipped,
   );
 
   factory RecurringTrip.fromJson(Map<String, Object?> json) => RecurringTrip(
@@ -325,6 +392,14 @@ class RecurringTrip extends _Value {
       _ => null,
     },
     paused: json['paused']! as bool,
+    pausedFrom: switch (json['paused_from']) {
+      final String day => _day(day),
+      _ => null,
+    },
+    skipped: [
+      for (final s in (json['skipped']! as List).cast<Map<String, Object?>>())
+        (_day(s['from']! as String), _day(s['through']! as String)),
+    ],
   );
 
   Map<String, Object?> toJson() => {
@@ -334,11 +409,19 @@ class RecurringTrip extends _Value {
     'start_date': _dayJson(startDate),
     'checked_through': checkedThrough == null ? null : _dayJson(checkedThrough!),
     'paused': paused,
+    'paused_from': pausedFrom == null ? null : _dayJson(pausedFrom!),
+    'skipped': [
+      for (final (from, through) in skipped) {'from': _dayJson(from), 'through': _dayJson(through)},
+    ],
   };
 
   @override
-  List<Object?> get props => [id, route, ...weekdays, startDate, checkedThrough, paused];
+  List<Object?> get props => [id, route, ...weekdays, startDate, checkedThrough, paused, pausedFrom, ...skipped];
 }
+
+const _oneDay = Duration(days: 1);
+
+DateTime _dayOf(DateTime now) => DateTime.utc(now.year, now.month, now.day);
 
 /// `yyyy-mm-dd`: a day has no time zone, so a trip never moves to the day before when the phone travels.
 DateTime _day(String json) {
