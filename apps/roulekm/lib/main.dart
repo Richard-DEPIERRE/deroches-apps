@@ -11,6 +11,7 @@ import 'src/home/home_screen.dart';
 import 'src/onboarding/first_launch.dart';
 import 'src/sources/sources_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
+import 'src/year/year_screen.dart';
 
 /// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key and App Store id stay empty until those
 /// exist: until then the app sends nothing.
@@ -66,6 +67,7 @@ Widget buildApp({
         // The paywall's hook stays empty until DAPP-148 connects it.
         pro: pro,
         openPaywall: null,
+        openYear: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => YearScreen(log: log))),
         settings: (context) => SettingsScreen(
           kitState: kitState,
           analytics: analytics,

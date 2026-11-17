@@ -504,6 +504,77 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   }
 
   @override
+  String yearTitle(String uk, String year) {
+    String _temp0 = intl.Intl.selectLogic(uk, {
+      'yes': 'Tax year $year',
+      'other': 'Year $year',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yearPick => 'Choose the year';
+
+  @override
+  String yearSummary(String distance, int count) {
+    final intl.NumberFormat countNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString trips',
+      one: '1 trip',
+    );
+    return '$distance · $_temp0';
+  }
+
+  @override
+  String get yearDistance => 'Distance';
+
+  @override
+  String get yearCalculation => 'Calculation';
+
+  @override
+  String get yearAmount => 'Amount';
+
+  @override
+  String yearSourceFrance(
+    String year,
+    String latest,
+    String site,
+    String date,
+  ) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'Worked out with the French barème kilométrique $year$_temp0 (source: $site, read $date).';
+  }
+
+  @override
+  String yearSourceUk(String year, String latest, String site, String date) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'Worked out at HMRC approved mileage rates, $year$_temp0 (source: $site, read $date). Keep this log with your records; it is not tax advice.';
+  }
+
+  @override
+  String yearSourceUs(String year, String latest, String site, String date) {
+    String _temp0 = intl.Intl.selectLogic(latest, {
+      'yes': ', the latest published',
+      'other': '',
+    });
+    return 'Worked out at the IRS standard mileage rate for $year$_temp0 (source: $site, read $date). Keep this log with your records; it is not tax advice.';
+  }
+
+  @override
+  String get homeYear => 'Year and PDF';
+
+  @override
   String get repeatTitle => 'Repeat this trip';
 
   @override
