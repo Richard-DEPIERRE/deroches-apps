@@ -155,5 +155,13 @@
   "recurringSkip": "Ignorer ces jours",
   "recurringAdded": "{count, plural, =1{1\u00a0trajet ajouté} other{{count}\u00a0trajets ajoutés}}",
   "recurringSkipped": "{count, plural, =1{1\u00a0jour ignoré} other{{count}\u00a0jours ignorés}}",
-  "recurringSpan": "{count, plural, =1{1\u00a0jour} other{{count}\u00a0jours}}\u00a0· {span}"
+  "recurringSpan": "{count, plural, =1{1\u00a0jour} other{{count}\u00a0jours}}\u00a0· {span}",
+  "recurringTitle": "Trajets récurrents",
+  "recurringPaused": "En pause\u00a0: aucun jour proposé pendant la pause",
+  "recurringPause": "Mettre en pause",
+  "recurringResume": "Reprendre",
+  "recurringEdit": "Modifier les jours",
+  "recurringDelete": "Supprimer",
+  "recurringDeleted": "Trajet récurrent supprimé. Les trajets déjà ajoutés sont conservés.",
+  "recurringNone": "Aucun trajet récurrent. Pour en créer un, touchez «\u00a0Répéter ce trajet\u00a0» en ajoutant un trajet."
 }

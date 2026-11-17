@@ -82,9 +82,76 @@ void main() {
     expect(pattern(paused: true).waitingDays(DateTime(2026, 11, 8)), isEmpty);
   });
 
+  group('pause and resume', () {
+    final thursday = DateTime(2026, 11, 5, 8);
+    final mondayToWednesday = ['2026-11-02', '2026-11-03', '2026-11-04'];
+
+    test('paused on Thursday, Monday to Wednesday still wait, and nothing after', () {
+      final paused = pattern().pause(thursday);
+      expect(paused.paused, isTrue);
+      expect(days(paused.waitingDays(thursday)), mondayToWednesday);
+      expect(days(paused.waitingDays(DateTime(2026, 11, 20))), mondayToWednesday);
+    });
+
+    test('resumed the same day (a pause by mistake): every waiting day is back, today included', () {
+      final resumed = pattern().pause(thursday).resume(thursday);
+      expect(resumed.paused, isFalse);
+      expect(days(resumed.waitingDays(thursday)), [...mondayToWednesday, '2026-11-05']);
+      expect(resumed.skipped, isEmpty);
+    });
+
+    test('resumed a week later: the days before the pause still wait, the paused ones never do', () {
+      final resumed = pattern().pause(thursday).resume(DateTime(2026, 11, 11, 9));
+      expect(days(resumed.waitingDays(DateTime(2026, 11, 12))), [...mondayToWednesday, '2026-11-11', '2026-11-12']);
+      expect(resumed.skipped, [(DateTime.utc(2026, 11, 5), DateTime.utc(2026, 11, 10))]);
+    });
+
+    test('two pauses before any confirm: both skipped, the days between them still wait', () {
+      final twice = pattern()
+          .pause(thursday)
+          .resume(DateTime(2026, 11, 9))
+          .pause(DateTime(2026, 11, 11))
+          .resume(DateTime(2026, 11, 16));
+      expect(days(twice.waitingDays(DateTime(2026, 11, 16))), [
+        ...mondayToWednesday,
+        '2026-11-09',
+        '2026-11-10',
+        '2026-11-16',
+      ]);
+    });
+
+    test('a skipped range the confirmed days have passed is dropped at the next resume', () {
+      final confirmed = pattern()
+          .pause(thursday)
+          .resume(DateTime(2026, 11, 9))
+          .copyWith(checkedThrough: DateTime.utc(2026, 11, 9));
+      expect(confirmed.pause(DateTime(2026, 11, 10)).resume(DateTime(2026, 11, 10)).skipped, isEmpty);
+    });
+
+    test('paused before schema 2 (no pause day): resuming skips every day not yet seen, as before', () {
+      final legacy = pattern(checkedThrough: DateTime.utc(2026, 11, 3), paused: true);
+      expect(legacy.waitingDays(thursday), isEmpty);
+      expect(days(legacy.resume(DateTime(2026, 11, 11)).waitingDays(DateTime(2026, 11, 11))), ['2026-11-11']);
+    });
+
+    test('the pause day and the skipped days are saved', () {
+      final p = pattern().pause(thursday).resume(DateTime(2026, 11, 11)).pause(DateTime(2026, 11, 12));
+      expect(p.toJson(), containsPair('paused_from', '2026-11-12'));
+      expect(p.toJson()['skipped'], [
+        {'from': '2026-11-05', 'through': '2026-11-10'},
+      ]);
+      expect(RecurringTrip.fromJson(p.toJson()), p);
+    });
+  });
+
   test('copyWith moves the checked-through day and keeps the rest', () {
     final p = pattern(paused: true);
     final moved = p.copyWith(checkedThrough: DateTime.utc(2026, 11, 6));
     expect(moved.toJson(), {...p.toJson(), 'checked_through': '2026-11-06'});
+    expect(p.copyWith(paused: false, weekdays: [2]).toJson(), {
+      ...p.toJson(),
+      'paused': false,
+      'weekdays': [2],
+    });
   });
 }

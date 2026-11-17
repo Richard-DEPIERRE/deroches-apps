@@ -678,4 +678,31 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
     );
     return '$_temp0 · $span';
   }
+
+  @override
+  String get recurringTitle => 'Trajets récurrents';
+
+  @override
+  String get recurringPaused =>
+      'En pause : aucun jour proposé pendant la pause';
+
+  @override
+  String get recurringPause => 'Mettre en pause';
+
+  @override
+  String get recurringResume => 'Reprendre';
+
+  @override
+  String get recurringEdit => 'Modifier les jours';
+
+  @override
+  String get recurringDelete => 'Supprimer';
+
+  @override
+  String get recurringDeleted =>
+      'Trajet récurrent supprimé. Les trajets déjà ajoutés sont conservés.';
+
+  @override
+  String get recurringNone =>
+      'Aucun trajet récurrent. Pour en créer un, touchez « Répéter ce trajet » en ajoutant un trajet.';
 }
