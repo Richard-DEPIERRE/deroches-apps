@@ -98,7 +98,7 @@ class RecurringCard extends StatelessWidget {
             ),
             for (final (pattern, days) in waiting) ...[
               const SizedBox(height: 8),
-              _Pattern(log: log, pattern: pattern, days: days, today: today),
+              PatternText(log: log, pattern: pattern, days: days, today: today),
             ],
             const SizedBox(height: 4),
             // Card actions at the end (M3); they wrap at large text sizes. Full width, or the Wrap shrinks to them.
@@ -126,8 +126,8 @@ class RecurringCard extends StatelessWidget {
 
 /// A pattern's route, its weekdays and distance and, with [days], the days waiting: two listed, more
 /// as their count and span.
-class _Pattern extends StatelessWidget {
-  const _Pattern({required this.log, required this.pattern, required this.today, this.days});
+class PatternText extends StatelessWidget {
+  const PatternText({super.key, required this.log, required this.pattern, required this.today, this.days});
 
   final LogController log;
   final RecurringTrip pattern;
@@ -223,7 +223,7 @@ class _ReviewSheetState extends State<_ReviewSheet> {
                     const SizedBox(height: 16),
                     Padding(
                       padding: edge,
-                      child: _Pattern(log: widget.log, pattern: pattern, today: widget.today),
+                      child: PatternText(log: widget.log, pattern: pattern, today: widget.today),
                     ),
                     for (final d in days)
                       CheckboxListTile(

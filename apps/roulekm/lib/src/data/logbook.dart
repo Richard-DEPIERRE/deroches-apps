@@ -306,13 +306,13 @@ class RecurringTrip extends _Value {
     ];
   }
 
-  RecurringTrip copyWith({DateTime? checkedThrough}) => RecurringTrip(
+  RecurringTrip copyWith({List<int>? weekdays, DateTime? checkedThrough, bool? paused}) => RecurringTrip(
     id: id,
     route: route,
-    weekdays: weekdays,
+    weekdays: weekdays ?? this.weekdays,
     startDate: startDate,
     checkedThrough: checkedThrough ?? this.checkedThrough,
-    paused: paused,
+    paused: paused ?? this.paused,
   );
 
   factory RecurringTrip.fromJson(Map<String, Object?> json) => RecurringTrip(

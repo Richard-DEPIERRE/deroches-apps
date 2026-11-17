@@ -10,6 +10,7 @@ import 'src/data/logbook.dart';
 import 'src/home/home_screen.dart';
 import 'src/onboarding/first_launch.dart';
 import 'src/sources/sources_screen.dart';
+import 'src/trips/recurring_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
 import 'src/year/year_screen.dart';
 
@@ -84,6 +85,21 @@ Widget buildApp({
                   builder: (_) => VehiclesScreen(log: log, pro: pro, openPaywall: null),
                 ),
               ),
+            ),
+            // Shown to everyone who has a pattern: pausing and deleting one are free.
+            ListenableBuilder(
+              listenable: log,
+              builder: (context, _) => (log.logbook?.recurring.isEmpty ?? true)
+                  ? const SizedBox.shrink()
+                  : ListTile(
+                      title: Text(RoulekmLocalizations.of(context).recurringTitle),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          // The paywall's hook stays empty until DAPP-148 connects it.
+                          builder: (_) => RecurringScreen(log: log, pro: pro, openPaywall: null),
+                        ),
+                      ),
+                    ),
             ),
             ListTile(
               title: Text(RoulekmLocalizations.of(context).sourcesTitle),

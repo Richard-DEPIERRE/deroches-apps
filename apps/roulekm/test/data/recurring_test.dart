@@ -86,5 +86,10 @@ void main() {
     final p = pattern(paused: true);
     final moved = p.copyWith(checkedThrough: DateTime.utc(2026, 11, 6));
     expect(moved.toJson(), {...p.toJson(), 'checked_through': '2026-11-06'});
+    expect(p.copyWith(paused: false, weekdays: [2]).toJson(), {
+      ...p.toJson(),
+      'paused': false,
+      'weekdays': [2],
+    });
   });
 }

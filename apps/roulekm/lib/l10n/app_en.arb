@@ -263,5 +263,21 @@
   "recurringSkipped": "{count, plural, =1{1\u00a0day skipped} other{{count}\u00a0days skipped}}",
   "@recurringSkipped": {"description": "Snackbar, with Undo, after skipping every recurring day waiting.", "placeholders": {"count": {"type": "int"}}},
   "recurringSpan": "{count, plural, =1{1\u00a0day} other{{count}\u00a0days}}\u00a0· {span}",
-  "@recurringSpan": {"description": "Home card: three or more days waiting, “3 days · Mon, Nov 9 – Wed, Nov 11”.", "placeholders": {"count": {"type": "int"}, "span": {"type": "String"}}}
+  "@recurringSpan": {"description": "Home card: three or more days waiting, “3 days · Mon, Nov 9 – Wed, Nov 11”.", "placeholders": {"count": {"type": "int"}, "span": {"type": "String"}}},
+  "recurringTitle": "Recurring trips",
+  "@recurringTitle": {"description": "Settings row (shown once a pattern exists) and its screen title, DAPP-141 §11."},
+  "recurringPaused": "Paused: no days offered until you resume",
+  "@recurringPaused": {"description": "Under a paused pattern: the days while paused are never offered, even after resuming."},
+  "recurringPause": "Pause",
+  "@recurringPause": {"description": "Recurring trips menu: pause a pattern (free)."},
+  "recurringResume": "Resume",
+  "@recurringResume": {"description": "Recurring trips menu: resume a paused pattern (free)."},
+  "recurringEdit": "Change the days",
+  "@recurringEdit": {"description": "Recurring trips menu: opens the repeat sheet (Pro)."},
+  "recurringDelete": "Delete",
+  "@recurringDelete": {"description": "Recurring trips menu: delete a pattern (free, with Undo)."},
+  "recurringDeleted": "Recurring trip deleted. Trips already added stay.",
+  "@recurringDeleted": {"description": "Snackbar after deleting a pattern, with Undo."},
+  "recurringNone": "No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.",
+  "@recurringNone": {"description": "Recurring trips screen once the last pattern is deleted."}
 }

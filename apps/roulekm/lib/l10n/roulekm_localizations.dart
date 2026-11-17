@@ -1036,6 +1036,54 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 day} other{{count} days}} · {span}'**
   String recurringSpan(int count, String span);
+
+  /// Settings row (shown once a pattern exists) and its screen title, DAPP-141 §11.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trips'**
+  String get recurringTitle;
+
+  /// Under a paused pattern: the days while paused are never offered, even after resuming.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: no days offered until you resume'**
+  String get recurringPaused;
+
+  /// Recurring trips menu: pause a pattern (free).
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get recurringPause;
+
+  /// Recurring trips menu: resume a paused pattern (free).
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get recurringResume;
+
+  /// Recurring trips menu: opens the repeat sheet (Pro).
+  ///
+  /// In en, this message translates to:
+  /// **'Change the days'**
+  String get recurringEdit;
+
+  /// Recurring trips menu: delete a pattern (free, with Undo).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get recurringDelete;
+
+  /// Snackbar after deleting a pattern, with Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trip deleted. Trips already added stay.'**
+  String get recurringDeleted;
+
+  /// Recurring trips screen once the last pattern is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.'**
+  String get recurringNone;
 }
 
 class _RoulekmLocalizationsDelegate

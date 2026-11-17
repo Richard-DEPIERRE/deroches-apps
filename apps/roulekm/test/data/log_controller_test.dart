@@ -199,6 +199,47 @@ void main() {
       expect([for (final t in log.logbook!.trips) t.date.day], [2, 3, 4, 5, 6]);
     });
 
+    test('paused, no day waits; resumed, the days it was paused stay skipped and today waits', () async {
+      await log.saveRecurring(weekdays.copyWith(checkedThrough: DateTime.utc(2026, 11, 3)));
+      await log.pauseRecurring('r1', paused: true, now: DateTime(2026, 11, 4, 8));
+      expect(log.logbook!.recurring.single.paused, isTrue);
+      expect(log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 11)), isEmpty);
+
+      // Paused from Wednesday 4 to Wednesday 11 November.
+      await log.pauseRecurring('r1', paused: false, now: DateTime(2026, 11, 11, 7));
+      final resumed = log.logbook!.recurring.single;
+      expect(resumed.paused, isFalse);
+      expect(resumed.waitingDays(DateTime(2026, 11, 11, 7)), [DateTime.utc(2026, 11, 11)]);
+      expect(log.logbook!.trips, isEmpty);
+    });
+
+    test('resuming one that is not paused (a double tap) drops no day waiting', () async {
+      await log.saveRecurring(weekdays);
+      await log.pauseRecurring('r1', paused: false, now: DateTime(2026, 11, 6));
+      expect(log.logbook!.recurring.single, weekdays);
+    });
+
+    test('editing its days keeps the rest, and the days already seen stay seen', () async {
+      final seen = weekdays.copyWith(checkedThrough: DateTime.utc(2026, 11, 4));
+      await log.saveRecurring(seen);
+      await log.editRecurring('r1', const [1, 3]);
+      final edited = log.logbook!.recurring.single;
+      expect(edited.toJson(), {
+        ...seen.toJson(),
+        'weekdays': [1, 3],
+      });
+      expect(edited.waitingDays(DateTime(2026, 11, 9)), [DateTime.utc(2026, 11, 9)]);
+    });
+
+    test('a deleted one comes back in its place (Undo)', () async {
+      final second = RecurringTrip(id: 'r2', route: route, weekdays: const [6], startDate: weekdays.startDate);
+      await log.saveRecurring(weekdays);
+      await log.saveRecurring(second);
+      await log.deleteRecurring('r1');
+      await log.saveRecurring(weekdays, at: 0);
+      expect(log.logbook!.recurring, [weekdays, second]);
+    });
+
     test('skipping every day adds no trip and the days never come back', () async {
       await log.saveRecurring(weekdays);
       await log.confirmRecurring('r1', const [], through: DateTime.utc(2026, 11, 6));

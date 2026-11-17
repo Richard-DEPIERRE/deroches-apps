@@ -680,4 +680,30 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
     );
     return '$_temp0 · $span';
   }
+
+  @override
+  String get recurringTitle => 'Recurring trips';
+
+  @override
+  String get recurringPaused => 'Paused: no days offered until you resume';
+
+  @override
+  String get recurringPause => 'Pause';
+
+  @override
+  String get recurringResume => 'Resume';
+
+  @override
+  String get recurringEdit => 'Change the days';
+
+  @override
+  String get recurringDelete => 'Delete';
+
+  @override
+  String get recurringDeleted =>
+      'Recurring trip deleted. Trips already added stay.';
+
+  @override
+  String get recurringNone =>
+      'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.';
 }
