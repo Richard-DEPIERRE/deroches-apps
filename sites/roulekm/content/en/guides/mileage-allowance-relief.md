@@ -330,6 +330,9 @@ There is no relief for a journey made as a passenger, or in a company vehicle. T
 whole cost of owning and running the vehicle: gov.uk says fuel, electricity, vehicle tax, MOTs and repairs can't be
 claimed separately, and HMRC's Employment Income Manual (EIM31330) says actual costs are not an alternative.
 
+Self-employed? This relief is for employees. Sole traders and partners claim their business miles as an expense on
+their Self Assessment return instead: see [how a self-employed mileage claim works](/en/guides/self-employed-mileage-claim/).
+
 ## HMRC's approved mileage rates, by tax year
 
 A tax year runs from 6 April to 5 April. These are the rates in section 230 of the Act and on HMRC's rates page:
