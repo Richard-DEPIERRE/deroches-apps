@@ -392,7 +392,7 @@ abstract class RoulekmLocalizations {
   /// Paywall header, what Pro unlocks: the PDF (DAPP-140 §2).
   ///
   /// In en, this message translates to:
-  /// **'Your year’s mileage log as a PDF, trip by trip'**
+  /// **'Your year’s mileage log as a PDF, trip by trip'**
   String get proPdf;
 
   /// Paywall header, what Pro unlocks: the CSV (DAPP-140 §2).
@@ -416,7 +416,7 @@ abstract class RoulekmLocalizations {
   /// Paywall header, last line (DAPP-140 §2).
   ///
   /// In en, this message translates to:
-  /// **'Your trips stay free and unlimited, with or without Pro.'**
+  /// **'Your trips stay free and unlimited, with or without Pro.'**
   String get proFoot;
 
   /// Header of the app's own section, first in Settings.

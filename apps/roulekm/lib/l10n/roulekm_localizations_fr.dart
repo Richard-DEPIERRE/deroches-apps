@@ -180,7 +180,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
       'Le même Pro dans chaque formule. Payez une fois et il est à vous, ou à l’année, ou à la semaine.';
 
   @override
-  String get proPdf => 'Le relevé PDF de l’année, trajet par trajet';
+  String get proPdf => 'Le relevé PDF de l’année, trajet par trajet';
 
   @override
   String get proCsv => 'L’export CSV';
@@ -193,7 +193,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
 
   @override
   String get proFoot =>
-      'Vos trajets restent gratuits et illimités, avec ou sans Pro.';
+      'Vos trajets restent gratuits et illimités, avec ou sans Pro.';
 
   @override
   String get settingsAppSection => 'Roulekm';

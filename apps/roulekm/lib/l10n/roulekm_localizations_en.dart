@@ -178,7 +178,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
       'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.';
 
   @override
-  String get proPdf => 'Your year’s mileage log as a PDF, trip by trip';
+  String get proPdf => 'Your year’s mileage log as a PDF, trip by trip';
 
   @override
   String get proCsv => 'CSV export';
@@ -191,7 +191,7 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
 
   @override
   String get proFoot =>
-      'Your trips stay free and unlimited, with or without Pro.';
+      'Your trips stay free and unlimited, with or without Pro.';
 
   @override
   String get settingsAppSection => 'Roulekm';

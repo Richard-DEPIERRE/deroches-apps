@@ -39,12 +39,12 @@ void main() {
       (
         line: 'Le même Pro dans chaque formule. Payez une fois et il est à vous, ou à l’année, ou à la semaine.',
         bullets: [
-          'Le relevé PDF de l’année, trajet par trajet',
+          'Le relevé PDF de l’année, trajet\u00a0par\u00a0trajet',
           'L’export CSV',
           'Les trajets récurrents',
           'Plusieurs véhicules à la fois',
         ],
-        foot: 'Vos trajets restent gratuits et illimités, avec ou sans Pro.',
+        foot: 'Vos trajets restent gratuits et illimités, avec ou sans\u00a0Pro.',
         snackbar: 'Disponible avec Roulekm Pro, après votre premier trajet.',
       ),
     ),
@@ -53,12 +53,12 @@ void main() {
       (
         line: 'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.',
         bullets: [
-          'Your year’s mileage log as a PDF, trip by trip',
+          'Your year’s mileage log as a PDF, trip\u00a0by\u00a0trip',
           'CSV export',
           'Recurring trips',
           'Several vehicles at once',
         ],
-        foot: 'Your trips stay free and unlimited, with or without Pro.',
+        foot: 'Your trips stay free and unlimited, with or without\u00a0Pro.',
         snackbar: 'Part of Roulekm Pro, once you’ve saved your first trip.',
       ),
     ),
@@ -90,6 +90,21 @@ void main() {
     await openSettings(tester);
     await tapText(tester, 'Roulekm Pro');
     expect(find.widgetWithText(FilledButton, 'Buy for 24,99\u00a0€'), findsOneWidget, reason: 'the lifetime plan');
+  });
+
+  testWidgets('at 2× text, the header’s checks grow with it up to the kit’s 1.5× and sit on the first line', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pumpApp(tester, const Locale('en', 'GB'), onboarded: true, sells: true, logbook: withTrip);
+    await openSettings(tester);
+    await tapText(tester, 'Roulekm Pro');
+    final check = find.byIcon(Icons.check).at(1); // the CSV bullet's
+    expect(tester.getSize(check), const Size(30, 30));
+    final line = find.text('CSV export');
+    final lineHeight = tester.getSize(line).height;
+    expect(tester.getCenter(check).dy, closeTo(tester.getTopLeft(line).dy + lineHeight / 2, 1));
   });
 
   testWidgets("Settings → Roulekm Pro with Pro: the kit's entitled view", (tester) async {

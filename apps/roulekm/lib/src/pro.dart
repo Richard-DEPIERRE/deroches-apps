@@ -29,7 +29,8 @@ class ProHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = RoulekmLocalizations.of(context);
-    final body = Theme.of(context).textTheme.bodyLarge;
+    final body = Theme.of(context).textTheme.bodyLarge!;
+    final scaler = MediaQuery.textScalerOf(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -43,7 +44,13 @@ class ProHeader extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.check, size: 20, color: Theme.of(context).colorScheme.primary),
+                // As tall as the first line and centred on it, growing with the text (the kit caps it at 1.5×).
+                SizedBox(
+                  height: scaler.scale(body.fontSize!) * (body.height ?? 1.2),
+                  child: Center(
+                    child: Icon(Icons.check, size: scaler.scale(20), color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(child: Text(line, style: body)),
               ],
