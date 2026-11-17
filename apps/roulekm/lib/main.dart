@@ -68,7 +68,11 @@ Widget buildApp({
         // The paywall's hook stays empty until DAPP-148 connects it.
         pro: pro,
         openPaywall: null,
-        openYear: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => YearScreen(log: log))),
+        openYear: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => YearScreen(log: log, pro: pro, openPaywall: null),
+          ),
+        ),
         settings: (context) => SettingsScreen(
           kitState: kitState,
           analytics: analytics,
