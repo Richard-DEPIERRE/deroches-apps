@@ -971,6 +971,24 @@ abstract class RoulekmLocalizations {
   /// **'CSV spreadsheet'**
   String get yearExportCsv;
 
+  /// Year screen: the filled button (Pro) that shares the year's PDF log, one file per vehicle (DAPP-141 §7).
+  ///
+  /// In en, this message translates to:
+  /// **'Year’s PDF log'**
+  String get yearExportPdf;
+
+  /// Year screen: snackbar when a Pro user exports a year without trips; no file is made. uk: whether the year is a UK tax year.
+  ///
+  /// In en, this message translates to:
+  /// **'{uk, select, yes{No trips in tax year {year}} other{No trips in {year}}}'**
+  String yearNoTrips(String uk, String year);
+
+  /// Year screen: snackbar when the platform share sheet fails to open with an export.
+  ///
+  /// In en, this message translates to:
+  /// **'The share sheet didn’t open. Try again.'**
+  String get yearShareFailed;
+
   /// CSV export (DAPP-141 §9): header of the distance unit column (km or mi).
   ///
   /// In en, this message translates to:
