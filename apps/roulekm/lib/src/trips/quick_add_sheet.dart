@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
+import '../formatting.dart';
 import '../home/home_screen.dart';
 import '../pro.dart';
 import 'trip_screen.dart';

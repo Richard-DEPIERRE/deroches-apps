@@ -7,6 +7,7 @@ import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
+import '../formatting.dart';
 import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
@@ -260,10 +261,6 @@ String _number(String lang, num n) => NumberFormat.decimalPattern(lang).format(n
 
 String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int d) =>
     typedDistance(l10n, lang, Distance(d, system.unit));
-
-/// A distance in the unit it was typed in.
-String typedDistance(RoulekmLocalizations l10n, String lang, Distance d) =>
-    d.unit == DistanceUnit.km ? l10n.distanceKm(_number(lang, d.value)) : l10n.distanceMiles(_number(lang, d.value));
 
 /// "Mer. 5 nov.", "Wed, Nov 5", and "Wed 5 Nov" for an HMRC vehicle; never broken across lines. With [thisYear], a
 /// day in another year shows its year.

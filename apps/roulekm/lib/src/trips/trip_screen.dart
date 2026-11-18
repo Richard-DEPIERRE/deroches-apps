@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
-import '../home/home_screen.dart';
+import '../formatting.dart';
 import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/rates.dart';

@@ -7,13 +7,11 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../l10n/roulekm_localizations.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
-import '../home/home_screen.dart' show typedDistance;
+import '../formatting.dart';
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
-import '../vehicles/vehicle_screen.dart' show vehicleSummary, vehicleTypeLabel;
 import 'year_csv.dart';
-import 'year_screen.dart' show calculation;
 
 /// A month of the log: its title, one row per trip (the last cell is the distance) and its total.
 typedef PdfMonth = ({String title, List<List<String>> rows, (String, String) total});
