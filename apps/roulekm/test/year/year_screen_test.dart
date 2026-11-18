@@ -55,7 +55,7 @@ Future<LogController> openYear(
         log: log,
         pro: ValueNotifier(pro),
         openPaywall: openPaywall,
-        share: share ?? (_, _, _, _) async {},
+        share: share ?? (_, _) async {},
         now: () => DateTime(2026, 11, 16),
       ),
     ),
