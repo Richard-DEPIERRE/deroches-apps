@@ -216,14 +216,40 @@ void main() {
   });
 
   testWidgets('the Play feature graphic: the icon, the name and caption 1 on the band', (tester) async {
-    final icon = await tester.runAsync(() async {
+    final (icon, corner) = (await tester.runAsync(() async {
       final codec = await instantiateImageCodec(File('store/android/fr-FR/images/icon.png').readAsBytesSync());
-      return (await codec.getNextFrame()).image;
-    });
-    addTearDown(icon!.dispose);
+      final image = (await codec.getNextFrame()).image;
+      return (image, (await image.toByteData())!.getUint32(0));
+    }))!;
+    addTearDown(icon.dispose);
+    // The icon's tile is the band's colour, so only the milestone shows (DAPP-383): a change to either would show it.
+    expect(corner, (band.toARGB32() & 0xFFFFFF) << 8 | 0xFF, reason: 'the icon tile (RGBA) is the band');
+    final captionStyle = style.copyWith(fontWeight: FontWeight.w500, fontSize: 30, height: 1.3, color: Colors.white);
     for (final locale in locales) {
-      final l10n = lookupRoulekmLocalizations(locale);
-      // Centred and clear of the edges, which Play crops in some places.
+      final caption = lookupRoulekmLocalizations(locale).storeCaption1;
+      // Balanced like the kit's StoreCaption: the narrowest width that keeps the line count. Measured at build time,
+      // once takeScreenshot has loaded the fonts.
+      double balanced() {
+        int linesAt(double width) {
+          final painter = TextPainter(
+            text: TextSpan(text: caption, style: captionStyle),
+            textDirection: TextDirection.ltr,
+          )..layout(maxWidth: width);
+          final lines = painter.computeLineMetrics().length;
+          painter.dispose();
+          return lines;
+        }
+
+        var width = 440.0;
+        final lines = linesAt(width);
+        while (linesAt(width - 2) == lines) {
+          width -= 2;
+        }
+        return width;
+      }
+
+      // DAPP-383: the mark (the 224 px icon's milestone, 112 × 140) runs from the cap of the name to the caption's
+      // last baseline; the group is centred, clear of the edges Play crops.
       final graphic = Directionality(
         textDirection: TextDirection.ltr,
         child: ColoredBox(
@@ -232,30 +258,32 @@ void main() {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40),
-                  child: RawImage(image: icon, width: 176, height: 176),
-                ),
-                const SizedBox(width: 40),
-                SizedBox(
-                  width: 440,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Roulekm', style: style.copyWith(fontSize: 64, color: Colors.white)),
-                      const SizedBox(height: 8),
-                      Text(
-                        l10n.storeCaption1,
-                        style: style.copyWith(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 30,
-                          height: 1.3,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                Padding(
+                  padding: const EdgeInsets.only(top: 14),
+                  child: SizedBox(
+                    width: 112,
+                    height: 140,
+                    child: OverflowBox(
+                      maxWidth: 224,
+                      maxHeight: 224,
+                      child: RawImage(image: icon, width: 224, height: 224),
+                    ),
                   ),
+                ),
+                const SizedBox(width: 48),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Roulekm', style: style.copyWith(fontSize: 64, color: Colors.white)),
+                    const SizedBox(height: 8),
+                    Builder(
+                      builder: (_) => SizedBox(
+                        width: balanced(),
+                        child: Text(caption, style: captionStyle),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

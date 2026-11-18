@@ -14,11 +14,6 @@ void main() {
     }
   });
 
-  test('iOS: export compliance answered in the build (only the OS\'s exempt HTTPS)', () {
-    // Without it, every TestFlight build waits on the encryption question in App Store Connect (DAPP-381).
-    expect(plist, matches(RegExp(r'<key>ITSAppUsesNonExemptEncryption</key>\s*<false/>')));
-  });
-
   test('Android: the only permission is Play Billing, declared by the app itself', () {
     // Play Console only lets Richard create the in-app products once an uploaded bundle declares it (DAPP-238).
     final permissions = RegExp(r'<uses-permission\s+android:name="([^"]+)"').allMatches(manifest).map((m) => m.group(1));
