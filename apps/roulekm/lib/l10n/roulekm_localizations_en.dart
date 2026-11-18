@@ -171,6 +171,29 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
       'Part of Roulekm Pro, once you’ve saved your first trip.';
 
   @override
+  String get proTitle => 'Roulekm Pro';
+
+  @override
+  String get proLine =>
+      'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.';
+
+  @override
+  String get proPdf => 'Your year’s mileage log as a PDF, trip by trip';
+
+  @override
+  String get proCsv => 'CSV export';
+
+  @override
+  String get proRecurring => 'Recurring trips';
+
+  @override
+  String get proVehicles => 'Several vehicles at once';
+
+  @override
+  String get proFoot =>
+      'Your trips stay free and unlimited, with or without Pro.';
+
+  @override
   String get settingsAppSection => 'Roulekm';
 
   @override
@@ -625,5 +648,182 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   @override
   String repeatList(String days, String last) {
     return '$days and $last';
+  }
+
+  @override
+  String recurringToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count regular trips to confirm',
+      one: '1 regular trip to confirm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringReview => 'Review';
+
+  @override
+  String get recurringConfirmAll => 'Confirm all';
+
+  @override
+  String get recurringReviewHint =>
+      'Uncheck the days you didn’t make the trip. They won’t be offered again.';
+
+  @override
+  String recurringConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Confirm $count trips',
+      one: 'Confirm 1 trip',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringSkip => 'Skip these days';
+
+  @override
+  String recurringAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trips added',
+      one: '1 trip added',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days skipped',
+      one: '1 day skipped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSpan(int count, String span) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0 · $span';
+  }
+
+  @override
+  String get recurringTitle => 'Recurring trips';
+
+  @override
+  String get recurringPaused => 'Paused: no days offered during the pause';
+
+  @override
+  String get recurringPause => 'Pause';
+
+  @override
+  String get recurringResume => 'Resume';
+
+  @override
+  String get recurringEdit => 'Change the days';
+
+  @override
+  String get recurringDelete => 'Delete';
+
+  @override
+  String get recurringDeleted =>
+      'Recurring trip deleted. Trips already added are kept.';
+
+  @override
+  String get recurringNone =>
+      'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.';
+
+  @override
+  String pdfTitle(String year) {
+    return 'Mileage log $year';
+  }
+
+  @override
+  String pdfPeriod(String from, String to) {
+    return 'Business trips — $from to $to';
+  }
+
+  @override
+  String get pdfVehicle => 'Vehicle:';
+
+  @override
+  String get pdfRate => 'Rate:';
+
+  @override
+  String get pdfOdometer => 'Odometer';
+
+  @override
+  String pdfDistanceColumn(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {'km': 'Km', 'other': 'Miles'});
+    return '$_temp0';
+  }
+
+  @override
+  String pdfMonthTotal(String month) {
+    return '$month total';
+  }
+
+  @override
+  String get pdfYearTotal => 'Year total';
+
+  @override
+  String pdfBusinessDistance(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {
+      'km': 'Business distance',
+      'other': 'Business miles',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfCalculationBracket(String kind, String from, String to) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'upTo': 'Calculation (bracket up to $to km)',
+      'over': 'Calculation (bracket over $from km)',
+      'other': 'Calculation (bracket $from to $to km)',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfPooledCalculation(String count) {
+    return 'Calculation, $count vehicles together';
+  }
+
+  @override
+  String get pdfVehicleShare => 'This vehicle’s share, by distance';
+
+  @override
+  String pdfNote(String system) {
+    String _temp0 = intl.Intl.selectLogic(system, {
+      'france':
+          'Each trip shows its date, places, business purpose and distance. Amounts at the French barème kilométrique. Keep this log with your tax records.',
+      'uk':
+          'Each trip shows its date, places, business purpose and miles. Amounts at HMRC’s approved mileage rates. Keep this log with your tax records.',
+      'other':
+          'Each trip shows its date, places, business purpose and miles. Amounts at the IRS standard mileage rate. Keep this log with your tax records.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfFooter(String date) {
+    return 'Made with Roulekm on $date';
+  }
+
+  @override
+  String pdfPage(String page, String pages) {
+    return 'Page $page of $pages';
   }
 }

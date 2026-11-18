@@ -189,6 +189,74 @@ void main() {
       expect(reopened.logbook, log.logbook, reason: 'trips and the checked-through day are saved together');
     });
 
+    test('two quick confirms of the same days (a double tap) add each day once', () async {
+      await log.saveRecurring(weekdays);
+      final waiting = log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 6, 18));
+      final first = log.confirmRecurring('r1', waiting, through: waiting.last);
+      final second = log.confirmRecurring('r1', waiting, through: waiting.last);
+      expect(await first, hasLength(5));
+      expect(await second, isNull, reason: 'nothing left to add, nothing to undo');
+      expect([for (final t in log.logbook!.trips) t.date.day], [2, 3, 4, 5, 6]);
+    });
+
+    test('paused, no day waits; resumed, the days it was paused stay skipped and today waits', () async {
+      await log.saveRecurring(weekdays.copyWith(checkedThrough: DateTime.utc(2026, 11, 3)));
+      await log.pauseRecurring('r1', paused: true, now: DateTime(2026, 11, 4, 8));
+      expect(log.logbook!.recurring.single.paused, isTrue);
+      expect(log.logbook!.recurring.single.waitingDays(DateTime(2026, 11, 11)), isEmpty);
+
+      // Paused from Wednesday 4 to Wednesday 11 November.
+      await log.pauseRecurring('r1', paused: false, now: DateTime(2026, 11, 11, 7));
+      final resumed = log.logbook!.recurring.single;
+      expect(resumed.paused, isFalse);
+      expect(resumed.waitingDays(DateTime(2026, 11, 11, 7)), [DateTime.utc(2026, 11, 11)]);
+      expect(log.logbook!.trips, isEmpty);
+    });
+
+    test('Monday to Wednesday waiting, paused and resumed the same Thursday: the 3 days still wait', () async {
+      await log.saveRecurring(
+        RecurringTrip(id: 'r1', route: route, weekdays: const [1, 2, 3], startDate: weekdays.startDate),
+      );
+      final thursday = DateTime(2026, 11, 5, 8);
+      await log.pauseRecurring('r1', paused: true, now: thursday);
+      expect(log.logbook!.recurring.single.waitingDays(thursday), hasLength(3), reason: 'they wait while paused');
+      await log.pauseRecurring('r1', paused: false, now: thursday);
+      final reopened = LogController(RoulekmData(dir).log);
+      await reopened.open();
+      expect(reopened.logbook!.recurring.single.waitingDays(thursday), [
+        DateTime.utc(2026, 11, 2),
+        DateTime.utc(2026, 11, 3),
+        DateTime.utc(2026, 11, 4),
+      ]);
+    });
+
+    test('resuming one that is not paused (a double tap) drops no day waiting', () async {
+      await log.saveRecurring(weekdays);
+      await log.pauseRecurring('r1', paused: false, now: DateTime(2026, 11, 6));
+      expect(log.logbook!.recurring.single, weekdays);
+    });
+
+    test('editing its days keeps the rest, and the days already seen stay seen', () async {
+      final seen = weekdays.copyWith(checkedThrough: DateTime.utc(2026, 11, 4));
+      await log.saveRecurring(seen);
+      await log.editRecurring('r1', const [1, 3]);
+      final edited = log.logbook!.recurring.single;
+      expect(edited.toJson(), {
+        ...seen.toJson(),
+        'weekdays': [1, 3],
+      });
+      expect(edited.waitingDays(DateTime(2026, 11, 9)), [DateTime.utc(2026, 11, 9)]);
+    });
+
+    test('a deleted one comes back in its place (Undo)', () async {
+      final second = RecurringTrip(id: 'r2', route: route, weekdays: const [6], startDate: weekdays.startDate);
+      await log.saveRecurring(weekdays);
+      await log.saveRecurring(second);
+      await log.deleteRecurring('r1');
+      await log.saveRecurring(weekdays, at: 0);
+      expect(log.logbook!.recurring, [weekdays, second]);
+    });
+
     test('skipping every day adds no trip and the days never come back', () async {
       await log.saveRecurring(weekdays);
       await log.confirmRecurring('r1', const [], through: DateTime.utc(2026, 11, 6));

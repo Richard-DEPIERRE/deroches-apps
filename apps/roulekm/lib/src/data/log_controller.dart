@@ -44,21 +44,63 @@ class LogController extends ChangeNotifier {
   Future<void> deleteFavourite(String id) =>
       _save(favourites: (favourites) => [...favourites.where((f) => f.id != id)]);
 
-  /// Adds [pattern], or replaces the one with its id in place. It fills nothing by itself: see [confirmRecurring].
-  Future<void> saveRecurring(RecurringTrip pattern) =>
-      _save(recurring: (recurring) => _put(recurring, pattern, (r) => r.id));
+  /// Adds [pattern], or replaces the one with its id in place; [at] puts a deleted one back where it was (Undo). It
+  /// fills nothing by itself: see [confirmRecurring].
+  Future<void> saveRecurring(RecurringTrip pattern, {int? at}) => _save(
+    recurring: (recurring) => at == null || recurring.any((r) => r.id == pattern.id)
+        ? _put(recurring, pattern, (r) => r.id)
+        : (List.of(recurring)..insert(min(at, recurring.length), pattern)),
+  );
 
   Future<void> deleteRecurring(String id) => _save(recurring: (recurring) => [...recurring.where((r) => r.id != id)]);
 
+  /// Pattern [id]'s new days; the days already confirmed or skipped stay so.
+  Future<void> editRecurring(String id, List<int> weekdays) =>
+      _save(recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(weekdays: weekdays) : r]);
+
+  /// Pauses pattern [id] on [now]'s day, or resumes it: see [RecurringTrip.pause] and [RecurringTrip.resume]. Resuming
+  /// one that isn't paused (a double tap) changes nothing.
+  Future<void> pauseRecurring(String id, {required bool paused, required DateTime now}) => _save(
+    recurring: (recurring) => [
+      for (final r in recurring)
+        if (r.id != id || r.paused == paused) r else paused ? r.pause(now) : r.resume(now),
+    ],
+  );
+
   /// Adds one trip on pattern [id]'s route for each of [days], and marks every day through [through] as seen, in
-  /// one save: a confirmed or skipped day is never offered again.
-  Future<void> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) {
-    final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
-    return _save(
-      trips: (trips) => [...trips, for (final d in days) TripRecord(id: newId(), date: d, route: pattern.route)],
-      recurring: (recurring) => [for (final r in recurring) r.id == id ? r.copyWith(checkedThrough: through) : r],
+  /// one save: a confirmed or skipped day is never offered again. Decided in the save queue, against the pattern as
+  /// the earlier saves left it, so a second confirm of the same days (a double tap) adds nothing. Completes with the
+  /// new trips' ids, for Undo; null when every day was already seen and nothing changed.
+  Future<List<String>?> confirmRecurring(String id, List<DateTime> days, {required DateTime through}) async {
+    List<String>? added;
+    await _save(
+      // Runs before `recurring` below, while [logbook] is still the logbook this save starts from.
+      trips: (trips) {
+        final pattern = logbook!.recurring.firstWhere((r) => r.id == id);
+        final seen = pattern.checkedThrough;
+        if (seen != null && !seen.isBefore(through)) return trips;
+        final fresh = [
+          for (final d in days)
+            if (seen == null || d.isAfter(seen)) TripRecord(id: newId(), date: d, route: pattern.route),
+        ];
+        added = [for (final t in fresh) t.id];
+        return [...trips, ...fresh];
+      },
+      recurring: (recurring) => [
+        for (final r in recurring) r.id == id && added != null ? r.copyWith(checkedThrough: through) : r,
+      ],
     );
+    return added;
   }
+
+  /// Undo for [confirmRecurring], in one save: removes the trips [tripIds] and puts back each pattern's
+  /// [checkedThrough] (by pattern id), so its days wait again.
+  Future<void> undoConfirm(List<String> tripIds, Map<String, DateTime?> checkedThrough) => _save(
+    trips: (trips) => [...trips.where((t) => !tripIds.contains(t.id))],
+    recurring: (recurring) => [
+      for (final r in recurring) checkedThrough.containsKey(r.id) ? r.withCheckedThrough(checkedThrough[r.id]) : r,
+    ],
+  );
 
   static List<T> _put<T>(List<T> items, T item, String Function(T) id) {
     final i = items.indexWhere((e) => id(e) == id(item));

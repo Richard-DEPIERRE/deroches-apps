@@ -377,6 +377,48 @@ abstract class RoulekmLocalizations {
   /// **'Part of Roulekm Pro, once you’ve saved your first trip.'**
   String get proAfterFirstTrip;
 
+  /// Paywall header title and the Settings row that opens the paywall (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Roulekm Pro'**
+  String get proTitle;
+
+  /// Paywall header line under the title (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.'**
+  String get proLine;
+
+  /// Paywall header, what Pro unlocks: the PDF (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your year’s mileage log as a PDF, trip by trip'**
+  String get proPdf;
+
+  /// Paywall header, what Pro unlocks: the CSV (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export'**
+  String get proCsv;
+
+  /// Paywall header, what Pro unlocks: recurring trips (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trips'**
+  String get proRecurring;
+
+  /// Paywall header, what Pro unlocks: several vehicles in use (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Several vehicles at once'**
+  String get proVehicles;
+
+  /// Paywall header, last line (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your trips stay free and unlimited, with or without Pro.'**
+  String get proFoot;
+
   /// Header of the app's own section, first in Settings.
   ///
   /// In en, this message translates to:
@@ -1006,6 +1048,198 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'{days} and {last}'**
   String repeatList(String days, String last);
+
+  /// Home card (Pro) and review sheet title: the recurring days waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 regular trip to confirm} other{{count} regular trips to confirm}}'**
+  String recurringToConfirm(int count);
+
+  /// Home card: opens the sheet to pick which days to confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get recurringReview;
+
+  /// Home card: adds a trip for every day waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm all'**
+  String get recurringConfirmAll;
+
+  /// Review sheet: under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Uncheck the days you didn’t make the trip. They won’t be offered again.'**
+  String get recurringReviewHint;
+
+  /// Review sheet's button, with the days ticked.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Confirm 1 trip} other{Confirm {count} trips}}'**
+  String recurringConfirm(int count);
+
+  /// Review sheet's button when every day is unchecked: none is counted or offered again.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip these days'**
+  String get recurringSkip;
+
+  /// Snackbar after confirming recurring days.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 trip added} other{{count} trips added}}'**
+  String recurringAdded(int count);
+
+  /// Snackbar, with Undo, after skipping every recurring day waiting.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day skipped} other{{count} days skipped}}'**
+  String recurringSkipped(int count);
+
+  /// Home card: three or more days waiting, “3 days · Mon, Nov 9 – Wed, Nov 11”.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}} · {span}'**
+  String recurringSpan(int count, String span);
+
+  /// Settings row (shown once a pattern exists) and its screen title, DAPP-141 §11.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trips'**
+  String get recurringTitle;
+
+  /// Under a paused pattern: the days while paused are never offered, even after resuming.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused: no days offered during the pause'**
+  String get recurringPaused;
+
+  /// Recurring trips menu: pause a pattern (free).
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get recurringPause;
+
+  /// Recurring trips menu: resume a paused pattern (free).
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get recurringResume;
+
+  /// Recurring trips menu: opens the repeat sheet (Pro).
+  ///
+  /// In en, this message translates to:
+  /// **'Change the days'**
+  String get recurringEdit;
+
+  /// Recurring trips menu: delete a pattern (free, with Undo).
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get recurringDelete;
+
+  /// Snackbar after deleting a pattern, with Undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trip deleted. Trips already added are kept.'**
+  String get recurringDeleted;
+
+  /// Recurring trips screen once the last pattern is deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.'**
+  String get recurringNone;
+
+  /// PDF log (DAPP-141 §9): its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Mileage log {year}'**
+  String pdfTitle(String year);
+
+  /// PDF log: the period line under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Business trips — {from} to {to}'**
+  String pdfPeriod(String from, String to);
+
+  /// No description provided for @pdfVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle:'**
+  String get pdfVehicle;
+
+  /// PDF log: label of the rates used, e.g. "IRS standard mileage rate for 2026 · source: irs.gov".
+  ///
+  /// In en, this message translates to:
+  /// **'Rate:'**
+  String get pdfRate;
+
+  /// No description provided for @pdfOdometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get pdfOdometer;
+
+  /// PDF log: the distance column's header.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, km{Km} other{Miles}}'**
+  String pdfDistanceColumn(String unit);
+
+  /// PDF log: a month's total row, e.g. "December total".
+  ///
+  /// In en, this message translates to:
+  /// **'{month} total'**
+  String pdfMonthTotal(String month);
+
+  /// No description provided for @pdfYearTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Year total'**
+  String get pdfYearTotal;
+
+  /// No description provided for @pdfBusinessDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, km{Business distance} other{Business miles}}'**
+  String pdfBusinessDistance(String unit);
+
+  /// PDF log: the French barème's calculation, with the bracket the year's distance falls in.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, upTo{Calculation (bracket up to {to} km)} over{Calculation (bracket over {from} km)} other{Calculation (bracket {from} to {to} km)}}'**
+  String pdfCalculationBracket(String kind, String from, String to);
+
+  /// PDF log: the calculation of a line the law pools across vehicles (UK cars, the US).
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation, {count} vehicles together'**
+  String pdfPooledCalculation(String count);
+
+  /// No description provided for @pdfVehicleShare.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle’s share, by distance'**
+  String get pdfVehicleShare;
+
+  /// PDF log: the plain line under the total. Never says how to file (anti-goal 6).
+  ///
+  /// In en, this message translates to:
+  /// **'{system, select, france{Each trip shows its date, places, business purpose and distance. Amounts at the French barème kilométrique. Keep this log with your tax records.} uk{Each trip shows its date, places, business purpose and miles. Amounts at HMRC’s approved mileage rates. Keep this log with your tax records.} other{Each trip shows its date, places, business purpose and miles. Amounts at the IRS standard mileage rate. Keep this log with your tax records.}}'**
+  String pdfNote(String system);
+
+  /// No description provided for @pdfFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Made with Roulekm on {date}'**
+  String pdfFooter(String date);
+
+  /// No description provided for @pdfPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String pdfPage(String page, String pages);
 }
 
 class _RoulekmLocalizationsDelegate

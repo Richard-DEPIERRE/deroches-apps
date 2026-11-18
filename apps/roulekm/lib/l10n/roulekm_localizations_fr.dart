@@ -173,6 +173,29 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
       'Disponible avec Roulekm Pro, après votre premier trajet.';
 
   @override
+  String get proTitle => 'Roulekm Pro';
+
+  @override
+  String get proLine =>
+      'Le même Pro dans chaque formule. Payez une fois et il est à vous, ou à l’année, ou à la semaine.';
+
+  @override
+  String get proPdf => 'Le relevé PDF de l’année, trajet par trajet';
+
+  @override
+  String get proCsv => 'L’export CSV';
+
+  @override
+  String get proRecurring => 'Les trajets récurrents';
+
+  @override
+  String get proVehicles => 'Plusieurs véhicules à la fois';
+
+  @override
+  String get proFoot =>
+      'Vos trajets restent gratuits et illimités, avec ou sans Pro.';
+
+  @override
   String get settingsAppSection => 'Roulekm';
 
   @override
@@ -623,5 +646,183 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   @override
   String repeatList(String days, String last) {
     return '$days et $last';
+  }
+
+  @override
+  String recurringToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets réguliers à confirmer',
+      one: '1 trajet régulier à confirmer',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringReview => 'Voir';
+
+  @override
+  String get recurringConfirmAll => 'Tout confirmer';
+
+  @override
+  String get recurringReviewHint =>
+      'Décochez les jours où vous n’avez pas fait le trajet. Ils ne seront plus proposés.';
+
+  @override
+  String recurringConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Confirmer $count trajets',
+      one: 'Confirmer 1 trajet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recurringSkip => 'Ignorer ces jours';
+
+  @override
+  String recurringAdded(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count trajets ajoutés',
+      one: '1 trajet ajouté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours ignorés',
+      one: '1 jour ignoré',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recurringSpan(int count, String span) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours',
+      one: '1 jour',
+    );
+    return '$_temp0 · $span';
+  }
+
+  @override
+  String get recurringTitle => 'Trajets récurrents';
+
+  @override
+  String get recurringPaused =>
+      'En pause : aucun jour proposé pendant la pause';
+
+  @override
+  String get recurringPause => 'Mettre en pause';
+
+  @override
+  String get recurringResume => 'Reprendre';
+
+  @override
+  String get recurringEdit => 'Modifier les jours';
+
+  @override
+  String get recurringDelete => 'Supprimer';
+
+  @override
+  String get recurringDeleted =>
+      'Trajet récurrent supprimé. Les trajets déjà ajoutés sont conservés.';
+
+  @override
+  String get recurringNone =>
+      'Aucun trajet récurrent. Pour en créer un, touchez « Répéter ce trajet » en ajoutant un trajet.';
+
+  @override
+  String pdfTitle(String year) {
+    return 'Relevé des frais kilométriques $year';
+  }
+
+  @override
+  String pdfPeriod(String from, String to) {
+    return 'Déplacements professionnels — du $from au $to';
+  }
+
+  @override
+  String get pdfVehicle => 'Véhicule :';
+
+  @override
+  String get pdfRate => 'Barème :';
+
+  @override
+  String get pdfOdometer => 'Compteur';
+
+  @override
+  String pdfDistanceColumn(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {'km': 'Km', 'other': 'Miles'});
+    return '$_temp0';
+  }
+
+  @override
+  String pdfMonthTotal(String month) {
+    return 'Total $month';
+  }
+
+  @override
+  String get pdfYearTotal => 'Total de l’année';
+
+  @override
+  String pdfBusinessDistance(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {
+      'other': 'Distance professionnelle',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfCalculationBracket(String kind, String from, String to) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'upTo': 'Calcul (tranche jusqu’à $to km)',
+      'over': 'Calcul (tranche au-delà de $from km)',
+      'other': 'Calcul (tranche $from à $to km)',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfPooledCalculation(String count) {
+    return 'Calcul, $count véhicules ensemble';
+  }
+
+  @override
+  String get pdfVehicleShare =>
+      'Part de ce véhicule, au prorata de sa distance';
+
+  @override
+  String pdfNote(String system) {
+    String _temp0 = intl.Intl.selectLogic(system, {
+      'france':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au barème kilométrique publié par l’administration fiscale ; à conserver avec vos justificatifs.',
+      'uk':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants aux indemnités kilométriques HMRC ; à conserver avec vos justificatifs.',
+      'other':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au taux kilométrique standard IRS ; à conserver avec vos justificatifs.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfFooter(String date) {
+    return 'Établi avec Roulekm le $date';
+  }
+
+  @override
+  String pdfPage(String page, String pages) {
+    return 'Page $page sur $pages';
   }
 }
