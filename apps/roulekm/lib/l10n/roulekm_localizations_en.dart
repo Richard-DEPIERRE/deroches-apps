@@ -601,6 +601,21 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   String get yearExportCsv => 'CSV spreadsheet';
 
   @override
+  String get yearExportPdf => 'Year’s PDF log';
+
+  @override
+  String yearNoTrips(String uk, String year) {
+    String _temp0 = intl.Intl.selectLogic(uk, {
+      'yes': 'No trips in tax year $year',
+      'other': 'No trips in $year',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yearShareFailed => 'The share sheet didn’t open. Try again.';
+
+  @override
   String get csvUnit => 'Unit';
 
   @override

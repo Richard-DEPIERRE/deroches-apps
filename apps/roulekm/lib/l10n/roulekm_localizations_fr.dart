@@ -599,6 +599,21 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get yearExportCsv => 'Tableau CSV';
 
   @override
+  String get yearExportPdf => 'Relevé PDF de l’année';
+
+  @override
+  String yearNoTrips(String uk, String year) {
+    String _temp0 = intl.Intl.selectLogic(uk, {
+      'yes': 'Aucun trajet sur l’année fiscale $year',
+      'other': 'Aucun trajet en $year',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get yearShareFailed => 'Le partage n’a pas pu s’ouvrir. Réessayez.';
+
+  @override
   String get csvUnit => 'Unité';
 
   @override

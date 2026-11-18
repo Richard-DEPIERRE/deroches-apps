@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../../l10n/roulekm_localizations.dart';
@@ -15,17 +17,23 @@ import '../sources/sources_screen.dart' show readOnDate;
 import '../trips/trip_screen.dart';
 import '../vehicles/vehicles_screen.dart';
 import 'year_csv.dart';
+import 'year_pdf.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
-/// Hands a file made on the phone to the platform share sheet, anchored at [origin] (the iPad's popover).
-typedef ShareFile = Future<void> Function(String name, String mimeType, Uint8List bytes, Rect origin);
+typedef _Make = Future<List<SharedFile>> Function(Logbook logbook, int year, RoulekmLocalizations l10n);
 
-Future<void> shareFile(String name, String mimeType, Uint8List bytes, Rect origin) async {
+/// A file made on the phone.
+typedef SharedFile = ({String name, String mimeType, Uint8List bytes});
+
+/// Hands files made on the phone to the platform share sheet at once, anchored at [origin] (the iPad's popover).
+typedef ShareFile = Future<void> Function(List<SharedFile> files, Rect origin);
+
+Future<void> shareFile(List<SharedFile> files, Rect origin) async {
   await SharePlus.instance.share(
     ShareParams(
-      files: [XFile.fromData(bytes, mimeType: mimeType)],
-      fileNameOverrides: [name],
+      files: [for (final f in files) XFile.fromData(f.bytes, mimeType: f.mimeType)],
+      fileNameOverrides: [for (final f in files) f.name],
       sharePositionOrigin: origin,
     ),
   );
@@ -75,9 +83,28 @@ class _YearScreenState extends State<YearScreen> {
           if (!v.archived || trips.any((t) => t.route.vehicleId == v.id)) v,
       };
       final systems = {for (final v in shown) v.rates};
-      String title(int y) => l10n.yearTitle(
-        systems.firstOrNull == RateSystem.uk ? 'yes' : 'no',
-        (systems.firstOrNull ?? RateSystem.france).label(y),
+      final uk = systems.firstOrNull == RateSystem.uk ? 'yes' : 'no';
+      String title(int y) => l10n.yearTitle(uk, (systems.firstOrNull ?? RateSystem.france).label(y));
+      final noTrips = l10n.yearNoTrips(uk, (systems.firstOrNull ?? RateSystem.france).label(year));
+      Widget button(String text, IconData icon, String placement, _Make make, {bool filled = false}) => Padding(
+        padding: EdgeInsets.fromLTRB(16, filled ? 4 : 8, 16, 0),
+        child: Builder(
+          builder: (context) {
+            const style = ButtonStyle(minimumSize: WidgetStatePropertyAll(Size.fromHeight(48)));
+            void onPressed() => _export(context, year, placement, noTrips, make);
+            final iconWidget = Icon(icon, size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18));
+            final label = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(child: Text(text)),
+                if (!widget.pro.value) ...[const SizedBox(width: 8), const ProTag()],
+              ],
+            );
+            return filled
+                ? FilledButton.icon(style: style, onPressed: onPressed, icon: iconWidget, label: label)
+                : OutlinedButton.icon(style: style, onPressed: onPressed, icon: iconWidget, label: label);
+          },
+        ),
       );
       final months = <DateTime, List<TripRecord>>{};
       for (final t in trips) {
@@ -121,26 +148,8 @@ class _YearScreenState extends State<YearScreen> {
             for (final system in systems)
               ..._system(context, system, year, logbook, [...shown.where((v) => v.rates == system)]),
             _header(context, l10n.yearExport),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
-              child: Builder(
-                builder: (context) => OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
-                  onPressed: () => _exportCsv(context, year),
-                  icon: Icon(
-                    Icons.table_view_outlined,
-                    size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18),
-                  ),
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(child: Text(l10n.yearExportCsv)),
-                      if (!widget.pro.value) ...[const SizedBox(width: 8), const ProTag()],
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            button(l10n.yearExportPdf, Icons.picture_as_pdf_outlined, 'pdf_export', _pdfs, filled: true),
+            button(l10n.yearExportCsv, Icons.table_view_outlined, 'csv_export', _csv),
             for (final MapEntry(key: month, value: monthTrips) in months.entries) ...[
               _header(context, _capitalised(DateFormat.yMMMM(lang).format(month))),
               for (final t in monthTrips)
@@ -152,20 +161,45 @@ class _YearScreenState extends State<YearScreen> {
     },
   );
 
-  /// The year's trips as a CSV (Pro, `csv_export`), to the share sheet anchored at the button of [context].
-  Future<void> _exportCsv(BuildContext context, int year) async {
+  /// [year]'s export made by [make] (Pro, at [placement]), to the share sheet anchored at the button of [context].
+  /// Pro is asked first; then a year without trips makes no file, only the [noTrips] snackbar.
+  Future<void> _export(BuildContext context, int year, String placement, String noTrips, _Make make) async {
     final box = context.findRenderObject()! as RenderBox;
     final origin = box.localToGlobal(Offset.zero) & box.size;
     final allowed = await proAction(
       context,
-      placement: 'csv_export',
+      placement: placement,
       pro: widget.pro.value,
       tripSaved: widget.log.logbook!.trips.isNotEmpty,
       openPaywall: widget.openPaywall,
     );
     if (!allowed || !context.mounted) return;
-    final csv = yearCsv(widget.log.logbook!, year, RoulekmLocalizations.of(context));
-    await widget.share('roulekm-$year.csv', 'text/csv', csv, origin);
+    final l10n = RoulekmLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final logbook = widget.log.logbook!;
+    if (yearTrips(logbook, year).isEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(noTrips)));
+      return;
+    }
+    try {
+      await widget.share(await make(logbook, year, l10n), origin);
+    } on Exception {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.yearShareFailed)));
+    }
+  }
+
+  Future<List<SharedFile>> _csv(Logbook logbook, int year, RoulekmLocalizations l10n) async => [
+    (name: 'roulekm-$year.csv', mimeType: 'text/csv', bytes: yearCsv(logbook, year, l10n)),
+  ];
+
+  /// One PDF log per vehicle with trips in [year], in the app's Barlow.
+  Future<List<SharedFile>> _pdfs(Logbook logbook, int year, RoulekmLocalizations l10n) async {
+    Future<pw.Font> font(String weight) async => pw.Font.ttf(await rootBundle.load('assets/fonts/Barlow-$weight.ttf'));
+    final (regular, bold) = (await font('Regular'), await font('SemiBold'));
+    return [
+      for (final log in yearPdfLogs(logbook, year, l10n, widget.now()))
+        (name: log.fileName, mimeType: 'application/pdf', bytes: await renderPdf(log, regular: regular, bold: bold)),
+    ];
   }
 
   /// The year's total of [vehicles] (all counted at [system]), their cards and the rates' dated source.
