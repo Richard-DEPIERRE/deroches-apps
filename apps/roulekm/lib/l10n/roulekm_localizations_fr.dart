@@ -599,7 +599,7 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   String get yearExportCsv => 'Tableau CSV';
 
   @override
-  String get yearExportPdf => 'Relevé PDF de l’année';
+  String get yearExportPdf => 'Relevé PDF de l’année';
 
   @override
   String yearNoTrips(String uk, String year) {

@@ -20,7 +20,7 @@ final withTrips = Logbook(
 
 /// The two exports: their button in French and English, and their placement.
 const exports = [
-  (fr: 'Relevé PDF de l’année', en: 'Year’s PDF log', placement: 'pdf_export'),
+  (fr: 'Relevé PDF de\u00a0l’année', en: 'Year’s PDF log', placement: 'pdf_export'),
   (fr: 'Tableau CSV', en: 'CSV spreadsheet', placement: 'csv_export'),
 ];
 
@@ -51,11 +51,15 @@ void main() {
     await openYear(tester, 'fr', withTrips);
     await tester.scrollUntilVisible(find.text('Tableau CSV'), 200);
     expect(find.text('Exporter'), findsOneWidget);
-    final pdf = find.widgetWithText(FilledButton, 'Relevé PDF de l’année');
+    final pdf = find.widgetWithText(FilledButton, 'Relevé PDF de\u00a0l’année');
     final csv = find.widgetWithText(OutlinedButton, 'Tableau CSV');
     expect(tester.getTopLeft(pdf).dy, lessThan(tester.getTopLeft(csv).dy));
     expect(find.descendant(of: pdf, matching: find.byType(ProTag)), findsOneWidget);
     expect(find.descendant(of: csv, matching: find.byType(ProTag)), findsOneWidget);
+    // A wrapped label (large text, narrow phone) stays centred, with "de l'année" together.
+    for (final label in ['Relevé PDF de\u00a0l’année', 'Tableau CSV']) {
+      expect(tester.widget<Text>(find.text(label)).textAlign, TextAlign.center);
+    }
   });
 
   for (final e in exports) {
@@ -134,7 +138,7 @@ void main() {
     await openYear(tester, 'fr', logbook, pro: true, openPaywall: paywall(), share: record);
     await tester.scrollUntilVisible(find.text('Tableau CSV'), 200);
     expect(find.byType(ProTag), findsNothing);
-    await tap(tester, 'Relevé PDF de l’année');
+    await tap(tester, 'Relevé PDF de\u00a0l’année');
 
     expect(paywalls, isEmpty);
     final files = shares.single;

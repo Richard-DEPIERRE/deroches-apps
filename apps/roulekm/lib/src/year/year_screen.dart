@@ -93,12 +93,16 @@ class _YearScreenState extends State<YearScreen> {
             const style = ButtonStyle(minimumSize: WidgetStatePropertyAll(Size.fromHeight(48)));
             void onPressed() => _export(context, year, placement, noTrips, make);
             final iconWidget = Icon(icon, size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18));
-            final label = Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(child: Text(text)),
-                if (!widget.pro.value) ...[const SizedBox(width: 8), const ProTag()],
-              ],
+            // A wrapped label (large text) is centred and clears the button's edges.
+            final label = Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(child: Text(text, textAlign: TextAlign.center)),
+                  if (!widget.pro.value) ...[const SizedBox(width: 8), const ProTag()],
+                ],
+              ),
             );
             return filled
                 ? FilledButton.icon(style: style, onPressed: onPressed, icon: iconWidget, label: label)
