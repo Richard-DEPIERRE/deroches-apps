@@ -11,6 +11,7 @@ import 'package:roulekm/src/rates/distance.dart';
 import 'package:roulekm/src/rates/french_bareme.dart';
 import 'package:roulekm/src/rates/rates.dart';
 import 'package:roulekm/src/vehicles/vehicles_screen.dart';
+import 'package:roulekm/src/year/year_screen.dart';
 
 /// The home in [lang] on a 2026-11-11 clock, over [vehicles] and one trip per entry of [trips] (vehicle id, distance).
 Future<LogController> openHome(
@@ -23,7 +24,10 @@ Future<LogController> openHome(
   addTearDown(() => dir.deleteSync(recursive: true));
   final data = RoulekmData(dir);
   final log = LogController(data.log);
-  final logbook = Logbook(vehicles: vehicles, trips: [for (final e in trips.entries) trip(e.key, e.value, vehicles)]);
+  final logbook = Logbook(
+    vehicles: vehicles,
+    trips: [for (final (i, e) in trips.entries.indexed) trip(e.key, e.value, vehicles, 't${i + 1}')],
+  );
   await tester.runAsync(() => data.log.replace(logbook.toJson()));
   await tester.runAsync(log.open);
   await tester.pumpWidget(
@@ -62,6 +66,7 @@ const zoe = VehicleRecord(
   electric: true,
 );
 const golf = VehicleRecord(id: 'g', name: 'Golf', rates: RateSystem.uk, type: VehicleType.car);
+const golfSold = VehicleRecord(id: 's', name: 'Astra', rates: RateSystem.uk, type: VehicleType.car, archived: true);
 const civic = VehicleRecord(id: 'u', name: 'Civic', rates: RateSystem.us, type: VehicleType.car);
 
 void main() {
@@ -175,6 +180,41 @@ void main() {
     expect(tester.getSize(find.byIcon(Icons.info_outline)), const Size.square(24));
     expect(tester.getSize(find.byIcon(Icons.bolt)), const Size.square(21));
   });
+
+  // A car changed mid-year: the old one, archived, keeps its trips that year. Its card goes; its money stays in the
+  // total, which is the Year screen's (DAPP-370).
+  for (final (lang, vehicles, trips, total, card) in [
+    // 4 800 × 0,636 = 3 052,80 € and 1 000 × 0,606 × 1,2 = 727,20 €.
+    (
+      'fr',
+      [clio, zoe.copyWith(archived: true)],
+      {'c': 4800, 'z': 1000},
+      '3\u202f780\u00a0€',
+      '4\u202f800\u00a0km cette année',
+    ),
+    // One pool of 10,000 miles for both cars: 10,000 × 55p + 200 × 25p.
+    ('en', [golf, golfSold], {'g': 9800, 's': 400}, '£5,550', '9,800\u00a0mi this tax year'),
+  ]) {
+    testWidgets('in ${lang == 'fr' ? 'French' : 'English'}: a car archived mid-year still counts in the total', (
+      tester,
+    ) async {
+      final log = await openHome(tester, lang, vehicles, trips);
+      expect(find.textContaining(RegExp(': $total\$')), findsOneWidget);
+      expect(find.text(card), findsOneWidget);
+      expect(find.text(vehicles.last.name), findsNothing);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: Locale(lang),
+          localizationsDelegates: const [...RoulekmLocalizations.localizationsDelegates, KitLocalizations.delegate],
+          supportedLocales: RoulekmLocalizations.supportedLocales,
+          home: YearScreen(log: log, pro: ValueNotifier(false), openPaywall: null, now: () => DateTime(2026, 11, 11)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(total), findsOneWidget);
+    });
+  }
 
   testWidgets('two rate systems: total and source lines sit at 16 dp, the second group 24 dp under the first', (
     tester,
