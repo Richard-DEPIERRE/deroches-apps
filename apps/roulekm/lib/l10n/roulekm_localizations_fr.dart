@@ -742,4 +742,37 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   @override
   String get recurringNone =>
       'Aucun trajet récurrent. Pour en créer un, touchez « Répéter ce trajet » en ajoutant un trajet.';
+
+  @override
+  String get storeCaption1 => 'Vos km en euros, au barème du véhicule';
+
+  @override
+  String get storeSubline1 =>
+      'Sans compte · Sans GPS · Trajets illimités · Pro sans abonnement obligatoire';
+
+  @override
+  String get storeCaption2 => 'Un trajet en deux touches';
+
+  @override
+  String get storeSubline2 => 'Favoris, allers-retours, compteur kilométrique';
+
+  @override
+  String get storeCaption3 => 'Le barème de chaque véhicule';
+
+  @override
+  String get storeSubline3 =>
+      'Puissance fiscale, tranches, +20 % pour l’électrique';
+
+  @override
+  String get storeCaption4 => 'Le relevé de l’année en PDF (Pro)';
+
+  @override
+  String get storeSubline4 => 'Date, lieux, motif et distance de chaque trajet';
+
+  @override
+  String get storeCaption5 => 'Sans compte. Sans GPS. Sans quota.';
+
+  @override
+  String get storeSubline5 =>
+      'Vos trajets restent sur votre téléphone. Payez Pro une fois, si vous voulez.';
 }

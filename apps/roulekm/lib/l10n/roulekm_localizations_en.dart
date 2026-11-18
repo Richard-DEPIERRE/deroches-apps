@@ -743,4 +743,37 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
   @override
   String get recurringNone =>
       'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.';
+
+  @override
+  String get storeCaption1 => 'Your miles in dollars, at your vehicle’s rate';
+
+  @override
+  String get storeSubline1 =>
+      'No account · No GPS · Unlimited trips · Pro with no subscription required';
+
+  @override
+  String get storeCaption2 => 'Log a trip in two taps';
+
+  @override
+  String get storeSubline2 => 'Favorites, round trips, odometer readings';
+
+  @override
+  String get storeCaption3 => 'The right rate for each vehicle';
+
+  @override
+  String get storeSubline3 => 'IRS or HMRC rate, miles or kilometers';
+
+  @override
+  String get storeCaption4 => 'Your year’s mileage log as a PDF (Pro)';
+
+  @override
+  String get storeSubline4 =>
+      'Date, places, purpose and distance of every trip';
+
+  @override
+  String get storeCaption5 => 'No account. No GPS. No trip limit.';
+
+  @override
+  String get storeSubline5 =>
+      'Your trips stay on your phone. Pay once for Pro, if you like.';
 }
