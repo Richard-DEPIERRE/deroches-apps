@@ -15,8 +15,9 @@ import 'src/trips/recurring_screen.dart';
 import 'src/vehicles/vehicles_screen.dart';
 import 'src/year/year_screen.dart';
 
-/// Roulekm's config, from app-setup A1 (DAPP-133). The Sentry DSN, PostHog key and App Store id stay empty until those
-/// exist: until then the app sends nothing.
+/// Roulekm's config, from app-setup A1 (DAPP-133). Crash reports and analytics go out from release builds only, while
+/// the statistics switch is on (ADR 0005); Sentry names each release `roulekm@<version>+<build>`. The App Store id stays
+/// empty until the app has one.
 final roulekmConfig = AppConfig(
   slug: roulekmAppId,
   names: const {'fr': 'Roulekm – frais kilométriques', 'en': 'Roulekm – Mileage Log'},
@@ -39,6 +40,10 @@ final roulekmConfig = AppConfig(
   // section 13; DAPP-225, DAPP-306).
   revenueCatAppleKey: 'appl_MKQismejHtyMcwoHnZPrpSOUgDj',
   revenueCatGoogleKey: 'goog_GMsmpEWzeohPOsCRmxEhgzjuBZt',
+  // Public client keys too (ADR 0001 section 13): the roulekm Sentry project's DSN, EU (app-setup A9, DAPP-162), and
+  // the studio PostHog project's key, EU (DAPP-379).
+  sentryDsn: 'https://baa69a5369a51cdffdf785b6b20c7a67@o4512368558800896.ingest.de.sentry.io/4512402094620752',
+  postHogKey: 'phc_qTJc5YoBy42MNmq6baxZQkBCBdxo3GkQnokVJXWSabJC',
 );
 
 /// The app: onboarding on the first launch, then the home screen (DAPP-141).

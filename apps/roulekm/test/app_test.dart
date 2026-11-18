@@ -66,7 +66,7 @@ Future<void> save(WidgetTester tester, RoulekmData data, String label) async {
 }
 
 void main() {
-  test('the config is app-setup A1, with both RevenueCat keys and no other key yet', () {
+  test('the config is app-setup A1, with the RevenueCat, Sentry and PostHog keys', () {
     expect(roulekmConfig.problems, isEmpty);
     expect(roulekmConfig.slug, 'roulekm');
     expect(roulekmConfig.slug, roulekmAppId, reason: 'the data documents carry the same app id');
@@ -87,9 +87,13 @@ void main() {
     expect(roulekmConfig.entitlementId, 'pro');
     expect(roulekmConfig.revenueCatAppleKey, 'appl_MKQismejHtyMcwoHnZPrpSOUgDj');
     expect(roulekmConfig.revenueCatGoogleKey, 'goog_GMsmpEWzeohPOsCRmxEhgzjuBZt');
-    for (final key in [roulekmConfig.sentryDsn, roulekmConfig.postHogKey, roulekmConfig.appStoreId]) {
-      expect(key, isNull);
-    }
+    // Public client keys, made to ship in the app (ADR 0001 section 13): app-setup A9 (DAPP-162) and DAPP-379.
+    expect(
+      roulekmConfig.sentryDsn,
+      'https://baa69a5369a51cdffdf785b6b20c7a67@o4512368558800896.ingest.de.sentry.io/4512402094620752',
+    );
+    expect(roulekmConfig.postHogKey, 'phc_qTJc5YoBy42MNmq6baxZQkBCBdxo3GkQnokVJXWSabJC');
+    expect(roulekmConfig.appStoreId, isNull);
   });
 
   testWidgets('Roulekm loads in French, settings with backup included', (tester) async {
