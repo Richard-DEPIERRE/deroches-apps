@@ -103,18 +103,34 @@ void main() {
     _ => (caption: l10n.storeCaption5, subline: l10n.storeSubline5),
   };
 
-  /// Shot [shot] (from 1) of [screen], over the sample log in each language, on each phone.
-  Future<void> shoot(WidgetTester tester, int shot, Widget Function(LogController log) screen) async {
+  /// Shot [shot] (from 1) of [screen], over the sample log in each language, on each phone. With [adjust], a first
+  /// take (thrown away) lays the screen out, [adjust] changes it, and the app keeps that state under its GlobalKey.
+  Future<void> shoot(
+    WidgetTester tester,
+    int shot,
+    Widget Function(LogController log) screen, {
+    Future<void> Function(RoulekmLocalizations l10n)? adjust,
+  }) async {
     for (final locale in locales) {
       final data = RoulekmData(Directory('${dir.path}/${locale.languageCode}')..createSync(), files: FakeBackupFiles());
       await tester.runAsync(() => data.log.replace(sampleLog(locale.languageCode).toJson()));
       final log = LogController(data.log);
       await tester.runAsync(log.open);
-      final text = captionOf(lookupRoulekmLocalizations(locale), shot);
+      final l10n = lookupRoulekmLocalizations(locale);
+      final text = captionOf(l10n, shot);
       for (final device in devices) {
+        final app = KeyedSubtree(
+          key: GlobalKey(),
+          child: roulekmApp(kitState: kitState, home: (_) => screen(log)),
+        );
+        if (adjust != null) {
+          await takeScreenshot(tester, app, device: device, locale: locale, name: shots[shot - 1], dir: dir.path);
+          await adjust(l10n);
+          await tester.pumpAndSettle();
+        }
         await takeScreenshot(
           tester,
-          roulekmApp(kitState: kitState, home: (_) => screen(log)),
+          app,
           device: device,
           locale: locale,
           name: shots[shot - 1],
@@ -152,6 +168,14 @@ void main() {
         openPaywall: openPaywall,
         now: () => today,
       ),
+      // Where the save bar would cut the round-trip row in half (French on Android), scroll just enough to show it.
+      adjust: (l10n) async {
+        final row = find.ancestor(of: find.text(l10n.tripRoundTrip), matching: find.byType(ListTile)).first;
+        await Scrollable.ensureVisible(
+          tester.element(row),
+          alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+        );
+      },
     );
   });
 
