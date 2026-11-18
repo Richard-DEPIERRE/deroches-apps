@@ -1150,6 +1150,96 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'No recurring trips. To set one up, tap “Repeat this trip” when you add a trip.'**
   String get recurringNone;
+
+  /// PDF log (DAPP-141 §9): its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Mileage log {year}'**
+  String pdfTitle(String year);
+
+  /// PDF log: the period line under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Business trips — {from} to {to}'**
+  String pdfPeriod(String from, String to);
+
+  /// No description provided for @pdfVehicle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vehicle:'**
+  String get pdfVehicle;
+
+  /// PDF log: label of the rates used, e.g. "IRS standard mileage rate for 2026 · source: irs.gov".
+  ///
+  /// In en, this message translates to:
+  /// **'Rate:'**
+  String get pdfRate;
+
+  /// No description provided for @pdfOdometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Odometer'**
+  String get pdfOdometer;
+
+  /// PDF log: the distance column's header.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, km{Km} other{Miles}}'**
+  String pdfDistanceColumn(String unit);
+
+  /// PDF log: a month's total row, e.g. "December total".
+  ///
+  /// In en, this message translates to:
+  /// **'{month} total'**
+  String pdfMonthTotal(String month);
+
+  /// No description provided for @pdfYearTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Year total'**
+  String get pdfYearTotal;
+
+  /// No description provided for @pdfBusinessDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{unit, select, km{Business distance} other{Business miles}}'**
+  String pdfBusinessDistance(String unit);
+
+  /// PDF log: the French barème's calculation, with the bracket the year's distance falls in.
+  ///
+  /// In en, this message translates to:
+  /// **'{kind, select, upTo{Calculation (bracket up to {to} km)} over{Calculation (bracket over {from} km)} other{Calculation (bracket {from} to {to} km)}}'**
+  String pdfCalculationBracket(String kind, String from, String to);
+
+  /// PDF log: the calculation of a line the law pools across vehicles (UK cars, the US).
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation, {count} vehicles together'**
+  String pdfPooledCalculation(String count);
+
+  /// No description provided for @pdfVehicleShare.
+  ///
+  /// In en, this message translates to:
+  /// **'This vehicle’s share, by distance'**
+  String get pdfVehicleShare;
+
+  /// PDF log: the plain line under the total. Never says how to file (anti-goal 6).
+  ///
+  /// In en, this message translates to:
+  /// **'{system, select, france{Each trip shows its date, places, business purpose and distance. Amounts at the French barème kilométrique. Keep this log with your tax records.} uk{Each trip shows its date, places, business purpose and miles. Amounts at HMRC’s approved mileage rates. Keep this log with your tax records.} other{Each trip shows its date, places, business purpose and miles. Amounts at the IRS standard mileage rate. Keep this log with your tax records.}}'**
+  String pdfNote(String system);
+
+  /// No description provided for @pdfFooter.
+  ///
+  /// In en, this message translates to:
+  /// **'Made with Roulekm on {date}'**
+  String pdfFooter(String date);
+
+  /// No description provided for @pdfPage.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String pdfPage(String page, String pages);
 }
 
 class _RoulekmLocalizationsDelegate

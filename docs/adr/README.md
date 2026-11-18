@@ -12,6 +12,7 @@ which one it replaces, and the old one's status becomes "replaced by NNNN".
 | [0005](0005-crash-reporting-and-the-rollout-watcher.md) | Crash reporting with Sentry (EU), and what the Release watch reads | accepted |
 | [0006](0006-site-kit.md) | The site kit: static FR/EN sites built by a small Node builder, on Workers static assets | accepted |
 | [0007](0007-site-analytics-and-deploy.md) | Cookie-free site analytics on Workers Analytics Engine, and one deploy config per site | proposed |
+| [0008](0008-roulekm-pdf-log.md) | Roulekm's yearly PDF log is drawn on the phone with the `pdf` package | proposed |
 
 ## Template
 

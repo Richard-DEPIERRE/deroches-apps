@@ -742,4 +742,87 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
   @override
   String get recurringNone =>
       'Aucun trajet récurrent. Pour en créer un, touchez « Répéter ce trajet » en ajoutant un trajet.';
+
+  @override
+  String pdfTitle(String year) {
+    return 'Relevé des frais kilométriques $year';
+  }
+
+  @override
+  String pdfPeriod(String from, String to) {
+    return 'Déplacements professionnels — du $from au $to';
+  }
+
+  @override
+  String get pdfVehicle => 'Véhicule :';
+
+  @override
+  String get pdfRate => 'Barème :';
+
+  @override
+  String get pdfOdometer => 'Compteur';
+
+  @override
+  String pdfDistanceColumn(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {'km': 'Km', 'other': 'Miles'});
+    return '$_temp0';
+  }
+
+  @override
+  String pdfMonthTotal(String month) {
+    return 'Total $month';
+  }
+
+  @override
+  String get pdfYearTotal => 'Total de l’année';
+
+  @override
+  String pdfBusinessDistance(String unit) {
+    String _temp0 = intl.Intl.selectLogic(unit, {
+      'other': 'Distance professionnelle',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfCalculationBracket(String kind, String from, String to) {
+    String _temp0 = intl.Intl.selectLogic(kind, {
+      'upTo': 'Calcul (tranche jusqu’à $to km)',
+      'over': 'Calcul (tranche au-delà de $from km)',
+      'other': 'Calcul (tranche $from à $to km)',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfPooledCalculation(String count) {
+    return 'Calcul, $count véhicules ensemble';
+  }
+
+  @override
+  String get pdfVehicleShare =>
+      'Part de ce véhicule, au prorata de sa distance';
+
+  @override
+  String pdfNote(String system) {
+    String _temp0 = intl.Intl.selectLogic(system, {
+      'france':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au barème kilométrique publié par l’administration fiscale ; à conserver avec vos justificatifs.',
+      'uk':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants aux indemnités kilométriques HMRC ; à conserver avec vos justificatifs.',
+      'other':
+          'Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au taux kilométrique standard IRS ; à conserver avec vos justificatifs.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pdfFooter(String date) {
+    return 'Établi avec Roulekm le $date';
+  }
+
+  @override
+  String pdfPage(String page, String pages) {
+    return 'Page $page sur $pages';
+  }
 }
