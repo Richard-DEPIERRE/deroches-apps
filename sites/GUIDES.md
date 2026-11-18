@@ -89,13 +89,12 @@ npx wrangler deploy
 Then check the live page (canonical, hreflang, store buttons) and:
 
 ```
+gum read searchconsole.urlInspection.index.inspect --args '{"body":{"inspectionUrl":"https://<domain>/<path>","siteUrl":"sc-domain:<domain>"}}'
 gum read searchconsole.sitemaps.list --args '{"siteUrl":"sc-domain:<domain>"}'
 ```
 
-URL Inspection (`searchconsole.urlInspection.index.inspect`) can't run for now, checked 2026-11-10. gum wants
-`inspectionUrl` and `siteUrl` under `body` and refuses them at the top level (`INVALID_ARGS`). The guard accepts
-`siteUrl` only at the top level, so it blocks the `body` shape. Until Richard changes the guard, check the sitemap
-above and look for the page in the `query, page` report from section 1.
+URL Inspection takes both fields under `body`, nothing at the top level; read `indexStatusResult.coverageState` and
+`verdict`. The `query, page` report from section 1 is the second signal: look for the page there too.
 
 A new URL is unknown to Google at first; look again over the next days. Richard submits the sitemap; ask him
 (`needs-richard`) only if it is missing, or has errors or was never fetched 7 days after the site went live.
