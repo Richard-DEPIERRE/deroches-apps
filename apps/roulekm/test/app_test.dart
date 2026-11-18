@@ -12,12 +12,13 @@ import 'package:roulekm/src/data/logbook.dart';
 import 'package:roulekm/src/rates/distance.dart';
 
 /// Launches the app on a device in [deviceLocale]: its first launch, or a later one once [onboarded].
-/// With [sells], the app sells Pro on this platform (the kit's fake store).
+/// With [sells] or a [store], the app sells Pro on this platform (the kit's fake store).
 Future<RoulekmData> pumpApp(
   WidgetTester tester,
   Locale deviceLocale, {
   bool onboarded = false,
   bool sells = false,
+  FakePurchasesBackend? store,
   Logbook? logbook,
 }) async {
   final dir = Directory.systemTemp.createTempSync('roulekm_app_');
@@ -30,9 +31,10 @@ Future<RoulekmData> pumpApp(
   final analytics = Analytics(kitState: kitState, appId: roulekmConfig.slug, appVersion: '0.1.0', locale: () => 'en');
   final data = RoulekmData(dir, files: FakeBackupFiles());
   if (logbook != null) await tester.runAsync(() => data.log.replace(logbook.toJson()));
-  final purchases = sells
-      ? Purchases(backend: FakePurchasesBackend(), analytics: analytics, plans: roulekmConfig.plans)
-      : null;
+  final backend = store ?? (sells ? FakePurchasesBackend() : null);
+  final purchases = backend == null
+      ? null
+      : Purchases(backend: backend, analytics: analytics, plans: roulekmConfig.plans);
   await tester.pumpWidget(buildApp(kitState: kitState, analytics: analytics, data: data, purchases: purchases));
   // A saved log is read from disk outside the test's fake time: the home waits for it.
   for (var i = 0; logbook != null && find.byType(CircularProgressIndicator).evaluate().isNotEmpty; i++) {
@@ -71,6 +73,7 @@ void main() {
     expect(roulekmConfig.names, {'fr': 'Roulekm – frais kilométriques', 'en': 'Roulekm – Mileage Log'});
     expect(roulekmConfig.supportEmail, 'support@roulekm.fr');
     expect(roulekmConfig.plans, {Plan.weekly, Plan.yearly, Plan.lifetime});
+    expect(roulekmConfig.preselectedPlan, Plan.lifetime, reason: 'DAPP-140 §2');
     expect(roulekmConfig.legal['fr']!.all.map((u) => '$u'), [
       'https://roulekm.fr/mentions-legales/',
       'https://roulekm.fr/confidentialite/',
