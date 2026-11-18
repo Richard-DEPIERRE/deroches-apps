@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
+import '../formatting.dart';
 import '../trips/repeat_sheet.dart';
 import 'home_screen.dart';
 

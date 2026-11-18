@@ -6,6 +6,7 @@ import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
+import '../formatting.dart';
 import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/french_bareme.dart';

@@ -9,6 +9,7 @@ import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
+import '../formatting.dart';
 import '../home/home_screen.dart';
 import '../pro.dart';
 import '../rates/distance.dart';
@@ -352,21 +353,6 @@ class _VehicleYear extends StatelessWidget {
       ),
     );
   }
-}
-
-/// The calculation with the user's numbers (a wrapped line starts with "+", never ends with it): "(8 412 × 0,357) + 1 395", "10,000 × 55p + 2,000 × 25p",
-/// "1,000 × $0.725 + 200 × $0.76".
-String calculation(RateSystem system, String lang, ClaimLine line) {
-  final number = NumberFormat.decimalPattern(lang);
-  String rate(int milli) => switch (system) {
-    RateSystem.france => NumberFormat.decimalPatternDigits(locale: lang, decimalDigits: 3).format(milli / 1000),
-    RateSystem.uk => '${number.format(milli / 10)}p',
-    RateSystem.us => '\$${NumberFormat('0.00#', lang).format(milli / 1000)}',
-  };
-  final terms = [for (final t in line.terms) '${number.format(t.distance)} × ${rate(t.ratePerUnitMilli)}'];
-  return line.fixedMilli == 0
-      ? terms.join(' +\u00a0')
-      : '(${terms.join(' +\u00a0')}) +\u00a0${number.format(line.fixedMilli ~/ 1000)}';
 }
 
 /// Whole euros, pounds or dollars, as on every screen.
