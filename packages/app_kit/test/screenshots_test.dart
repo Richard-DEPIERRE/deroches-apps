@@ -46,6 +46,19 @@ void main() {
     expect(pngInfo(file), (width: 1080, height: 1920, alpha: false));
   });
 
+  testWidgets('a Play feature graphic is 1024×500, with no alpha, beside the Play shots of its locale', (tester) async {
+    final file = await takeScreenshot(
+      tester,
+      const ColoredBox(color: Colors.teal),
+      device: ScreenshotDevice.playFeatureGraphic,
+      locale: const Locale('fr', 'FR'),
+      name: 'featureGraphic',
+      dir: dir.path,
+    );
+    expect(file.path, '${dir.path}/android/fr-FR/images/featureGraphic.png');
+    expect(pngInfo(file), (width: 1024, height: 500, alpha: false));
+  });
+
   testWidgets('text is drawn in a real font, not the test font’s square glyphs', (tester) async {
     await takeScreenshot(
       tester,

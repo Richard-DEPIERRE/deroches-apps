@@ -2,6 +2,7 @@
 library;
 
 import 'dart:io';
+import 'dart:ui' show instantiateImageCodec;
 
 import 'package:app_kit/app_kit.dart';
 import 'package:app_kit/testing.dart';
@@ -214,6 +215,63 @@ void main() {
     }
   });
 
+  testWidgets('the Play feature graphic: the icon, the name and caption 1 on the band', (tester) async {
+    final icon = await tester.runAsync(() async {
+      final codec = await instantiateImageCodec(File('store/android/fr-FR/images/icon.png').readAsBytesSync());
+      return (await codec.getNextFrame()).image;
+    });
+    addTearDown(icon!.dispose);
+    for (final locale in locales) {
+      final l10n = lookupRoulekmLocalizations(locale);
+      // Centred and clear of the edges, which Play crops in some places.
+      final graphic = Directionality(
+        textDirection: TextDirection.ltr,
+        child: ColoredBox(
+          color: band,
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(40),
+                  child: RawImage(image: icon, width: 176, height: 176),
+                ),
+                const SizedBox(width: 40),
+                SizedBox(
+                  width: 440,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Roulekm', style: style.copyWith(fontSize: 64, color: Colors.white)),
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.storeCaption1,
+                        style: style.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 30,
+                          height: 1.3,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await takeScreenshot(
+        tester,
+        graphic,
+        device: ScreenshotDevice.playFeatureGraphic,
+        locale: locale,
+        name: 'featureGraphic',
+      );
+    }
+  });
+
   test('the store set is complete, in both languages, at the store sizes', () {
     for (final device in devices) {
       for (final locale in locales) {
@@ -229,6 +287,10 @@ void main() {
           expect(pngInfo(file), (width: pixels.width.round(), height: pixels.height.round(), alpha: false));
         }
       }
+    }
+    for (final locale in locales) {
+      final file = File('store/${ScreenshotDevice.playFeatureGraphic.folder(locale)}/featureGraphic.png');
+      expect(pngInfo(file), (width: 1024, height: 500, alpha: false), reason: file.path);
     }
   });
 }
