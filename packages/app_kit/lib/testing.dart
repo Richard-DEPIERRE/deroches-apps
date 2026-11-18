@@ -324,6 +324,12 @@ class ScreenshotDevice {
     EdgeInsets.only(top: 24, bottom: 24),
   );
 
+  /// Google Play's feature graphic, required to publish: 1024 × 500 pixels, JPEG or 24-bit PNG with no alpha. Keep
+  /// the logo, name and slogan near the centre: Play crops the edges in some places. Checked 2026-11-18, Google Play,
+  /// "Add preview assets" (support.google.com/googleplay/android-developer/answer/9866151). Pass a plain widget, not a
+  /// whole app, and name it `featureGraphic`.
+  static const playFeatureGraphic = ScreenshotDevice._(TargetPlatform.android, Size(1024, 500), 1, EdgeInsets.zero);
+
   final TargetPlatform platform;
   final Size size;
   final double pixelRatio;
@@ -333,10 +339,11 @@ class ScreenshotDevice {
   final EdgeInsets padding;
 
   /// Where the store wrapper's `listing --metadata <dir>` takes this device's shots in [locale] (fastlane
-  /// deliver's and supply's layouts): `ios/screenshots/fr-FR`, `android/fr-FR/images/phoneScreenshots`.
+  /// deliver's and supply's layouts): `ios/screenshots/fr-FR`, `android/fr-FR/images/phoneScreenshots`, and the
+  /// feature graphic's `android/fr-FR/images`.
   String folder(Locale locale) => platform == TargetPlatform.iOS
       ? 'ios/screenshots/${locale.toLanguageTag()}'
-      : 'android/${locale.toLanguageTag()}/images/phoneScreenshots';
+      : 'android/${locale.toLanguageTag()}/images${this == playFeatureGraphic ? '' : '/phoneScreenshots'}';
 }
 
 /// A store image's caption: [text] from the app's ARB, on the app's own

@@ -161,8 +161,10 @@ Screenshots are widget tests (tag `screenshots`), so they run headless, in the s
 Each app's screenshot tests render its key screens with made-up data, in French and English, at the store sizes (the
 current required iPhone size and a Play phone size, checked with a date when the kit is built), with the app's bundled
 fonts loaded, and write PNGs into the app's store folder (`apps/<slug>/store/ios/screenshots/`,
-`apps/<slug>/store/android/`), which the store wrapper's `listing --metadata` reads. The same images serve the epic
-posts on Discord. Apps are iPhone-only on iOS at first, so there are no iPad screenshots to make.
+`apps/<slug>/store/android/`), which the store wrapper's `listing --metadata` reads, with Play's feature graphic
+(1024 × 500) beside the Play shots. `tool/screenshots.sh apps/<slug>` remakes the whole set in one command, and a
+shipping app commits it, so `listing` finds it in the checkout and a review sees what changed. The same images serve
+the epic posts on Discord. Apps are iPhone-only on iOS at first, so there are no iPad screenshots to make.
 
 ### 12. Release builds
 
