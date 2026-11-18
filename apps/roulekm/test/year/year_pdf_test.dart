@@ -208,6 +208,22 @@ void main() {
     expect(breakLongWords('Domicile Bron', 40, measure), 'Domicile Bron', reason: 'words that fit stay as typed');
   });
 
+  test('very long trip text still renders, in A4 and in Letter (MTL review)', () async {
+    final long = List.filled(400, 'mots').join(' '); // ~2,000 characters
+    for (final (vehicle, unit, l10n) in [(clio, DistanceUnit.km, fr), (civic, DistanceUnit.mile, en)]) {
+      final logbook = Logbook(
+        vehicles: [vehicle],
+        trips: [
+          for (var d = 1; d <= 4; d++)
+            trip('$d', vehicle.id, DateTime.utc(2026, 12, d), long, long, long, 10, unit, start: 100, end: 110),
+        ],
+      );
+      final log = yearPdfLogs(logbook, 2026, l10n, today).single;
+      final bytes = await renderPdf(log, regular: font('Regular'), bold: font('SemiBold'), compress: false);
+      expect(latin1.decode(bytes), startsWith('%PDF'), reason: '${log.format}');
+    }
+  });
+
   test('rendered: a PDF on the log\'s paper, one page per ~30 trips, in Barlow', () async {
     final logbook = Logbook(
       vehicles: const [clio],

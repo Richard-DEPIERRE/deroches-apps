@@ -235,7 +235,24 @@ String breakLongWords(String text, double width, double Function(String) measure
 /// [log] laid out (DAPP-141 §9): 40 pt margins, black on white in Barlow ([regular] and [bold]), one orange rule under
 /// the title and nothing that looks official (no logo, seal or form look: anti-goal 4). The header row repeats on
 /// every page, and every page says "Page x of y".
-Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.Font bold, bool compress = true}) {
+///
+/// It always renders, whatever the text typed: a cell draws at most [_maxCell] characters (the CSV keeps them all),
+/// and when a month kept together is still taller than a page, the log is laid out again without keeping anything
+/// together.
+Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.Font bold, bool compress = true}) async {
+  try {
+    return await _render(log, regular, bold, compress, keepTogether: true);
+  } on Exception {
+    return _render(log, regular, bold, compress, keepTogether: false);
+  }
+}
+
+/// About 6 lines in the widest column, 13 in the narrowest: a row always fits on a page.
+const _maxCell = 300;
+
+String _capped(String s) => s.length <= _maxCell ? s : '${String.fromCharCodes(s.runes.take(_maxCell - 1))}…';
+
+Future<Uint8List> _render(PdfLog log, pw.Font regular, pw.Font bold, bool compress, {required bool keepTogether}) {
   final doc = pw.Document(
     compress: compress,
     theme: pw.ThemeData.withFont(base: regular, bold: bold),
@@ -289,13 +306,17 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
           decoration: const pw.BoxDecoration(
             border: pw.Border(bottom: pw.BorderSide(color: _rule, width: 0.5)),
           ),
-          children: [for (final (i, c) in r.indexed) cell(breakLongWords(c, textWidths[i], measure), i)],
+          children: [for (final (i, c) in r.indexed) cell(breakLongWords(_capped(c), textWidths[i], measure), i)],
         ),
     ],
   );
-  pw.Widget together(List<pw.Widget> children) => pw.Inseparable(
-    child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: children),
-  );
+  List<pw.Widget> together(List<pw.Widget> children) => keepTogether
+      ? [
+          pw.Inseparable(
+            child: pw.Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: children),
+          ),
+        ]
+      : children;
   final yearTotal = [
     pw.SizedBox(height: 18),
     pw.Container(
@@ -383,16 +404,16 @@ Future<Uint8List> renderPdf(PdfLog log, {required pw.Font regular, required pw.F
         // with a total, nor ends with a title: each keeps two trips with it (DAPP-361).
         for (final m in log.months)
           if (m.rows.length <= 4)
-            together([
+            ...together([
               full(m.title, '', _shade),
               table(m.rows),
               full(m.total.$1, m.total.$2),
               if (m == log.months.last) ...yearTotal,
             ])
           else ...[
-            together([full(m.title, '', _shade), table(m.rows.take(2))]),
+            ...together([full(m.title, '', _shade), table(m.rows.take(2))]),
             table(m.rows.sublist(2, m.rows.length - 2)),
-            together([
+            ...together([
               table(m.rows.skip(m.rows.length - 2)),
               full(m.total.$1, m.total.$2),
               if (m == log.months.last) ...yearTotal,
