@@ -173,6 +173,29 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
       'Disponible avec Roulekm Pro, après votre premier trajet.';
 
   @override
+  String get proTitle => 'Roulekm Pro';
+
+  @override
+  String get proLine =>
+      'Le même Pro dans chaque formule. Payez une fois et il est à vous, ou à l’année, ou à la semaine.';
+
+  @override
+  String get proPdf => 'Le relevé PDF de l’année, trajet par trajet';
+
+  @override
+  String get proCsv => 'L’export CSV';
+
+  @override
+  String get proRecurring => 'Les trajets récurrents';
+
+  @override
+  String get proVehicles => 'Plusieurs véhicules à la fois';
+
+  @override
+  String get proFoot =>
+      'Vos trajets restent gratuits et illimités, avec ou sans Pro.';
+
+  @override
   String get settingsAppSection => 'Roulekm';
 
   @override
@@ -567,6 +590,20 @@ class RoulekmLocalizationsFr extends RoulekmLocalizations {
       'other': '',
     });
     return 'Calcul au taux kilométrique standard IRS pour $year$_temp0 (source : $site, lu le $date). Conservez ce relevé avec vos justificatifs ; ce n’est pas un conseil fiscal.';
+  }
+
+  @override
+  String get yearExport => 'Exporter';
+
+  @override
+  String get yearExportCsv => 'Tableau CSV';
+
+  @override
+  String get csvUnit => 'Unité';
+
+  @override
+  String csvRoundTrip(String purpose) {
+    return '$purpose (A/R)';
   }
 
   @override

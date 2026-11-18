@@ -171,6 +171,29 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
       'Part of Roulekm Pro, once you’ve saved your first trip.';
 
   @override
+  String get proTitle => 'Roulekm Pro';
+
+  @override
+  String get proLine =>
+      'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.';
+
+  @override
+  String get proPdf => 'Your year’s mileage log as a PDF, trip by trip';
+
+  @override
+  String get proCsv => 'CSV export';
+
+  @override
+  String get proRecurring => 'Recurring trips';
+
+  @override
+  String get proVehicles => 'Several vehicles at once';
+
+  @override
+  String get proFoot =>
+      'Your trips stay free and unlimited, with or without Pro.';
+
+  @override
   String get settingsAppSection => 'Roulekm';
 
   @override
@@ -569,6 +592,20 @@ class RoulekmLocalizationsEn extends RoulekmLocalizations {
       'other': '',
     });
     return 'Worked out at the IRS standard mileage rate for $year$_temp0 (source: $site, read $date). Keep this log with your records; it is not tax advice.';
+  }
+
+  @override
+  String get yearExport => 'Export';
+
+  @override
+  String get yearExportCsv => 'CSV spreadsheet';
+
+  @override
+  String get csvUnit => 'Unit';
+
+  @override
+  String csvRoundTrip(String purpose) {
+    return '$purpose (round trip)';
   }
 
   @override

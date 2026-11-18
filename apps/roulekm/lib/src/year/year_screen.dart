@@ -1,25 +1,55 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
 import '../data/totals.dart';
 import '../home/home_screen.dart';
+import '../pro.dart';
 import '../rates/distance.dart';
 import '../rates/rates.dart';
 import '../sources/sources_screen.dart' show readOnDate;
 import '../trips/trip_screen.dart';
 import '../vehicles/vehicles_screen.dart';
+import 'year_csv.dart';
 
 const _tabular = [FontFeature.tabularFigures()];
 
+/// Hands a file made on the phone to the platform share sheet, anchored at [origin] (the iPad's popover).
+typedef ShareFile = Future<void> Function(String name, String mimeType, Uint8List bytes, Rect origin);
+
+Future<void> shareFile(String name, String mimeType, Uint8List bytes, Rect origin) async {
+  await SharePlus.instance.share(
+    ShareParams(
+      files: [XFile.fromData(bytes, mimeType: mimeType)],
+      fileNameOverrides: [name],
+      sharePositionOrigin: origin,
+    ),
+  );
+}
+
 /// The Year screen (DAPP-141 §7), free for every year: the year's total, one card per vehicle (distance, calculation,
-/// amount), the dated source, then the year's trips by month (tap to edit). The year picker is its title.
+/// amount), the dated source, the exports (Pro), then the year's trips by month (tap to edit). The year picker is its
+/// title.
 class YearScreen extends StatefulWidget {
-  const YearScreen({super.key, required this.log, this.now = DateTime.now});
+  const YearScreen({
+    super.key,
+    required this.log,
+    required this.pro,
+    required this.openPaywall,
+    this.share = shareFile,
+    this.now = DateTime.now,
+  });
 
   final LogController log;
+
+  /// Whether Pro is owned.
+  final ValueListenable<bool> pro;
+  final OpenPaywall? openPaywall;
+  final ShareFile share;
   final DateTime Function() now;
 
   @override
@@ -31,18 +61,15 @@ class _YearScreenState extends State<YearScreen> {
 
   @override
   Widget build(BuildContext context) => ListenableBuilder(
-    listenable: widget.log,
+    listenable: Listenable.merge([widget.log, widget.pro]),
     builder: (context, _) {
       final l10n = RoulekmLocalizations.of(context);
-      final theme = Theme.of(context);
       final lang = Localizations.localeOf(context).languageCode;
       final logbook = widget.log.logbook;
       if (logbook == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
       final years = yearsOf(logbook, widget.now());
       final year = _year ?? years.first;
-      final systemOf = {for (final v in logbook.vehicles) v.id: v.rates};
-      bool inYear(TripRecord t) => systemOf[t.route.vehicleId]?.periodOf(t.date) == year;
-      final trips = logbook.latestFirst.where(inYear).toList();
+      final trips = yearTrips(logbook, year).reversed.toList();
       final shown = {
         for (final v in logbook.vehicles)
           if (!v.archived || trips.any((t) => t.route.vehicleId == v.id)) v,
@@ -93,17 +120,29 @@ class _YearScreenState extends State<YearScreen> {
           children: [
             for (final system in systems)
               ..._system(context, system, year, logbook, [...shown.where((v) => v.rates == system)]),
-            for (final MapEntry(key: month, value: monthTrips) in months.entries) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    _capitalised(DateFormat.yMMMM(lang).format(month)),
-                    style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary),
+            _header(context, l10n.yearExport),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+              child: Builder(
+                builder: (context) => OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                  onPressed: () => _exportCsv(context, year),
+                  icon: Icon(
+                    Icons.table_view_outlined,
+                    size: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5).scale(18),
+                  ),
+                  label: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(child: Text(l10n.yearExportCsv)),
+                      if (!widget.pro.value) ...[const SizedBox(width: 8), const ProTag()],
+                    ],
                   ),
                 ),
               ),
+            ),
+            for (final MapEntry(key: month, value: monthTrips) in months.entries) ...[
+              _header(context, _capitalised(DateFormat.yMMMM(lang).format(month))),
               for (final t in monthTrips)
                 TripRow(t, logbook.vehicles, () => openTripScreen(context, widget.log, trip: t, now: widget.now)),
             ],
@@ -112,6 +151,22 @@ class _YearScreenState extends State<YearScreen> {
       );
     },
   );
+
+  /// The year's trips as a CSV (Pro, `csv_export`), to the share sheet anchored at the button of [context].
+  Future<void> _exportCsv(BuildContext context, int year) async {
+    final box = context.findRenderObject()! as RenderBox;
+    final origin = box.localToGlobal(Offset.zero) & box.size;
+    final allowed = await proAction(
+      context,
+      placement: 'csv_export',
+      pro: widget.pro.value,
+      tripSaved: widget.log.logbook!.trips.isNotEmpty,
+      openPaywall: widget.openPaywall,
+    );
+    if (!allowed || !context.mounted) return;
+    final csv = yearCsv(widget.log.logbook!, year, RoulekmLocalizations.of(context));
+    await widget.share('roulekm-$year.csv', 'text/csv', csv, origin);
+  }
 
   /// The year's total of [vehicles] (all counted at [system]), their cards and the rates' dated source.
   List<Widget> _system(
@@ -289,5 +344,17 @@ String _money(RateSystem system, String lang, int cents) => NumberFormat.simpleC
 
 String _distance(RoulekmLocalizations l10n, RateSystem system, String lang, int d) =>
     typedDistance(l10n, lang, Distance(d, system.unit));
+
+/// A section header, as in the kit's settings: primary `titleSmall`, a header for screen readers.
+Widget _header(BuildContext context, String text) {
+  final theme = Theme.of(context);
+  return Padding(
+    padding: const EdgeInsets.fromLTRB(16, 24, 16, 4),
+    child: Semantics(
+      header: true,
+      child: Text(text, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+    ),
+  );
+}
 
 String _capitalised(String s) => '${s[0].toUpperCase()}${s.substring(1)}';

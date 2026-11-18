@@ -377,6 +377,48 @@ abstract class RoulekmLocalizations {
   /// **'Part of Roulekm Pro, once you’ve saved your first trip.'**
   String get proAfterFirstTrip;
 
+  /// Paywall header title and the Settings row that opens the paywall (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Roulekm Pro'**
+  String get proTitle;
+
+  /// Paywall header line under the title (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'The same Pro in every plan. Pay once and keep it, or pay by the year or by the week.'**
+  String get proLine;
+
+  /// Paywall header, what Pro unlocks: the PDF (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your year’s mileage log as a PDF, trip by trip'**
+  String get proPdf;
+
+  /// Paywall header, what Pro unlocks: the CSV (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'CSV export'**
+  String get proCsv;
+
+  /// Paywall header, what Pro unlocks: recurring trips (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring trips'**
+  String get proRecurring;
+
+  /// Paywall header, what Pro unlocks: several vehicles in use (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Several vehicles at once'**
+  String get proVehicles;
+
+  /// Paywall header, last line (DAPP-140 §2).
+  ///
+  /// In en, this message translates to:
+  /// **'Your trips stay free and unlimited, with or without Pro.'**
+  String get proFoot;
+
   /// Header of the app's own section, first in Settings.
   ///
   /// In en, this message translates to:
@@ -916,6 +958,30 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Worked out at the IRS standard mileage rate for {year}{latest, select, yes{, the latest published} other{}} (source: {site}, read {date}). Keep this log with your records; it is not tax advice.'**
   String yearSourceUs(String year, String latest, String site, String date);
+
+  /// Year screen (DAPP-141 §7): header of the export buttons.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get yearExport;
+
+  /// Year screen: the button (Pro) that shares the year's trips as a CSV file.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV spreadsheet'**
+  String get yearExportCsv;
+
+  /// CSV export (DAPP-141 §9): header of the distance unit column (km or mi).
+  ///
+  /// In en, this message translates to:
+  /// **'Unit'**
+  String get csvUnit;
+
+  /// CSV export: the purpose of a return trip, whose distance counts both ways.
+  ///
+  /// In en, this message translates to:
+  /// **'{purpose} (round trip)'**
+  String csvRoundTrip(String purpose);
 
   /// Tooltip of the home app bar's PDF icon, which opens the Year screen (DAPP-141 §1).
   ///
