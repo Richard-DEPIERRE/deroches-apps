@@ -1,0 +1,35 @@
+Notez vos trajets professionnels en deux touches et obtenez vos frais kilométriques au barème de votre véhicule. Sans compte, sans GPS, sans quota de trajets.
+
+Roulekm est un carnet de trajets et un calculateur pour les frais réels et les indemnités kilométriques. Il applique le barème kilométrique publié par l’administration fiscale, selon la puissance fiscale de votre véhicule, avec +20 % pour l’électrique, et tient le total de l’année.
+
+CE QUI LE REND DIFFÉRENT
+• Pas de compte : rien à créer, aucune adresse e-mail demandée.
+• Pas de GPS : aucune autorisation de localisation, rien qui tourne en arrière-plan, pas de batterie vidée, pas de trajet enregistré depuis le canapé.
+• Pas de quota : trajets et favoris illimités, avec ou sans Pro.
+• Vos trajets restent sur votre téléphone.
+
+GRATUIT, SANS LIMITE DE DURÉE
+• Trajets illimités : date, départ, arrivée, motif et distance, saisie ou calculée à partir de deux relevés du compteur.
+• Allers-retours et trajets favoris, ajoutés en deux touches depuis l’accueil.
+• Un véhicule en service à la fois, avec son barème : voiture, moto ou cyclomoteur. Vous changez de voiture ? Archivez l’ancienne : ses trajets et son total restent, et la nouvelle est gratuite.
+• Le total de l’année en cours sur l’accueil, avec la tranche et l’année du barème.
+• Le récapitulatif de chaque année, en cours ou passée, par véhicule et par tranche, avec la liste des trajets.
+• Les sources des barèmes : l’année de chaque barème, la page où il est publié et la date à laquelle elle a été lue.
+• L’export d’une sauvegarde dans les réglages, vers iCloud Drive ou ailleurs.
+• Aucune publicité.
+
+ROULEKM PRO
+• Le relevé PDF de l’année : date, lieux, motif et distance de chaque trajet, le barème appliqué et les totaux par véhicule.
+• L’export CSV, pour un tableur ou votre comptable.
+• Les trajets récurrents (« lundi–vendredi, domicile → chantier ») : ils attendent sur l’accueil et ne comptent qu’une fois confirmés, pour que les jours de congé restent hors du relevé.
+• Plusieurs véhicules en service à la fois.
+
+Le même Pro dans chaque formule : un achat unique, gardé à vie, ou un abonnement annuel ou hebdomadaire. Pas d’essai qui se transforme en abonnement. Si Pro s’arrête, rien de ce que vous avez saisi ou exporté n’est verrouillé.
+
+Les abonnements se renouvellent automatiquement à la fin de chaque période, au prix affiché, sauf si vous les résiliez au moins 24 heures avant. Le paiement est débité sur votre compte Apple. Vous gérez ou résiliez un abonnement dans les réglages de votre compte App Store. L’achat unique ne se renouvelle jamais.
+
+Roulekm est un outil de suivi et de calcul. Ce n’est pas un service de l’administration et il ne donne pas de conseil fiscal : vérifier ce que vous pouvez déduire, et le déclarer, reste votre décision.
+
+Conditions d’utilisation : https://roulekm.fr/conditions/
+Contrat de licence (EULA) : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Confidentialité : https://roulekm.fr/confidentialite/
