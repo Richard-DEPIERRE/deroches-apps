@@ -192,5 +192,15 @@
   "pdfVehicleShare": "Part de ce véhicule, au prorata de sa distance",
   "pdfNote": "{system, select, france{Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au barème kilométrique publié par l’administration fiscale\u00a0; à conserver avec vos justificatifs.} uk{Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants aux indemnités kilométriques HMRC\u00a0; à conserver avec vos justificatifs.} other{Chaque trajet indique sa date, ses lieux de départ et d’arrivée, son motif et sa distance. Montants au taux kilométrique standard IRS\u00a0; à conserver avec vos justificatifs.}}",
   "pdfFooter": "Établi avec Roulekm le {date}",
-  "pdfPage": "Page {page} sur {pages}"
+  "pdfPage": "Page {page} sur {pages}",
+  "storeCaption1": "Vos km en euros, au\u00a0barème du\u00a0véhicule",
+  "storeSubline1": "Sans compte\u00a0· Sans GPS\u00a0· Trajets illimités\u00a0· Pro sans abonnement obligatoire",
+  "storeCaption2": "Un trajet en deux touches",
+  "storeSubline2": "Favoris, allers-retours, compteur kilométrique",
+  "storeCaption3": "Le barème de chaque véhicule",
+  "storeSubline3": "Puissance fiscale, tranches, +20\u00a0% pour l’électrique",
+  "storeCaption4": "Le relevé de l’année en\u00a0PDF\u00a0(Pro)",
+  "storeSubline4": "Date, lieux, motif et distance de chaque trajet",
+  "storeCaption5": "Sans\u00a0compte. Sans\u00a0GPS. Sans\u00a0quota.",
+  "storeSubline5": "Vos trajets restent sur votre téléphone. Payez Pro une fois, si vous voulez."
 }

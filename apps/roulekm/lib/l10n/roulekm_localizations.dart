@@ -1258,6 +1258,66 @@ abstract class RoulekmLocalizations {
   /// In en, this message translates to:
   /// **'Page {page} of {pages}'**
   String pdfPage(String page, String pages);
+
+  /// Store screenshot 1 caption (home), DAPP-142. Store images only.
+  ///
+  /// In en, this message translates to:
+  /// **'Your miles in dollars, at your vehicle’s rate'**
+  String get storeCaption1;
+
+  /// Store screenshot 1 sub-line, under its caption, DAPP-142.
+  ///
+  /// In en, this message translates to:
+  /// **'No account · No GPS · Unlimited trips · Pro with no subscription required'**
+  String get storeSubline1;
+
+  /// Store screenshot 2 caption (add a trip), DAPP-142. Store images only.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a trip in two taps'**
+  String get storeCaption2;
+
+  /// Store screenshot 2 sub-line, under its caption, DAPP-142.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites, round trips, odometer readings'**
+  String get storeSubline2;
+
+  /// Store screenshot 3 caption (vehicles), DAPP-142. Store images only.
+  ///
+  /// In en, this message translates to:
+  /// **'The right rate for each vehicle'**
+  String get storeCaption3;
+
+  /// Store screenshot 3 sub-line, under its caption, DAPP-142.
+  ///
+  /// In en, this message translates to:
+  /// **'IRS or HMRC rate, miles or kilometers'**
+  String get storeSubline3;
+
+  /// Store screenshot 4 caption (year and PDF), DAPP-142. Store images only.
+  ///
+  /// In en, this message translates to:
+  /// **'Your year’s mileage log as a PDF (Pro)'**
+  String get storeCaption4;
+
+  /// Store screenshot 4 sub-line, under its caption, DAPP-142.
+  ///
+  /// In en, this message translates to:
+  /// **'Date, places, purpose and distance of every trip'**
+  String get storeSubline4;
+
+  /// Store screenshot 5 caption (onboarding page 2), DAPP-142. Store images only.
+  ///
+  /// In en, this message translates to:
+  /// **'No account. No GPS. No trip limit.'**
+  String get storeCaption5;
+
+  /// Store screenshot 5 sub-line, under its caption, DAPP-142.
+  ///
+  /// In en, this message translates to:
+  /// **'Your trips stay on your phone. Pay once for Pro, if you like.'**
+  String get storeSubline5;
 }
 
 class _RoulekmLocalizationsDelegate

@@ -54,13 +54,9 @@ Widget buildApp({
   unawaited(log.open());
   final pro = purchases?.entitled ?? ValueNotifier(false);
   final openPaywall = roulekmPaywall(kitState, purchases);
-  return KitApp(
-    config: roulekmConfig,
+  return roulekmApp(
     crashReporter: crashReporter,
     kitState: kitState,
-    seedColor: const Color(0xFFC4511A), // DAPP-141 §0
-    fontFamily: 'Barlow',
-    localizationsDelegates: const [RoulekmLocalizations.delegate],
     home: (context) => FirstLaunch(
       kitState: kitState,
       analytics: analytics,
@@ -132,6 +128,21 @@ Widget buildApp({
     ),
   );
 }
+
+/// The kit app in Roulekm's colour, font and strings, around [home]; the store screenshots use it too.
+Widget roulekmApp({
+  CrashReporter crashReporter = const NoopCrashReporter(),
+  required KitStateController kitState,
+  required WidgetBuilder home,
+}) => KitApp(
+  config: roulekmConfig,
+  crashReporter: crashReporter,
+  kitState: kitState,
+  seedColor: const Color(0xFFC4511A), // DAPP-141 §0
+  fontFamily: 'Barlow',
+  localizationsDelegates: const [RoulekmLocalizations.delegate],
+  home: home,
+);
 
 /// The kit settings' section header (primary `titleSmall`, a header for screen readers).
 class _SectionHeader extends StatelessWidget {
