@@ -330,6 +330,8 @@ There is no relief for a journey made as a passenger, or in a company vehicle. T
 whole cost of owning and running the vehicle: gov.uk says fuel, electricity, vehicle tax, MOTs and repairs can't be
 claimed separately, and HMRC's Employment Income Manual (EIM31330) says actual costs are not an alternative.
 
+Driving an electric car for work? See [the electric car mileage rate, for your own car or a company car](/en/guides/electric-car-mileage-rate/).
+
 Self-employed? This relief is for employees. Sole traders and partners claim their business miles as an expense on
 their Self Assessment return instead: see [how a self-employed mileage claim works](/en/guides/self-employed-mileage-claim/).
 
