@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../l10n/roulekm_localizations.dart';
 import '../data/log_controller.dart';
 import '../data/logbook.dart';
+import '../formatting.dart';
 import '../rates/french_bareme.dart';
 import '../rates/rates.dart';
 
@@ -25,43 +24,12 @@ class VehicleScreen extends StatefulWidget {
   State<VehicleScreen> createState() => _VehicleScreenState();
 }
 
-/// The chips follow the latest barème's bands.
-final _bareme = frenchBaremes[frenchBaremes.keys.reduce(max)]!;
-
 /// The rate system the phone's region suggests: France, the UK's HMRC, else the IRS.
 RateSystem regionRates() => switch (WidgetsBinding.instance.platformDispatcher.locales.firstOrNull?.countryCode) {
   'FR' => RateSystem.france,
   'GB' => RateSystem.uk,
   _ => RateSystem.us,
 };
-
-String vehicleTypeLabel(RoulekmLocalizations l10n, VehicleType type) => switch (type) {
-  VehicleType.car => l10n.vehicleTypeCar,
-  VehicleType.motorbike => l10n.vehicleTypeMotorbike,
-  VehicleType.moped => l10n.vehicleTypeMoped,
-  VehicleType.bicycle => l10n.vehicleTypeBicycle,
-};
-
-String _bandLabel(RoulekmLocalizations l10n, HorsepowerBand b) => switch (b) {
-  HorsepowerBand(maxCv: null) => l10n.vehicleHorsepowerFrom(b.minCv),
-  HorsepowerBand(minCv: 1, :final maxCv?) => l10n.vehicleHorsepowerUpTo(maxCv),
-  HorsepowerBand(:final minCv, :final maxCv?) when minCv == maxCv => l10n.vehicleHorsepowerOne(minCv),
-  HorsepowerBand(:final minCv, :final maxCv?) => l10n.vehicleHorsepowerRange(minCv, maxCv),
-};
-
-/// "Voiture · 5 CV · thermique", "Car or van · HMRC rates": the vehicle's line in the list.
-String vehicleSummary(RoulekmLocalizations l10n, VehicleRecord v) => [
-  vehicleTypeLabel(l10n, v.type),
-  ...switch (v.rates) {
-    RateSystem.france => [
-      if (v.horsepower case final cv?)
-        _bandLabel(l10n, _bareme.bands[v.type]!.firstWhere((b) => cv >= b.minCv && cv <= (b.maxCv ?? cv))),
-      v.electric ? l10n.vehicleEngineElectric : l10n.vehicleEngineFuel,
-    ],
-    RateSystem.uk => [l10n.vehicleRatesUkShort],
-    RateSystem.us => [l10n.vehicleRatesUsShort],
-  },
-].join('\u00a0· '); // the dot stays at the end of a line
 
 class _VehicleScreenState extends State<VehicleScreen> {
   late final _name = TextEditingController(text: widget.vehicle?.name);
@@ -73,7 +41,9 @@ class _VehicleScreenState extends State<VehicleScreen> {
   bool _saving = false;
 
   bool get _hasHorsepower => _rates == RateSystem.france && _type != VehicleType.moped;
-  List<HorsepowerBand> get _bands => _bareme.bands[_type]!;
+
+  /// The chips follow the latest barème's bands.
+  List<HorsepowerBand> get _bands => latestBareme.bands[_type]!;
 
   @override
   void dispose() {
@@ -244,7 +214,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
               chips(
                 _bands,
                 _bands.where((b) => (_horsepower ?? 0) >= b.minCv && (_horsepower ?? 0) <= (b.maxCv ?? 99)).firstOrNull,
-                (b) => _bandLabel(l10n, b),
+                (b) => bandLabel(l10n, b),
                 (b) => _horsepower = b.maxCv ?? b.minCv,
               ),
               const SizedBox(height: 8),

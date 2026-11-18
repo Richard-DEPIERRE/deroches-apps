@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../l10n/roulekm_localizations.dart';
 import '../data/logbook.dart';
+import '../formatting.dart';
 import '../home/home_screen.dart';
 import '../rates/rates.dart';
 
