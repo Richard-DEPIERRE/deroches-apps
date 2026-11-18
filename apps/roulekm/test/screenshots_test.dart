@@ -183,7 +183,6 @@ void main() {
     return shoot(tester, 3, (log) => VehicleScreen(log: log, vehicle: log.inUse.first));
   });
 
-  // TODO(DAPP-362): run again once the Year screen's PDF button is merged, so the store shows it.
   testWidgets('4, the year', (tester) {
     return shoot(tester, 4, (log) => YearScreen(log: log, pro: pro, openPaywall: openPaywall, now: () => today));
   });
