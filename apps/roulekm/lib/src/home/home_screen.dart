@@ -139,7 +139,7 @@ class HomeScreen extends StatelessWidget {
     },
   );
 
-  /// The total line, the cards and the source line of the vehicles in use counted at [system].
+  /// The total line of the vehicles counted at [system], the cards of those in use, and the source line.
   List<Widget> _system(
     BuildContext context,
     RateSystem system,
@@ -154,7 +154,15 @@ class HomeScreen extends StatelessWidget {
     final vehicles = [...log.inUse.where((v) => v.rates == system)];
     final rates = ratesFor(system, today);
     final year = _periodLabel(system, today);
-    final sum = _money(system, lang, vehicles.fold(0, (a, v) => a + (totals[v.id]!.cents ?? 0)));
+    // The Year screen's total: archived vehicles' trips this year count too (DAPP-370).
+    final sum = _money(
+      system,
+      lang,
+      [
+        for (final v in logbook.vehicles)
+          if (v.rates == system) totals[v.id]!.cents ?? 0,
+      ].fold(0, (a, b) => a + b),
+    );
     final note = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     return [
       Padding(
