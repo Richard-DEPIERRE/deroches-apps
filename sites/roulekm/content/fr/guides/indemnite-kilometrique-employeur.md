@@ -4,7 +4,7 @@ description: 'Indemnités kilométriques de l’employeur pour vos déplacements
 translation: indemnite-kilometrique-employeur
 type: guide
 published: 2026-11-16
-updated: 2026-11-16
+updated: 2026-11-21
 factCheck: DAPP-313
 download: Roulekm date chaque déplacement avec son motif et ses kilomètres, et en fait le total par véhicule au barème.
 related: [tableau-frais-kilometriques, justificatif-frais-kilometriques, frais-kilometriques-association]
@@ -282,7 +282,7 @@ doit donc permettre de retrouver :
 
 Demandez à votre employeur sous quelle forme il veut ces éléments (note de frais, formulaire interne, relevé mensuel)
 et à quel rythme. Notre [modèle de tableau des frais kilométriques](/guides/tableau-frais-kilometriques/) donne les
-colonnes d’un relevé.
+colonnes d’un relevé, et notre [modèle de note de frais kilométriques](/guides/note-de-frais-kilometriques/), les champs d’une note de frais.
 
 Si vous préférez tenir ce relevé sur votre téléphone, Roulekm (bientôt sur iPhone et Android) garde chaque
 déplacement daté avec son motif et ses kilomètres, et en fait le total par véhicule au barème, prêt à reporter sur une
