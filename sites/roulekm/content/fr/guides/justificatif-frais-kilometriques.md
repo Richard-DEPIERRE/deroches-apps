@@ -4,7 +4,7 @@ description: 'Frais réels : les pièces qui justifient vos frais kilométriques
 translation: justificatif-frais-kilometriques
 type: guide
 published: 2026-11-13
-updated: 2026-11-13
+updated: 2026-11-21
 factCheck: DAPP-264
 download: Roulekm date chaque trajet avec son motif et sa distance, et tient le total de l’année par véhicule.
 related: [tableau-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
@@ -298,7 +298,7 @@ entrent dans le calcul des cotisations sociales. Le barème suppose un véhicule
 un membre de votre foyer fiscal êtes propriétaire ou que vous louez.
 
 Votre relevé de trajets sert donc aussi ici. Demandez à votre employeur sous quelle forme il le veut (note de frais,
-relevé mensuel…).
+relevé mensuel…). Notre [modèle de note de frais kilométriques](/guides/note-de-frais-kilometriques/) en donne un exemple.
 
 Si vous déclarez vos frais réels, les indemnités et remboursements reçus de votre employeur s’ajoutent à votre
 rémunération imposable.

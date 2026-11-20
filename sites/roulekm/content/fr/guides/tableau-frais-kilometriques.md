@@ -4,7 +4,7 @@ description: 'Un tableau de frais kilométriques prêt à recopier : les colonne
 translation: tableau-frais-kilometriques
 type: guide
 published: 2026-11-10
-updated: 2026-11-17
+updated: 2026-11-21
 factCheck: DAPP-233
 download: Roulekm tient ce tableau sur votre téléphone et applique le barème de chaque véhicule.
 related: [justificatif-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
@@ -305,7 +305,7 @@ Avant de déclarer :
   d’information des impôts (0809 401 401) répond aux questions générales, et le service des impôts qui gère votre
   dossier, aux questions sur votre situation. Un professionnel peut aussi vous conseiller.
 - **Une note de frais** : si le tableau sert à vous faire rembourser par votre employeur, demandez-lui le modèle et le
-  taux qu’il utilise. Notre guide sur [l’indemnité kilométrique versée par
+  taux qu’il utilise ; notre [modèle de note de frais kilométriques](/guides/note-de-frais-kilometriques/) montre ce qu’on y écrit d’habitude. Notre guide sur [l’indemnité kilométrique versée par
   l’employeur](/guides/indemnite-kilometrique-employeur/) explique la limite du barème et ce que vous lui remettez.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de l’administration fiscale
