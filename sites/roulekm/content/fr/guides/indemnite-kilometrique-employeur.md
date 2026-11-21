@@ -1,6 +1,6 @@
 ---
-title: 'Indemnité kilométrique employeur : règle, calcul, pièces'
-description: 'Indemnités kilométriques de l’employeur pour vos déplacements professionnels : la limite du barème, un exemple de calcul, les pièces à remettre et l’impôt.'
+title: 'Remboursement des frais kilométriques par l’employeur'
+description: 'Remboursement des frais kilométriques par l’employeur : les indemnités kilométriques, la limite du barème, un exemple de calcul, les pièces et l’impôt.'
 translation: indemnite-kilometrique-employeur
 type: guide
 published: 2026-11-16
@@ -123,6 +123,13 @@ sources:
 # with curl the same day.
 # The arrêté of 20 December 2002 named in the issue is repealed (source 1, art. 12): the guide cites the arrêté of
 # 4 September 2025.
+# DAPP-418 (2026-11-21), an update, not a new guide: the title, H1, description and first paragraph now say
+# "remboursement des frais kilométriques par l’employeur". Source 1 re-read 2026-11-21 through the web-fetch tool:
+# « En vigueur au 21/11/2026 », articles « en vigueur depuis le 07 septembre 2025 », no later amendment listed;
+# art. 2, 1° and 2°, and art. 4 read as quoted above. Source 4 re-read with curl the same day: unchanged (« 0,357 »,
+# barèmes 2026 not revalorised). boss.gouv.fr and urssaf.fr still reset every connection on 2026-11-21 (curl exit 52
+# on boss.gouv.fr/portail/accueil/frais-professionnels.html and www.urssaf.fr; web-fetch ECONNRESET on both), so the
+# BOSS gaps below stay out.
 # boss.gouv.fr and urssaf.fr reset every connection from the Content Editor's network on 2026-11-15 (curl exit 52,
 # web-fetch ECONNRESET, on both BOSS URLs used by earlier guides). The guide therefore leaves out what only the BOSS
 # says: its wording above the barème, the employer's proof of the exact kilometres, its conditions for indemnités
@@ -130,6 +137,12 @@ sources:
 # as an update (not a new guide) once the BOSS is read.
 # No barème table here beyond the one line the example needs: the full barème is in the table guide (DAPP-233).
 citations:
+  - claim: 'Remboursement des frais kilométriques par l’employeur, pour un salarié contraint d’utiliser son véhicule personnel : l’arrêté du 4 septembre 2025 prévoit deux formes, le remboursement des dépenses réellement engagées (l’employeur produisant les justificatifs) ou une allocation forfaitaire, qui pour le véhicule personnel est l’indemnité forfaitaire kilométrique.'
+    topic: money
+    period: arrêté in force since 2025-09-07, version in force on 2026-11-21
+    sources: [1]
+    recheck: 2027-01-01
+    checked: '2026-11-21 by content-editor (DAPP-418; art. 2, 1° and 2°, and art. 4; single official source: the BOSS, which restates it, is unreachable)'
   - claim: 'Indemnités kilométriques pour des déplacements professionnels avec le véhicule personnel : réputées utilisées conformément à leur objet dans les limites des barèmes publiés chaque année par l’administration fiscale, donc déduites du calcul des cotisations ; le texte est l’arrêté du 4 septembre 2025, en vigueur depuis le 7 septembre 2025, qui abroge l’arrêté du 20 décembre 2002.'
     topic: money
     period: arrêté in force since 2025-09-07, version in force on 2026-11-14
@@ -204,10 +217,11 @@ citations:
     checked: 2026-11-15 by content-editor
 ---
 
-Si vous êtes contraint d’utiliser votre propre voiture ou votre moto pour des déplacements professionnels, votre
-employeur peut vous verser des **indemnités kilométriques**. Jusqu’au montant du **barème kilométrique** publié chaque année par
-l’administration fiscale, elles sont réputées utilisées pour leur objet et n’entrent pas dans le calcul des cotisations
-sociales. Ce barème n’est pas un tarif imposé à l’employeur : c’est une limite, qui dépend de la puissance du véhicule
+Si vous êtes contraint d’utiliser votre propre voiture ou votre moto pour des déplacements professionnels, l’arrêté du
+4 septembre 2025 prévoit deux façons pour votre employeur de **rembourser vos frais kilométriques** : rembourser les
+dépenses réellement engagées, justificatifs à l’appui, ou vous verser une allocation forfaitaire, l’**indemnité
+kilométrique**. Jusqu’au montant du **barème kilométrique** publié chaque année par l’administration fiscale, ces
+indemnités sont réputées utilisées pour leur objet et n’entrent pas dans le calcul des cotisations sociales. Ce barème n’est pas un tarif imposé à l’employeur : c’est une limite, qui dépend de la puissance du véhicule
 et des kilomètres parcourus à titre professionnel dans l’année.
 
 ## La règle : le barème fiscal comme limite
