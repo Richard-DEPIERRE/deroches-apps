@@ -327,7 +327,9 @@ and Notice 2026-10.
 
 **If your employer reimburses you.** That goes through your employer's accountable plan, not your deduction. When the plan's
 three rules are met (a business connection, an adequate accounting within a reasonable time, and any excess returned),
-Publication 463 says the reimbursement shouldn't be included in your W-2 wages. Your employer can tell you how its plan works.
+Publication 463 says the reimbursement shouldn't be included in your W-2 wages. Your employer can tell you how its plan works,
+and our guide on [whether mileage reimbursement is taxable](/en/guides/is-mileage-reimbursement-taxable/) covers the
+plan rules, payments above the IRS rate and flat car allowances.
 
 ## Two ways to figure it: the standard mileage rate or actual expenses
 
