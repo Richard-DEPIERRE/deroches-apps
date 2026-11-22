@@ -205,7 +205,8 @@ citations:
 ---
 
 This is the **US federal (IRS) rule**. To deduct business driving, the IRS asks you to prove each business use of
-the car, and the same records back a reimbursement under an employer's accountable plan. For every business use, the
+the car, and the same records back a reimbursement under an employer's accountable plan (what keeps a
+[mileage reimbursement from being taxed](/en/guides/is-mileage-reimbursement-taxable/)). For every business use, the
 log shows **the date, your business destination, the business purpose and the miles driven**. For the year, it also
 shows **the total miles you drove the car**, business and personal. The IRS asks for a record made **at or near the
 time of the trip** (a log kept up each week counts), and you generally keep it **3 years** after you file, longer in
