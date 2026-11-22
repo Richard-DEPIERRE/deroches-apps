@@ -4,7 +4,7 @@ description: 'Remboursement des frais kilométriques par l’employeur : les ind
 translation: indemnite-kilometrique-employeur
 type: guide
 published: 2026-11-16
-updated: 2026-11-21
+updated: 2026-11-23
 factCheck: DAPP-313
 download: Roulekm date chaque déplacement avec son motif et ses kilomètres, et en fait le total par véhicule au barème.
 related: [tableau-frais-kilometriques, justificatif-frais-kilometriques, frais-kilometriques-association]
@@ -334,6 +334,8 @@ de fonction ni des travailleurs indépendants, et il ne dit pas si une somme vou
 - **l’impôt** : le Service d’information des impôts (0809 401 401) pour les questions générales, et le service des
   impôts qui gère votre dossier, dont les coordonnées figurent sur votre avis d’impôt et votre déclaration, pour votre
   situation ;
+- **vous êtes micro-entrepreneur** : notre guide sur [les frais de déplacement en auto-entrepreneur](/guides/auto-entrepreneur-frais-de-deplacement/) explique
+  pourquoi ces frais ne se déduisent pas sous le régime micro et comment les facturer à un client ;
 - un professionnel peut aussi vous conseiller.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de votre employeur, de

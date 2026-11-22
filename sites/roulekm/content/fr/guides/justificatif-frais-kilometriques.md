@@ -4,7 +4,7 @@ description: 'Frais réels : les pièces qui justifient vos frais kilométriques
 translation: justificatif-frais-kilometriques
 type: guide
 published: 2026-11-13
-updated: 2026-11-21
+updated: 2026-11-23
 factCheck: DAPP-264
 download: Roulekm date chaque trajet avec son motif et sa distance, et tient le total de l’année par véhicule.
 related: [tableau-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
@@ -331,6 +331,9 @@ frais et de votre situation. Pour votre cas :
 - pour des indemnités versées par votre employeur, voyez avec lui ou avec son service de paie ;
 - pour des trajets faits comme bénévole d’une association, voyez notre guide sur [les frais kilométriques en
   association](/guides/frais-kilometriques-association/) ;
+- pour des trajets faits comme micro-entrepreneur, voyez notre guide sur
+  [les frais de déplacement en auto-entrepreneur](/guides/auto-entrepreneur-frais-de-deplacement/) : vos frais ne s’y déduisent pas, mais vous pouvez
+  les facturer à vos clients ;
 - un professionnel peut aussi vous conseiller.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de l’administration fiscale
