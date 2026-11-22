@@ -73,10 +73,17 @@ Future<void> type(WidgetTester tester, String label, String text) async {
   await tester.pump();
 }
 
-Future<void> tapSave(WidgetTester tester, String label, {bool Function()? until}) async {
+/// Taps Save and, unless [closes] is false (a form that doesn't validate), waits for the form to close: it closes
+/// once every write is on disk and `tripSaved` has run.
+Future<void> tapSave(WidgetTester tester, String label, {bool Function()? until, bool closes = true}) async {
   await tester.tap(find.widgetWithText(FilledButton, label));
-  await settle(tester, until: until);
+  await settle(tester, until: until ?? (closes ? formClosed : null));
 }
+
+/// True once the form's route is popped, before its closing animation (which a bare `pump` doesn't advance);
+/// `skipOffstage: false` still finds the form while the vehicle screen covers it.
+bool formClosed() =>
+    find.byType(TripScreen, skipOffstage: false).evaluate().every((form) => !(ModalRoute.of(form)?.isActive ?? false));
 
 /// Saves started by a tap run in the test's fake time: pump while real time passes, so each write reaches the disk.
 /// With [until], keep going (up to 3 s) until it holds: a slow CI disk may need more than the default 200 ms.
@@ -162,7 +169,7 @@ void main() {
     final saved = <int>[];
     final log = await openTrip(tester, const Locale('en', 'US'), saved: saved);
     await type(tester, 'One-way distance', '0');
-    await tapSave(tester, 'Save');
+    await tapSave(tester, 'Save', closes: false);
     expect(find.text('Enter where the trip started'), findsOneWidget);
     expect(find.text('Enter where it ended'), findsOneWidget);
     expect(find.text('Enter the distance'), findsOneWidget);
@@ -263,14 +270,14 @@ void main() {
     await tester.pump();
     await type(tester, 'From', 'Office');
     await type(tester, 'To', 'Warehouse');
-    await tapSave(tester, 'Save');
+    await tapSave(tester, 'Save', closes: false);
     expect(find.text('Enter the reading'), findsNWidgets(2));
     await type(tester, 'Start reading', '32601');
     await type(tester, 'End reading', '32580');
     expect(find.widgetWithText(TextField, '32,580'), findsOneWidget);
     expect(find.text('Must be above the start reading'), findsOneWidget);
     expect(find.textContaining('='), findsNothing);
-    await tapSave(tester, 'Save');
+    await tapSave(tester, 'Save', closes: false);
     expect(log.logbook!.trips, isEmpty);
 
     await type(tester, 'End reading', '32622');
@@ -317,7 +324,7 @@ void main() {
     final saved = <int>[];
     final log = await openTrip(tester, const Locale('en', 'US'), trips: [bron], trip: bron, saved: saved);
     await tester.tap(find.text('Delete trip'));
-    await settle(tester);
+    await settle(tester, until: formClosed);
 
     expect(find.text('Edit trip'), findsNothing, reason: 'the form closes');
     expect(log.logbook!.trips, isEmpty);

@@ -99,7 +99,7 @@ void main() {
     expect(find.widgetWithText(TextButton, 'Modifier avant d’ajouter'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(FilledButton, 'Ajouter le trajet'));
-    await settle(tester);
+    await settle(tester, until: () => saved.length == 1);
     expect(find.byType(BottomSheet), findsNothing, reason: 'the sheet closes');
     final trip = log.logbook!.trips.single;
     expect(trip.date, DateTime.utc(2026, 11, 11));
@@ -128,7 +128,7 @@ void main() {
     await tester.tap(find.widgetWithText(ChoiceChip, 'Yesterday'));
     await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Add trip'));
-    await settle(tester);
+    await settle(tester, until: () => saved.length == 1);
     expect(log.logbook!.trips.single.date, DateTime.utc(2026, 11, 10));
     expect(find.text('Trip added$_nbsp· 42${_nbsp}mi'), findsOneWidget);
 
@@ -142,7 +142,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Tue,${_nbsp}Nov${_nbsp}3')).selected, isTrue);
     await tester.tap(find.widgetWithText(FilledButton, 'Add trip'));
-    await settle(tester);
+    await settle(tester, until: () => saved.length == 2);
     expect([for (final t in log.logbook!.latestFirst) t.date], [DateTime.utc(2026, 11, 10), DateTime.utc(2026, 11, 3)]);
     expect(saved, [1, 1]);
   });
@@ -170,7 +170,7 @@ void main() {
     await tester.enterText(find.widgetWithText(TextField, '34'), '36');
     await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Enregistrer$_nbsp· 72${_nbsp}km'));
-    await settle(tester);
+    await settle(tester, until: () => saved.length == 1);
 
     final trip = log.logbook!.trips.single;
     expect(trip.date, DateTime.utc(2026, 11, 10));
