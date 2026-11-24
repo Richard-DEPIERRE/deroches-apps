@@ -314,7 +314,8 @@ limitations for that return runs out:
 Publication 463 adds that **records of the car's business use are kept for each year of its recovery period** (its
 depreciation). An employee who gives the records to the employer and is reimbursed generally doesn't need to keep
 copies, except in the cases the publication lists (for example, claiming more than the reimbursement, or a
-nonaccountable plan).
+nonaccountable plan). How the log carries over to the form you hand in is in our guide to the
+[mileage reimbursement form](/en/guides/mileage-reimbursement-form/).
 
 ## Example: a week of entries
 

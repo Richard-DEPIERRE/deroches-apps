@@ -329,7 +329,8 @@ and Notice 2026-10.
 three rules are met (a business connection, an adequate accounting within a reasonable time, and any excess returned),
 Publication 463 says the reimbursement shouldn't be included in your W-2 wages. Your employer can tell you how its plan works,
 and our guide on [whether mileage reimbursement is taxable](/en/guides/is-mileage-reimbursement-taxable/) covers the
-plan rules, payments above the IRS rate and flat car allowances.
+plan rules, payments above the IRS rate and flat car allowances. What goes on the form you hand in is in our guide to
+the [mileage reimbursement form](/en/guides/mileage-reimbursement-form/).
 
 ## Two ways to figure it: the standard mileage rate or actual expenses
 
