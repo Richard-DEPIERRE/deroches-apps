@@ -403,7 +403,8 @@ your state's labor department, the Wage and Hour Division or an employment lawye
 
 - **Your employer's plan**: whether it's accountable, the rate per mile, what you have to hand in (the log, the business
   purpose) and its deadlines for accounting and for returning advances. Publication 463 says to ask your employer if
-  you aren't sure which kind of plan it is.
+  you aren't sure which kind of plan it is. The usual lines and a worked month are in our guide to the
+  [mileage reimbursement form](/en/guides/mileage-reimbursement-form/).
 - **Your W-2**: reimbursements under an accountable plan shouldn't be in box 1. If a per-mile allowance was above the
   IRS rate, box 12 with code L shows the part up to the rate, which isn't taxed, and the extra is in box 1.
 - **Special cases**: for a car allowance, if you own more than 10% of the company's stock or your employer is a close
