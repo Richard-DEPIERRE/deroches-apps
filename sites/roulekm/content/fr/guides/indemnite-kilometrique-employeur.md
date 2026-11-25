@@ -4,7 +4,7 @@ description: 'Remboursement des frais kilométriques par l’employeur : les ind
 translation: indemnite-kilometrique-employeur
 type: guide
 published: 2026-11-16
-updated: 2026-11-23
+updated: 2026-11-26
 factCheck: DAPP-313
 download: Roulekm date chaque déplacement avec son motif et ses kilomètres, et en fait le total par véhicule au barème.
 related: [tableau-frais-kilometriques, justificatif-frais-kilometriques, frais-kilometriques-association]
@@ -314,7 +314,9 @@ imposable les indemnités et remboursements de frais versés par votre employeur
 votre voiture personnelle, et déclarer vos frais réels, kilomètres compris. Nos guides sur [le tableau des frais
 kilométriques](/guides/tableau-frais-kilometriques/) et sur [les justificatifs à
 garder](/guides/justificatif-frais-kilometriques/) expliquent ce calcul et les pièces à conserver. La déclaration des
-revenus de 2026 débutera en avril 2027.
+revenus de 2026 débutera en avril 2027. Pour comparer la déduction de 10 % et les frais réels en tenant compte de ces
+remboursements, et voir dans quelle case les déclarer, lisez notre guide sur [les frais kilométriques aux
+impôts](/guides/frais-kilometriques-impots/).
 
 ## Et les trajets entre domicile et travail ?
 
