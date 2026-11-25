@@ -4,7 +4,7 @@ description: 'Un tableau de frais kilométriques prêt à recopier : les colonne
 translation: tableau-frais-kilometriques
 type: guide
 published: 2026-11-10
-updated: 2026-11-23
+updated: 2026-11-26
 factCheck: DAPP-233
 download: Roulekm tient ce tableau sur votre téléphone et applique le barème de chaque véhicule.
 related: [justificatif-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
@@ -270,6 +270,9 @@ Quelques conditions écrites sur les pages officielles : le barème des voitures
 un membre de votre foyer fiscal êtes propriétaire du véhicule ; les deux-roues ont leurs propres barèmes. Ce barème est
 le dernier publié à la date de ce guide (10 novembre 2026) : pour vos trajets de 2026, vérifiez au moment de déclarer
 le barème publié pour les revenus 2026.
+
+Ce total s’ajoute à vos autres frais réels et se déclare case 1AK (1BK pour le second déclarant) :
+notre guide sur [les frais kilométriques aux impôts](/guides/frais-kilometriques-impots/) montre où le reporter et comment le comparer à la déduction de 10 %.
 
 Les bénévoles qui renoncent au remboursement de leurs frais par une association peuvent, eux aussi, chiffrer au même
 barème les kilomètres faits avec leur propre véhicule : voir notre guide sur [les frais kilométriques en

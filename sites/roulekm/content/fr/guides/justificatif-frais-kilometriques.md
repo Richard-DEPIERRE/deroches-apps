@@ -4,7 +4,7 @@ description: 'Frais réels : les pièces qui justifient vos frais kilométriques
 translation: justificatif-frais-kilometriques
 type: guide
 published: 2026-11-13
-updated: 2026-11-23
+updated: 2026-11-26
 factCheck: DAPP-264
 download: Roulekm date chaque trajet avec son motif et sa distance, et tient le total de l’année par véhicule.
 related: [tableau-frais-kilometriques, frais-reels-voiture-electrique, indemnite-kilometrique-employeur]
@@ -219,7 +219,9 @@ des revenus déclarés. Pour les revenus de 2025, c’est jusqu’au **31 décem
 Aux frais réels, seuls les frais **justifiés** sont déductibles. Pour une voiture ou une moto, que vous appliquiez le
 barème kilométrique ou que vous déduisiez vos dépenses réelles, impots.gouv.fr demande de pouvoir justifier **la
 réalité et le nombre de kilomètres parcourus**, ainsi que **l’utilisation du véhicule pour votre activité
-professionnelle**.
+professionnelle**. Le total de ces frais se déclare case 1AK (1BK pour le second déclarant) : notre guide sur [la
+déclaration des frais kilométriques aux impôts](/guides/frais-kilometriques-impots/) explique où le reporter et
+comment le comparer à la déduction de 10 %.
 
 Le Bulletin officiel des Finances publiques (BOFiP) précise ce que ces justifications doivent montrer :
 
