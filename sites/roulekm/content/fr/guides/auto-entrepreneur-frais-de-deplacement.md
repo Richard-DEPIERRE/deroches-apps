@@ -390,6 +390,9 @@ réel est plus contraignant (obligations comptables et déclaratives). Le choix 
 et de vos charges, pas seulement de vos kilomètres : votre service des impôts des entreprises renseigne sur les règles
 et les délais d’option, et un expert-comptable peut vous conseiller.
 
+Notre guide sur [les frais kilométriques en entreprise au régime réel ou en société](/guides/frais-kilometriques-entreprise/)
+détaille le barème en BNC, les frais réels en BIC et les indemnités kilométriques versées à un dirigeant.
+
 ## Ce qu’il faut vérifier pour votre situation
 
 Ce guide explique les règles générales du régime micro pour les frais de déplacement. Il ne dit pas quel montant

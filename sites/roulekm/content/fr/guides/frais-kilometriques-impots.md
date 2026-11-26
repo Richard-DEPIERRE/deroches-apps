@@ -431,6 +431,8 @@ l’ensemble de vos frais, des remboursements de votre employeur et de la situat
 - **le service des impôts qui gère votre dossier**, par la messagerie de votre espace Finances publiques sur
   impots.gouv.fr ou aux coordonnées qui figurent sur vos avis d’impôt et vos déclarations, pour les questions sur votre
   situation ;
+- **vous êtes indépendant au régime réel ou dirigeant de société** : notre guide sur [les frais kilométriques en
+  entreprise](/guides/frais-kilometriques-entreprise/) explique comment ces kilomètres se comptent dans l’entreprise ;
 - un professionnel peut aussi vous conseiller.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de l’administration fiscale

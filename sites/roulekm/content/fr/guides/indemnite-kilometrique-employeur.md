@@ -338,6 +338,9 @@ de fonction ni des travailleurs indépendants, et il ne dit pas si une somme vou
   situation ;
 - **vous êtes micro-entrepreneur** : notre guide sur [les frais de déplacement en auto-entrepreneur](/guides/auto-entrepreneur-frais-de-deplacement/) explique
   pourquoi ces frais ne se déduisent pas sous le régime micro et comment les facturer à un client ;
+- **vous êtes indépendant au régime réel ou dirigeant de société** : notre guide sur [les frais kilométriques en
+  entreprise](/guides/frais-kilometriques-entreprise/) explique le barème en BNC, les frais réels en BIC et les
+  indemnités versées par une société à son dirigeant ;
 - un professionnel peut aussi vous conseiller.
 
 *Ce guide donne une information générale à la date indiquée ; il ne remplace pas l’avis de votre employeur, de
