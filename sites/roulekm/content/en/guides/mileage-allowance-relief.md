@@ -356,6 +356,9 @@ A tax year runs from 6 April to 5 April. These are the rates in section 230 of t
 These are the rates HMRC published, checked on 14 November 2026. For the 2027 to 2028 tax year, check HMRC's
 "Travel — mileage and fuel rates and allowances" page.
 
+Every HMRC rate per mile, with passengers, National Insurance and company cars, is listed in
+[HMRC mileage rates for every vehicle and case](/en/guides/hmrc-mileage-rates/).
+
 ## How the relief is worked out
 
 HMRC's manual works it out like this, separately for each kind of vehicle:

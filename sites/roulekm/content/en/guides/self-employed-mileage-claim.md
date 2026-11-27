@@ -405,6 +405,9 @@ gov.uk has a simplified expenses checker that compares what you could claim each
 These are the rates on gov.uk and in the Act, checked on 17 November 2026. For the 2027 to 2028 tax year, check gov.uk's
 simplified expenses page.
 
+The rates for employees, bicycles and passengers sit next to these in
+[HMRC mileage rates for every vehicle and case](/en/guides/hmrc-mileage-rates/).
+
 ## Worked example: the 2025 to 2026 tax year
 
 A fictional example, to show HMRC's method. A sole trader whose accounts run from 6 April to 5 April uses the flat rate

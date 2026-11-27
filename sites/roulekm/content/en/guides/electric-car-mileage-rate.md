@@ -280,6 +280,7 @@ same for an electric car as for a petrol or diesel one:
 
 The 55p is in section 230 of the Act, for the 2026 to 2027 tax year and later years, and on HMRC's rates pages, checked
 on 18 November 2026. For the 2027 to 2028 tax year, check HMRC's "Travel — mileage and fuel rates and allowances" page.
+The rates for motorcycles, bicycles and passengers are in [HMRC mileage rates for every vehicle and case](/en/guides/hmrc-mileage-rates/).
 
 ### Example: your own electric car, 2026 to 2027
 
