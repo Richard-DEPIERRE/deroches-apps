@@ -262,7 +262,8 @@ The two rates, an example of each, hybrids, and the records to keep are below.
 ## Your own electric car: the approved mileage rates
 
 When you use your own car for work and your employer pays you per mile (a "mileage allowance payment"), the most it can
-pay without tax is the **approved amount**: your business miles in the tax year × the approved rate. The rate is the
+pay without tax is the **approved amount**: your business miles in the tax year × the approved rate. The claim itself,
+journey by journey, is in [how a mileage claim to your employer works](/en/guides/mileage-claim/). The rate is the
 same for an electric car as for a petrol or diesel one:
 
 | Car or van (electric, hybrid, petrol or diesel) | 2026 to 2027 tax year (from 6 April 2026) | Up to 2025 to 2026 |

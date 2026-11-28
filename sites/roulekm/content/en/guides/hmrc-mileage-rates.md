@@ -323,7 +323,8 @@ The same pence per mile are used in several ways, depending on who is paying and
 What an employer pays you for business journeys in your own car, van, motorcycle or bicycle is a **mileage allowance
 payment**. Up to the **approved amount** (your business miles in the tax year × the rate for that kind of vehicle),
 there is no tax on it and nothing for the employer to report to HMRC. If it pays more, gov.uk says the employer either
-reports the excess on form P11D, or adds it to your pay and takes tax off as normal.
+reports the excess on form P11D, or adds it to your pay and takes tax off as normal. What goes on the claim you send
+your employer is in [how to make a mileage claim to your employer](/en/guides/mileage-claim/).
 
 If your employer pays less than the approved amount, or nothing, you can get **mileage allowance relief** on the
 difference. How it's worked out and claimed is in the guide to

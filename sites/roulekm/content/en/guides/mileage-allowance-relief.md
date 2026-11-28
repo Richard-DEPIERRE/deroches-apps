@@ -326,6 +326,9 @@ when both of these apply:
 - the mileage allowance payments their employer made for that kind of vehicle in the tax year add up to **less than
   the approved amount**.
 
+How employees claim those miles from their employer in the first place is in
+[the guide to a mileage claim to your employer](/en/guides/mileage-claim/).
+
 There is no relief for a journey made as a passenger, or in a company vehicle. The approved rate is meant to cover the
 whole cost of owning and running the vehicle: gov.uk says fuel, electricity, vehicle tax, MOTs and repairs can't be
 claimed separately, and HMRC's Employment Income Manual (EIM31330) says actual costs are not an alternative.
