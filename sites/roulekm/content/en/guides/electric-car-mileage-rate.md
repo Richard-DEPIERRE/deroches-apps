@@ -1,10 +1,10 @@
 ---
 title: 'HMRC electric car mileage rate: own car or company car'
-description: 'Electric car mileage rates from HMRC: 55p a mile for your own EV in 2026 to 2027, or the quarterly advisory electric rate for a company car, with examples.'
+description: 'Electric car mileage rates from HMRC: 55p a mile for your own EV in 2026 to 2027, or for a company car 7p (home) and 15p (public) from 1 December 2026.'
 translation: electric-car-mileage-rate
 type: guide
 published: 2026-11-19
-updated: 2026-11-19
+updated: 2026-11-28
 factCheck: DAPP-367
 download: For your own car, Roulekm keeps a dated log of each business trip and totals it at HMRC's approved rates.
 related: [mileage-allowance-relief, self-employed-mileage-claim]
@@ -12,8 +12,8 @@ sources:
   - title: 'Advisory fuel rates'
     publisher: GOV.UK (HM Revenue & Customs guidance)
     url: https://www.gov.uk/guidance/advisory-fuel-rates
-    source_date: 2026-08-21 (last updated, "The advisory fuel rates from 1 September 2026 have been added"); content item 2026-10-19
-    read: 2026-11-18
+    source_date: 2026-11-18 (last updated, "The advisory fuel rates from 1 December 2026 have been added")
+    read: 2026-11-28
     supports: >-
       "These rates only apply to employees using a company car. Use the rates when you either: reimburse employees for
       business travel in their company cars; need employees to repay the cost of fuel used for private travel. You must
@@ -28,19 +28,20 @@ sources:
       repay you for fuel used for private travel." "HMRC reviews rates quarterly on: 1 March; 1 June; 1 September;
       1 December". Electric: the home rate from the DESNZ pence per kWh "uprated by the quarterly Office for National
       Statistics' Consumer Prices Index for electricity"; the public rate from "the Zapmap Price Index" for "slow or fast
-      chargers (charging speed less than 50 kilowatts)". "From 1 September 2026 the advisory electric rates for fully
+      chargers (charging speed less than 50 kilowatts)". "From 1 December 2026 the advisory electric rates for fully
       electric cars will be: 7 pence per mile for home charging; 15 pence per mile for public charging" (home 3.59 miles
-      per kWh, 24.47p per kWh, 6.81p a mile; public 3.59, 54.00p, 15.02p). "For journeys where a company car is charged
+      per kWh, 25.94p per kWh, 7.22p a mile; public 3.59, 54.00p, 15.02p). "For journeys where a company car is charged
       at both public and residential locations, you can apportion the mileage based on how much charging happens at
       each place. The apportionment calculation should be fair and reasonable." "A higher amount than the advisory rates
       can be used as long as you can show that the fuel cost per mile is higher." "Hybrid cars are treated as either
       petrol or diesel cars for advisory fuel rates." "You can use the previous rates for up to 1 month from the date any
-      new rates apply." Table "From 1 June 2026 to 31 August 2026": home charger 7 pence, public charger 15 pence.
+      new rates apply." Table "From 1 September 2026 to 30 November 2026": home charger 7 pence, public charger
+      15 pence.
   - title: 'Rates and thresholds for employers 2026 to 2027'
     publisher: GOV.UK (HM Revenue & Customs guidance)
     url: https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027
-    source_date: 2026-09-01 (last updated, "The advisory fuel rates for company cars have been updated")
-    read: 2026-11-18
+    source_date: 2026-09-01 (last updated, "The advisory fuel rates for company cars have been updated"); still shows the rate from 1 September 2026 on 2026-11-28
+    read: 2026-11-28
     supports: >-
       "Company cars: advisory fuel rates. Use advisory fuel rates to work out mileage costs if you provide company cars to
       your employees. These rates apply from 1 September 2026." "Hybrid cars are treated as either petrol or diesel cars
@@ -53,7 +54,7 @@ sources:
     publisher: GOV.UK (HM Revenue & Customs, Expenses and benefits guide 480)
     url: https://www.gov.uk/guidance/taxable-fuel-provided-for-company-cars-and-vans-480-chapter-13
     source_date: 2025-04-07 (last updated)
-    read: 2026-11-18
+    read: 2026-11-28
     supports: >-
       13.13: the advisory fuel rates guidance "makes clear that there's no obligation to use the advisory fuel rates.
       Where employers want to use them, they only apply where employers: reimburse employees for business travel in
@@ -131,10 +132,12 @@ sources:
 # The CE-FACT-CHECK record (apps-fact-check, section 3). Sources are numbered in the order above (1 to 8).
 # Independence: for the approved rates, the Act on legislation.gov.uk (7) is the second source to HMRC's pages (4, 5, 6,
 # 8). For the advisory electric rate, every source (1, 2, 3) is HMRC's, and 2 restates 1: the rate is set and published
-# only by HMRC, so it is a single-origin claim (no independent second source exists).
+# only by HMRC, so it is a single-origin claim (no independent second source exists). The rate from 1 December 2026 is
+# on 1 only: on 2026-11-28, 2 still shows the rate from 1 September 2026 (the same 7p and 15p).
 # Every page was read with curl on 2026-11-18 (www.gov.uk through its content API, www.legislation.gov.uk XML); page
 # dates from the content API (public_updated_at, updated_at, change notes) and the legislation metadata (dc:modified)
-# the same day.
+# the same day. Correction DAPP-495: sources 1, 2 and 3 read again the same way on 2026-11-28, for the rates from
+# 1 December 2026; sources 4 to 8 were not re-read (none of their claims changed).
 # Roulekm claim checked against main at bab1ee1 on 2026-11-18: trips hold date, from, to, "Business purpose" and
 # distance (app_en.arb tripDate, tripFrom, tripTo, tripPurpose); UK vehicles use HMRC approved rates by tax year
 # (uk_us_rates.dart: 2026 = 55p/25p; yearSourceUk "Worked out at HMRC approved mileage rates"); the electric flag only
@@ -181,38 +184,38 @@ citations:
     topic: tax
     period: no figure
     sources: [1, 3]
-    recheck: 2026-12-01
-    checked: 2026-11-18 by content-editor
-  - claim: 'Advisory electric rates for fully electric company cars from 1 September 2026: 7p a mile for home charging, 15p a mile for public charging (the same as from 1 June to 31 August 2026).'
+    recheck: 2027-03-01
+    checked: 2026-11-28 by content-editor
+  - claim: 'Advisory electric rates for fully electric company cars from 1 December 2026: 7p a mile for home charging, 15p a mile for public charging (the same as from 1 September to 30 November 2026). Inputs from 1 December 2026: home 3.59 miles per kWh, 25.94p per kWh, 7.22p a mile; public 3.59 miles per kWh, 54.00p per kWh, 15.02p a mile.'
     topic: tax
-    period: from 1 September 2026 (the quarter to 30 November 2026)
+    period: from 1 December 2026 (HMRC's next quarterly review due 1 March 2027); 1 September to 30 November 2026 for the comparison
     sources: [1, 2]
-    recheck: 2026-12-01 (HMRC's next quarterly review)
-    checked: 2026-11-18 by content-editor
+    recheck: 2027-03-01 (HMRC's next quarterly review)
+    checked: 2026-11-28 by content-editor
   - claim: 'Paying no more than the advisory rate: no taxable profit and no Class 1A National Insurance; a higher rate can be paid where the cost per mile is shown to be higher; otherwise the excess is taxable and counts as earnings for Class 1 National Insurance.'
     topic: tax
     period: no figure
     sources: [1, 3]
-    recheck: 2026-12-01
-    checked: 2026-11-18 by content-editor
+    recheck: 2027-03-01
+    checked: 2026-11-28 by content-editor
   - claim: 'HMRC reviews the rates quarterly on 1 March, 1 June, 1 September and 1 December; the previous rates can be used for up to 1 month from the date new rates apply; the home rate rests on DESNZ and ONS electricity prices, the public rate on the Zapmap index for chargers under 50 kW.'
     topic: tax
     period: no figure
     sources: [1]
-    recheck: 2026-12-01
-    checked: 2026-11-18 by content-editor
+    recheck: 2027-03-01
+    checked: 2026-11-28 by content-editor
   - claim: 'A company car charged at both public and home locations: the mileage can be apportioned by how much charging happens at each place, fairly and reasonably.'
     topic: tax
     period: no figure
     sources: [1]
-    recheck: 2026-12-01
-    checked: 2026-11-18 by content-editor
+    recheck: 2027-03-01
+    checked: 2026-11-28 by content-editor
   - claim: 'Hybrid cars are treated as petrol or diesel cars for the advisory fuel rates.'
     topic: tax
     period: no figure
     sources: [1, 2]
-    recheck: 2026-12-01
-    checked: 2026-11-18 by content-editor
+    recheck: 2027-03-01
+    checked: 2026-11-28 by content-editor
   - claim: 'HMRC: "Electricity is not a fuel for car fuel benefit purposes."'
     topic: tax
     period: 2026-27 tax year
@@ -252,10 +255,11 @@ The mileage rate for an electric car depends on whose car it is.
   tax year** (6 April 2026 to 5 April 2027; it was 45p before 6 April 2026), then **25p a mile**. An employer can pay up
   to the resulting approved amount (business miles × the rate) each tax year without reporting it to HMRC or taking
   tax off it.
-- **A company electric car**: HMRC's **advisory electric rate**. From 1 September 2026 it is **7p a mile for home
-  charging and 15p a mile for public charging**. In gov.uk's words, if the rate an employer pays for business miles "is
-  no higher than the advisory fuel rates", "there will be no taxable profit and no Class 1A National Insurance to pay".
-  HMRC reviews the rate every quarter, so check gov.uk's "Advisory fuel rates" page for the latest.
+- **A company electric car**: HMRC's **advisory electric rate**. From 1 December 2026 it is **7p a mile for home
+  charging and 15p a mile for public charging**, the same as from 1 September 2026. In gov.uk's words, if the rate an
+  employer pays for business miles "is no higher than the advisory fuel rates", "there will be no taxable profit and no
+  Class 1A National Insurance to pay". HMRC reviews the rate every quarter (the next review is due on 1 March 2027), so
+  check gov.uk's "Advisory fuel rates" page for the latest.
 
 The two rates, an example of each, hybrids, and the records to keep are below.
 
@@ -311,8 +315,8 @@ An employer uses them to:
 
 For fully electric company cars, the rates are:
 
-| Charging location | From 1 September 2026 | 1 June to 31 August 2026 |
-| ----------------- | --------------------: | -----------------------: |
+| Charging location | From 1 December 2026 | 1 September to 30 November 2026 |
+| ----------------- | -------------------: | ------------------------------: |
 | Home charger | 7p a mile | 7p a mile |
 | Public charger | 15p a mile | 15p a mile |
 
@@ -336,13 +340,14 @@ quarter with the electricity part of the Office for National Statistics' Consume
 the Zapmap price index for slow and fast public chargers (under 50 kW).
 gov.uk says the previous rates can be used for up to 1 month from the date new rates apply.
 
-The figures in this guide are for the quarter from 1 September 2026, read on 18 November 2026. The next review is due
-on 1 December 2026: check gov.uk's "Advisory fuel rates" page for the rate in force on the day you need it.
+The figures in this guide are the rates from 1 December 2026, which HMRC published on 18 November 2026, read on
+28 November 2026. HMRC's next quarterly review is due on 1 March 2027: check gov.uk's "Advisory fuel rates" page for
+the rate in force on the day you need it.
 
-### Example: a company electric car, October 2026
+### Example: a company electric car, December 2026
 
-A fictional example, at the rates from 1 September 2026. An employee drives their company electric car 400 business
-miles in October 2026.
+A fictional example, at the rates from 1 December 2026. An employee drives their company electric car 400 business
+miles in December 2026.
 
 | How the car was charged | Working | Amount |
 | ----------------------- | ------- | -----: |
